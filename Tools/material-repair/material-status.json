@@ -1,0 +1,1272 @@
+[
+  {
+    "material": "13 - Default2",
+    "restored": [],
+    "review": [],
+    "status": "no bitmap connection in source"
+  },
+  {
+    "material": "3dmitruk_AR_cover_18",
+    "restored": [
+      {
+        "slot": "_MainTex",
+        "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\3dmitruk_AR_cover_18.jpg"
+      }
+    ],
+    "review": [],
+    "status": "restored"
+  },
+  {
+    "material": "3dmitruk_AR_cover_75",
+    "restored": [
+      {
+        "slot": "_MainTex",
+        "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\3dmitruk_AR_cover_75.jpg"
+      }
+    ],
+    "review": [],
+    "status": "restored"
+  },
+  {
+    "material": "3dmitruk_AR_cover_76",
+    "restored": [
+      {
+        "slot": "_MainTex",
+        "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\3dmitruk_AR_cover_76.jpg"
+      }
+    ],
+    "review": [],
+    "status": "restored"
+  },
+  {
+    "material": "Aluminium Brushed Clean",
+    "restored": [],
+    "review": [
+      {
+        "material": "Aluminium Brushed Clean",
+        "channel": "Bump",
+        "reason": "Height image requires a separate converted normal asset; original image preserved",
+        "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\assets\\f661d4030944.jpg"
+      },
+      {
+        "material": "Aluminium Brushed Clean",
+        "channel": "3dsMax|CoronaMtlPb|texmapReflectGlossiness",
+        "reason": "Corona channel requires shader/packing conversion",
+        "textures": [
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\assets\\d2e611dca1c6.jpg"
+        ]
+      }
+    ],
+    "status": "Corona graph / conversion required"
+  },
+  {
+    "material": "Aluminium Yellow Anodized",
+    "restored": [],
+    "review": [],
+    "status": "Corona graph / conversion required"
+  },
+  {
+    "material": "Brass Satin",
+    "restored": [],
+    "review": [],
+    "status": "Corona graph / conversion required"
+  },
+  {
+    "material": "CRN.MS Bê tông",
+    "restored": [],
+    "review": [],
+    "status": "no bitmap connection in source"
+  },
+  {
+    "material": "CRN.Material #13",
+    "restored": [],
+    "review": [],
+    "status": "no bitmap connection in source"
+  },
+  {
+    "material": "CRN.px 0612008_2",
+    "restored": [],
+    "review": [],
+    "status": "no bitmap connection in source"
+  },
+  {
+    "material": "CRN.px 0612008_3",
+    "restored": [],
+    "review": [],
+    "status": "no bitmap connection in source"
+  },
+  {
+    "material": "CRN.px 0612008_4",
+    "restored": [],
+    "review": [],
+    "status": "no bitmap connection in source"
+  },
+  {
+    "material": "CRN.px 0612020_1",
+    "restored": [],
+    "review": [],
+    "status": "Corona graph / conversion required"
+  },
+  {
+    "material": "Carpet Soft Rug Beige Pattern 1",
+    "restored": [
+      {
+        "slot": "_MainTex",
+        "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\assets\\4c1de2cf743d.jpg"
+      }
+    ],
+    "review": [
+      {
+        "material": "Carpet Soft Rug Beige Pattern 1",
+        "channel": "Bump",
+        "reason": "Height image requires a separate converted normal asset; original image preserved",
+        "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\assets\\d9553a416b8b.jpg"
+      },
+      {
+        "material": "Carpet Soft Rug Beige Pattern 1",
+        "channel": "3dsMax|CoronaMtlPb|texmapDisplace",
+        "reason": "Corona channel requires shader/packing conversion",
+        "textures": [
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\assets\\425234ffa1fe.jpg"
+        ]
+      }
+    ],
+    "status": "restored with conversion limitations"
+  },
+  {
+    "material": "Chrome Clean1",
+    "restored": [],
+    "review": [],
+    "status": "no bitmap connection in source"
+  },
+  {
+    "material": "DOĞRAMA",
+    "restored": [],
+    "review": [
+      {
+        "material": "DOĞRAMA",
+        "channel": "Bump",
+        "reason": "Height image requires a separate converted normal asset; original image preserved",
+        "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\assets\\f661d4030944.jpg"
+      },
+      {
+        "material": "DOĞRAMA",
+        "channel": "3dsMax|CoronaMtlPb|texmapReflectGlossiness",
+        "reason": "Corona channel requires shader/packing conversion",
+        "textures": [
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\assets\\d2e611dca1c6.jpg"
+        ]
+      }
+    ],
+    "status": "Corona graph / conversion required"
+  },
+  {
+    "material": "Fabric Curtain Heavy34",
+    "restored": [
+      {
+        "slot": "_MainTex",
+        "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\assets\\5a4a63361317.jpg"
+      }
+    ],
+    "review": [
+      {
+        "material": "Fabric Curtain Heavy34",
+        "channel": "Bump",
+        "reason": "Height image requires a separate converted normal asset; original image preserved",
+        "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\assets\\89406364b6fb.jpg"
+      },
+      {
+        "material": "Fabric Curtain Heavy34",
+        "channel": "3dsMax|CoronaMtlPb|texmapTranslucency",
+        "reason": "Corona channel requires shader/packing conversion",
+        "textures": [
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\assets\\5a4a63361317.jpg"
+        ]
+      }
+    ],
+    "status": "restored with conversion limitations"
+  },
+  {
+    "material": "Fabric Linen",
+    "restored": [
+      {
+        "slot": "_MainTex",
+        "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\assets\\5a4a63361317.jpg"
+      }
+    ],
+    "review": [
+      {
+        "material": "Fabric Linen",
+        "channel": "Bump",
+        "reason": "Height image requires a separate converted normal asset; original image preserved",
+        "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\assets\\89406364b6fb.jpg"
+      },
+      {
+        "material": "Fabric Linen",
+        "channel": "3dsMax|CoronaMtlPb|texmapOpacity",
+        "reason": "Corona channel requires shader/packing conversion",
+        "textures": [
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\assets\\5a4a63361317.jpg"
+        ]
+      },
+      {
+        "material": "Fabric Linen",
+        "channel": "3dsMax|CoronaMtlPb|texmapTranslucency",
+        "reason": "Corona channel requires shader/packing conversion",
+        "textures": [
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\assets\\5a4a63361317.jpg"
+        ]
+      }
+    ],
+    "status": "restored with conversion limitations"
+  },
+  {
+    "material": "Fabric Velvet Crushed",
+    "restored": [],
+    "review": [
+      {
+        "material": "Fabric Velvet Crushed",
+        "channel": "3dsMax|CoronaMtlPb|texmapDiffuse",
+        "reason": "Multiple image sources / procedural blend",
+        "targets": [
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\assets\\645ce3f9499b.jpg",
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\assets\\eb994ca2e893.jpg"
+        ]
+      },
+      {
+        "material": "Fabric Velvet Crushed",
+        "channel": "3dsMax|CoronaMtlPb|texmapBump",
+        "reason": "Multiple image sources / procedural blend",
+        "targets": [
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\assets\\9d916a7b49dd.jpg",
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\assets\\645ce3f9499b.jpg"
+        ]
+      }
+    ],
+    "status": "Corona graph / conversion required"
+  },
+  {
+    "material": "Fabric Velvet Crushed2",
+    "restored": [],
+    "review": [
+      {
+        "material": "Fabric Velvet Crushed2",
+        "channel": "3dsMax|CoronaMtlPb|texmapDiffuse",
+        "reason": "Multiple image sources / procedural blend",
+        "targets": [
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\assets\\645ce3f9499b.jpg",
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\assets\\eb994ca2e893.jpg"
+        ]
+      },
+      {
+        "material": "Fabric Velvet Crushed2",
+        "channel": "3dsMax|CoronaMtlPb|texmapBump",
+        "reason": "Multiple image sources / procedural blend",
+        "targets": [
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\assets\\9d916a7b49dd.jpg",
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\assets\\645ce3f9499b.jpg"
+        ]
+      }
+    ],
+    "status": "Corona graph / conversion required"
+  },
+  {
+    "material": "Fabric Velvet0",
+    "restored": [
+      {
+        "slot": "_MainTex",
+        "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\assets\\645ce3f9499b.jpg"
+      }
+    ],
+    "review": [
+      {
+        "material": "Fabric Velvet0",
+        "channel": "3dsMax|CoronaMtlPb|texmapBump",
+        "reason": "Multiple image sources / procedural blend",
+        "targets": [
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\assets\\9d916a7b49dd.jpg",
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\assets\\645ce3f9499b.jpg"
+        ]
+      }
+    ],
+    "status": "restored with conversion limitations"
+  },
+  {
+    "material": "Glass 94f",
+    "restored": [],
+    "review": [],
+    "status": "no bitmap connection in source"
+  },
+  {
+    "material": "Glass Clear0",
+    "restored": [],
+    "review": [],
+    "status": "no bitmap connection in source"
+  },
+  {
+    "material": "Glass Safety",
+    "restored": [],
+    "review": [],
+    "status": "no bitmap connection in source"
+  },
+  {
+    "material": "Gold Red",
+    "restored": [],
+    "review": [],
+    "status": "no bitmap connection in source"
+  },
+  {
+    "material": "JianE_Mtl_20201023103059455_1",
+    "restored": [],
+    "review": [],
+    "status": "Corona graph / conversion required"
+  },
+  {
+    "material": "JianE_Mtl_20201023103059455_2",
+    "restored": [],
+    "review": [
+      {
+        "material": "JianE_Mtl_20201023103059455_2",
+        "channel": "3dsMax|CoronaMtlPb|texmapDiffuse",
+        "reason": "Missing file or differing same-name material sources"
+      },
+      {
+        "material": "JianE_Mtl_20201023103059455_2",
+        "channel": "3dsMax|CoronaMtlPb|texmapBump",
+        "reason": "Missing file or differing same-name material sources"
+      },
+      {
+        "material": "JianE_Mtl_20201023103059455_2",
+        "channel": "3dsMax|CoronaMtlPb|texmapReflect",
+        "reason": "Corona channel requires shader/packing conversion",
+        "textures": [
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\JianE_Map_20201023103059239.jpg"
+        ]
+      },
+      {
+        "material": "JianE_Mtl_20201023103059455_2",
+        "channel": "3dsMax|CoronaMtlPb|texmapReflectGlossiness",
+        "reason": "Corona channel requires shader/packing conversion",
+        "textures": [
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\JianE_Map_20201023103059239.jpg"
+        ]
+      }
+    ],
+    "status": "Corona graph / conversion required"
+  },
+  {
+    "material": "JianE_Mtl_20201023103059455_3",
+    "restored": [
+      {
+        "slot": "_MainTex",
+        "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\JianE_Map_20201023103059239.jpg"
+      }
+    ],
+    "review": [
+      {
+        "material": "JianE_Mtl_20201023103059455_3",
+        "channel": "Bump",
+        "reason": "Height image requires a separate converted normal asset; original image preserved",
+        "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\JianE_Map_20201023103059239.jpg"
+      },
+      {
+        "material": "JianE_Mtl_20201023103059455_3",
+        "channel": "3dsMax|CoronaMtlPb|texmapReflect",
+        "reason": "Corona channel requires shader/packing conversion",
+        "textures": [
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\JianE_Map_20201023103059239.jpg"
+        ]
+      },
+      {
+        "material": "JianE_Mtl_20201023103059455_3",
+        "channel": "3dsMax|CoronaMtlPb|texmapReflectGlossiness",
+        "reason": "Corona channel requires shader/packing conversion",
+        "textures": [
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\JianE_Map_20201023103059239.jpg"
+        ]
+      }
+    ],
+    "status": "restored with conversion limitations"
+  },
+  {
+    "material": "JianE_Mtl_20201215201153928_1",
+    "restored": [],
+    "review": [
+      {
+        "material": "JianE_Mtl_20201215201153928_1",
+        "channel": "3dsMax|CoronaMtlPb|texmapDiffuse",
+        "reason": "Rotation or inconsistent UV transforms requires visual conversion"
+      }
+    ],
+    "status": "Corona graph / conversion required"
+  },
+  {
+    "material": "JianE_Mtl_20201215201153928_2",
+    "restored": [],
+    "review": [],
+    "status": "Corona graph / conversion required"
+  },
+  {
+    "material": "JianE_Mtl_20201215201153929_1",
+    "restored": [
+      {
+        "slot": "_MainTex",
+        "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\SXH2020-12-16-ASQ089.jpg"
+      }
+    ],
+    "review": [],
+    "status": "restored"
+  },
+  {
+    "material": "JianE_Mtl_20201215201153930_1",
+    "restored": [
+      {
+        "slot": "_MainTex",
+        "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\SXH2020-12-16-ASQ129.jpg"
+      }
+    ],
+    "review": [],
+    "status": "restored"
+  },
+  {
+    "material": "JianE_Mtl_20201215201153930_2",
+    "restored": [
+      {
+        "slot": "_MainTex",
+        "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\SXH2020-12-16-ASQ090.jpg"
+      }
+    ],
+    "review": [],
+    "status": "restored"
+  },
+  {
+    "material": "List 1",
+    "restored": [
+      {
+        "slot": "_MainTex",
+        "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\List color 1.jpg"
+      }
+    ],
+    "review": [
+      {
+        "material": "List 1",
+        "channel": "3dsMax|CoronaMtlPb|texmapReflectGlossiness",
+        "reason": "Corona channel requires shader/packing conversion",
+        "textures": [
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\List color 1.jpg"
+        ]
+      },
+      {
+        "material": "List 1",
+        "channel": "3dsMax|CoronaMtlPb|texmapTranslucency",
+        "reason": "Corona channel requires shader/packing conversion",
+        "textures": [
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\List color 1.jpg"
+        ]
+      }
+    ],
+    "status": "restored with conversion limitations"
+  },
+  {
+    "material": "List 2",
+    "restored": [
+      {
+        "slot": "_MainTex",
+        "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\List color 2.jpg"
+      }
+    ],
+    "review": [
+      {
+        "material": "List 2",
+        "channel": "3dsMax|CoronaMtlPb|texmapReflectGlossiness",
+        "reason": "Corona channel requires shader/packing conversion",
+        "textures": [
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\List color 2.jpg"
+        ]
+      },
+      {
+        "material": "List 2",
+        "channel": "3dsMax|CoronaMtlPb|texmapTranslucency",
+        "reason": "Corona channel requires shader/packing conversion",
+        "textures": [
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\List color 2.jpg"
+        ]
+      }
+    ],
+    "status": "restored with conversion limitations"
+  },
+  {
+    "material": "List 3",
+    "restored": [],
+    "review": [],
+    "status": "no bitmap connection in source"
+  },
+  {
+    "material": "List 335",
+    "restored": [],
+    "review": [],
+    "status": "no bitmap connection in source"
+  },
+  {
+    "material": "Material #-2147483344",
+    "restored": [],
+    "review": [],
+    "status": "no bitmap connection in source"
+  },
+  {
+    "material": "Material #-2147483387",
+    "restored": [
+      {
+        "slot": "_MainTex",
+        "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\nsr_hound txt_d.jpg"
+      }
+    ],
+    "review": [],
+    "status": "restored"
+  },
+  {
+    "material": "Material #-2147483481",
+    "restored": [
+      {
+        "slot": "_MainTex",
+        "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Me\\28d4315d63a1a6125940c7daf185e629.jpg"
+      }
+    ],
+    "review": [],
+    "status": "restored"
+  },
+  {
+    "material": "Material #-2147483502",
+    "restored": [
+      {
+        "slot": "_MainTex",
+        "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Me\\20220516-2647-noce-rig_main.jpg"
+      }
+    ],
+    "review": [
+      {
+        "material": "Material #-2147483502",
+        "channel": "Bump",
+        "reason": "Height image requires a separate converted normal asset; original image preserved",
+        "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Me\\wood1.jpg"
+      }
+    ],
+    "status": "restored with conversion limitations"
+  },
+  {
+    "material": "Material #-2147483546",
+    "restored": [
+      {
+        "slot": "_MainTex",
+        "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Me\\0ba0ed95bb075289562fe2ad42c1a8eb.jpg"
+      }
+    ],
+    "review": [],
+    "status": "restored"
+  },
+  {
+    "material": "Material #20",
+    "restored": [],
+    "review": [],
+    "status": "no bitmap connection in source"
+  },
+  {
+    "material": "Material #2142146402",
+    "restored": [],
+    "review": [],
+    "status": "no bitmap connection in source"
+  },
+  {
+    "material": "Material #2147460448",
+    "restored": [],
+    "review": [],
+    "status": "no bitmap connection in source"
+  },
+  {
+    "material": "Material #2147475085",
+    "restored": [
+      {
+        "slot": "_MainTex",
+        "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\tham tron1 grey.jpg"
+      }
+    ],
+    "review": [
+      {
+        "material": "Material #2147475085",
+        "channel": "Bump",
+        "reason": "Height image requires a separate converted normal asset; original image preserved",
+        "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\tham tron1 grey.jpg"
+      }
+    ],
+    "status": "restored with conversion limitations"
+  },
+  {
+    "material": "Material #2147483610",
+    "restored": [
+      {
+        "slot": "_MainTex",
+        "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Me\\db5da091ff6a22632d32014aea776d0a.jpg"
+      }
+    ],
+    "review": [],
+    "status": "restored"
+  },
+  {
+    "material": "Material #24",
+    "restored": [],
+    "review": [],
+    "status": "no bitmap connection in source"
+  },
+  {
+    "material": "Material #24442",
+    "restored": [],
+    "review": [
+      {
+        "material": "Material #24442",
+        "channel": "3dsMax|LightMtlPb|texmap",
+        "reason": "Corona channel requires shader/packing conversion",
+        "textures": [
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\Me\\marble tv new.jpg"
+        ]
+      }
+    ],
+    "status": "Corona graph / conversion required"
+  },
+  {
+    "material": "Material #4062313",
+    "restored": [],
+    "review": [],
+    "status": "no bitmap connection in source"
+  },
+  {
+    "material": "Material #4062314",
+    "restored": [],
+    "review": [],
+    "status": "no bitmap connection in source"
+  },
+  {
+    "material": "Material #4062315",
+    "restored": [],
+    "review": [],
+    "status": "no bitmap connection in source"
+  },
+  {
+    "material": "Material #4062316",
+    "restored": [],
+    "review": [],
+    "status": "no bitmap connection in source"
+  },
+  {
+    "material": "Material #4062384",
+    "restored": [],
+    "review": [
+      {
+        "material": "Material #4062384",
+        "channel": "3dsMax|CoronaMtlPb|texmapDiffuse",
+        "reason": "Multiple image sources / procedural blend",
+        "targets": [
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\Me\\marble tv new.jpg",
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\Me\\db5da091ff6a22632d32014aea776d0a.jpg"
+        ]
+      }
+    ],
+    "status": "Corona graph / conversion required"
+  },
+  {
+    "material": "Material #4062572",
+    "restored": [
+      {
+        "slot": "_MainTex",
+        "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Me\\3439733487fecea5c86a76d14e8ceb39.jpg"
+      }
+    ],
+    "review": [],
+    "status": "restored"
+  },
+  {
+    "material": "Minotti_Lawrence Sofa 5_026",
+    "restored": [
+      {
+        "slot": "_MainTex",
+        "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\Books For all furnitures 11x.jpg"
+      }
+    ],
+    "review": [],
+    "status": "restored"
+  },
+  {
+    "material": "Minotti_Lawrence Sofa 5_027",
+    "restored": [
+      {
+        "slot": "_MainTex",
+        "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\Books For all furnitures 3.jpg"
+      }
+    ],
+    "review": [],
+    "status": "restored"
+  },
+  {
+    "material": "Minotti_Lawrence Sofa 5_028",
+    "restored": [
+      {
+        "slot": "_MainTex",
+        "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\Books For all furnitures 2.jpg"
+      }
+    ],
+    "review": [],
+    "status": "restored"
+  },
+  {
+    "material": "Minotti_Lawrence Sofa 5_029",
+    "restored": [
+      {
+        "slot": "_MainTex",
+        "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\Books For all furnitures 6.jpg"
+      }
+    ],
+    "review": [],
+    "status": "restored"
+  },
+  {
+    "material": "Minotti_Lawrence Sofa 5_030",
+    "restored": [
+      {
+        "slot": "_MainTex",
+        "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\Books For all furnitures 13x.jpg"
+      }
+    ],
+    "review": [],
+    "status": "restored"
+  },
+  {
+    "material": "Minotti_Lawrence Sofa 5_031",
+    "restored": [
+      {
+        "slot": "_MainTex",
+        "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\Books For all furnitures 3.jpg"
+      }
+    ],
+    "review": [],
+    "status": "restored"
+  },
+  {
+    "material": "Minotti_Lawrence Sofa 5_032",
+    "restored": [
+      {
+        "slot": "_MainTex",
+        "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\Books For all furnitures 2.jpg"
+      }
+    ],
+    "review": [],
+    "status": "restored"
+  },
+  {
+    "material": "Minotti_Lawrence Sofa 5_033",
+    "restored": [
+      {
+        "slot": "_MainTex",
+        "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\Books For all furnitures 6.jpg"
+      }
+    ],
+    "review": [],
+    "status": "restored"
+  },
+  {
+    "material": "Minotti_Lawrence Sofa 5_034",
+    "restored": [
+      {
+        "slot": "_MainTex",
+        "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\Books For all furnitures 13x.jpg"
+      }
+    ],
+    "review": [],
+    "status": "restored"
+  },
+  {
+    "material": "Minotti_Lawrence Sofa 5_038",
+    "restored": [],
+    "review": [],
+    "status": "no bitmap connection in source"
+  },
+  {
+    "material": "Minotti_Lawrence Sofa 5_048",
+    "restored": [],
+    "review": [],
+    "status": "no bitmap connection in source"
+  },
+  {
+    "material": "Minotti_Lawrence Sofa 5_050",
+    "restored": [],
+    "review": [],
+    "status": "Corona graph / conversion required"
+  },
+  {
+    "material": "Minotti_Lawrence Sofa 5_052",
+    "restored": [
+      {
+        "slot": "_MainTex",
+        "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\nsr_lawrence sofa_fbr d1.jpg"
+      }
+    ],
+    "review": [],
+    "status": "restored"
+  },
+  {
+    "material": "Minotti_White Sofa_069",
+    "restored": [],
+    "review": [
+      {
+        "material": "Minotti_White Sofa_069",
+        "channel": "3dsMax|CoronaMtlPb|texmapDiffuse",
+        "reason": "Multiple image sources / procedural blend",
+        "targets": [
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\nsr_lwrnn_vlvt_txt color_1.jpg",
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\nsr_lwrnn_vlvt_txt color_1a.jpg"
+        ]
+      }
+    ],
+    "status": "Corona graph / conversion required"
+  },
+  {
+    "material": "Napkin 13",
+    "restored": [
+      {
+        "slot": "_MainTex",
+        "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\Menu k1.jpg"
+      },
+      {
+        "slot": "_BumpMap",
+        "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\Textile Normal N.jpg"
+      }
+    ],
+    "review": [],
+    "status": "restored"
+  },
+  {
+    "material": "Napkin 3",
+    "restored": [
+      {
+        "slot": "_MainTex",
+        "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\Textile Cot.jpg"
+      },
+      {
+        "slot": "_BumpMap",
+        "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\Textile Normal N.jpg"
+      }
+    ],
+    "review": [],
+    "status": "restored"
+  },
+  {
+    "material": "Napkin 5",
+    "restored": [
+      {
+        "slot": "_MainTex",
+        "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\Menu k2.jpg"
+      }
+    ],
+    "review": [],
+    "status": "restored"
+  },
+  {
+    "material": "PVC Black Glossy",
+    "restored": [],
+    "review": [],
+    "status": "Corona graph / conversion required"
+  },
+  {
+    "material": "PVC Black Glossy0",
+    "restored": [],
+    "review": [],
+    "status": "Corona graph / conversion required"
+  },
+  {
+    "material": "PVC Black Glossy1",
+    "restored": [],
+    "review": [],
+    "status": "Corona graph / conversion required"
+  },
+  {
+    "material": "PVC Black Glossy2",
+    "restored": [],
+    "review": [],
+    "status": "Corona graph / conversion required"
+  },
+  {
+    "material": "PVC Black Glossy23",
+    "restored": [],
+    "review": [],
+    "status": "Corona graph / conversion required"
+  },
+  {
+    "material": "PVC White Matte0",
+    "restored": [],
+    "review": [],
+    "status": "Corona graph / conversion required"
+  },
+  {
+    "material": "PVC White Matte03",
+    "restored": [],
+    "review": [],
+    "status": "Corona graph / conversion required"
+  },
+  {
+    "material": "PVC White Matte2",
+    "restored": [],
+    "review": [],
+    "status": "Corona graph / conversion required"
+  },
+  {
+    "material": "PVC White Matte4",
+    "restored": [],
+    "review": [],
+    "status": "Corona graph / conversion required"
+  },
+  {
+    "material": "Pampas 10",
+    "restored": [
+      {
+        "slot": "_MainTex",
+        "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\Marble 291.jpg"
+      }
+    ],
+    "review": [],
+    "status": "restored"
+  },
+  {
+    "material": "Pampas 11",
+    "restored": [],
+    "review": [
+      {
+        "material": "Pampas 11",
+        "channel": "3dsMax|CoronaMtlPb|texmapOpacity",
+        "reason": "Corona channel requires shader/packing conversion",
+        "textures": [
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\Lagurus Opacity 1.jpg"
+        ]
+      }
+    ],
+    "status": "Corona graph / conversion required"
+  },
+  {
+    "material": "Pampas 12",
+    "restored": [],
+    "review": [],
+    "status": "no bitmap connection in source"
+  },
+  {
+    "material": "Pampas 165",
+    "restored": [],
+    "review": [],
+    "status": "no bitmap connection in source"
+  },
+  {
+    "material": "Pampas 3",
+    "restored": [],
+    "review": [],
+    "status": "no bitmap connection in source"
+  },
+  {
+    "material": "Pampas 4",
+    "restored": [
+      {
+        "slot": "_MainTex",
+        "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\Texture Tis 3.jpg"
+      }
+    ],
+    "review": [],
+    "status": "restored"
+  },
+  {
+    "material": "Pampas 5",
+    "restored": [],
+    "review": [],
+    "status": "no bitmap connection in source"
+  },
+  {
+    "material": "Pampas 6",
+    "restored": [],
+    "review": [],
+    "status": "no bitmap connection in source"
+  },
+  {
+    "material": "Pampas 7",
+    "restored": [],
+    "review": [],
+    "status": "no bitmap connection in source"
+  },
+  {
+    "material": "Pampas 8",
+    "restored": [],
+    "review": [],
+    "status": "no bitmap connection in source"
+  },
+  {
+    "material": "Pampas 9",
+    "restored": [
+      {
+        "slot": "_MainTex",
+        "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\Tree Cora.jpg"
+      }
+    ],
+    "review": [],
+    "status": "restored"
+  },
+  {
+    "material": "Pampas opasity_",
+    "restored": [],
+    "review": [
+      {
+        "material": "Pampas opasity_",
+        "channel": "3dsMax|CoronaMtlPb|texmapOpacity",
+        "reason": "Corona channel requires shader/packing conversion",
+        "textures": [
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\Pampas Opacity.jpg"
+        ]
+      }
+    ],
+    "status": "Corona graph / conversion required"
+  },
+  {
+    "material": "Plastic Glass Frost",
+    "restored": [],
+    "review": [],
+    "status": "no bitmap connection in source"
+  },
+  {
+    "material": "Plastic Grey",
+    "restored": [],
+    "review": [],
+    "status": "Corona graph / conversion required"
+  },
+  {
+    "material": "Plate 3",
+    "restored": [],
+    "review": [
+      {
+        "material": "Plate 3",
+        "channel": "3dsMax|CoronaMtlPb|texmapReflect",
+        "reason": "Corona channel requires shader/packing conversion",
+        "textures": [
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\Dirt Texture map 7.jpg"
+        ]
+      },
+      {
+        "material": "Plate 3",
+        "channel": "3dsMax|CoronaMtlPb|texmapReflectGlossiness",
+        "reason": "Corona channel requires shader/packing conversion",
+        "textures": [
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\Dirt Texture map 7.jpg"
+        ]
+      }
+    ],
+    "status": "Corona graph / conversion required"
+  },
+  {
+    "material": "Tis 13",
+    "restored": [
+      {
+        "slot": "_MainTex",
+        "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\Texture Tis 1.jpg"
+      }
+    ],
+    "review": [
+      {
+        "material": "Tis 13",
+        "channel": "3dsMax|CoronaMtlPb|texmapOpacity",
+        "reason": "Corona channel requires shader/packing conversion",
+        "textures": [
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\Texture Tis 2.jpg"
+        ]
+      },
+      {
+        "material": "Tis 13",
+        "channel": "3dsMax|CoronaMtlPb|texmapTranslucency",
+        "reason": "Corona channel requires shader/packing conversion",
+        "textures": [
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\Texture Tis 1.jpg"
+        ]
+      }
+    ],
+    "status": "restored with conversion limitations"
+  },
+  {
+    "material": "WALL",
+    "restored": [],
+    "review": [],
+    "status": "Corona graph / conversion required"
+  },
+  {
+    "material": "WALL LIGHT",
+    "restored": [],
+    "review": [],
+    "status": "no bitmap connection in source"
+  },
+  {
+    "material": "WALL23",
+    "restored": [],
+    "review": [],
+    "status": "Corona graph / conversion required"
+  },
+  {
+    "material": "Wine White",
+    "restored": [],
+    "review": [],
+    "status": "no bitmap connection in source"
+  },
+  {
+    "material": "ZEMİN",
+    "restored": [
+      {
+        "slot": "_MainTex",
+        "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Me\\bedroom tile.jpg"
+      }
+    ],
+    "review": [],
+    "status": "restored"
+  },
+  {
+    "material": "black1",
+    "restored": [],
+    "review": [],
+    "status": "Corona graph / conversion required"
+  },
+  {
+    "material": "black12",
+    "restored": [],
+    "review": [],
+    "status": "Corona graph / conversion required"
+  },
+  {
+    "material": "button",
+    "restored": [],
+    "review": [
+      {
+        "material": "button",
+        "channel": "3dsMax|CoronaMtlPb|texmapReflect",
+        "reason": "Corona channel requires shader/packing conversion",
+        "textures": [
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\mpm_vol.10_p02_button_refl.JPG"
+        ]
+      }
+    ],
+    "status": "Corona graph / conversion required"
+  },
+  {
+    "material": "chrome",
+    "restored": [],
+    "review": [],
+    "status": "no bitmap connection in source"
+  },
+  {
+    "material": "cooktop",
+    "restored": [
+      {
+        "slot": "_MainTex",
+        "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\mpm_vol.10_p02_5_areas_diff.JPG"
+      }
+    ],
+    "review": [],
+    "status": "restored"
+  },
+  {
+    "material": "de#76sssưe",
+    "restored": [],
+    "review": [],
+    "status": "no bitmap connection in source"
+  },
+  {
+    "material": "eee30115",
+    "restored": [],
+    "review": [],
+    "status": "Corona graph / conversion required"
+  },
+  {
+    "material": "frame",
+    "restored": [],
+    "review": [
+      {
+        "material": "frame",
+        "channel": "3dsMax|CoronaMtlPb|texmapReflect",
+        "reason": "Corona channel requires shader/packing conversion",
+        "textures": [
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\mpm_vol.10_p02_frame_refl.JPG"
+        ]
+      }
+    ],
+    "status": "Corona graph / conversion required"
+  },
+  {
+    "material": "glass",
+    "restored": [],
+    "review": [
+      {
+        "material": "glass",
+        "channel": "3dsMax|CoronaMtlPb|texmapReflect",
+        "reason": "Corona channel requires shader/packing conversion",
+        "textures": [
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\mpm_vol.10_p15_glass_mask.JPG"
+        ]
+      },
+      {
+        "material": "glass",
+        "channel": "3dsMax|CoronaMtlPb|texmapRefract",
+        "reason": "Corona channel requires shader/packing conversion",
+        "textures": [
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\mpm_vol.10_p15_glass_mask.JPG"
+        ]
+      }
+    ],
+    "status": "Corona graph / conversion required"
+  },
+  {
+    "material": "interior 1",
+    "restored": [],
+    "review": [
+      {
+        "material": "interior 1",
+        "channel": "Bump",
+        "reason": "Height image requires a separate converted normal asset; original image preserved",
+        "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\mpm_vol.10_p15_interior_bump.JPG"
+      },
+      {
+        "material": "interior 1",
+        "channel": "3dsMax|CoronaMtlPb|texmapOpacity",
+        "reason": "Corona channel requires shader/packing conversion",
+        "textures": [
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\mpm_vol.10_p15_interior_mask.JPG"
+        ]
+      }
+    ],
+    "status": "Corona graph / conversion required"
+  },
+  {
+    "material": "interior 2",
+    "restored": [],
+    "review": [],
+    "status": "no bitmap connection in source"
+  },
+  {
+    "material": "panel",
+    "restored": [
+      {
+        "slot": "_MainTex",
+        "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\mpm_vol.10_p15_panel_diff.JPG"
+      }
+    ],
+    "review": [],
+    "status": "restored"
+  },
+  {
+    "material": "wall",
+    "restored": [],
+    "review": [],
+    "status": "Corona graph / conversion required"
+  },
+  {
+    "material": "wire_115115115",
+    "restored": [],
+    "review": [],
+    "status": "no bitmap connection in source"
+  }
+]

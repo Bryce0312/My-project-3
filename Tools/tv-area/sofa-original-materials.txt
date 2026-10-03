@@ -1,0 +1,4 @@
+Assets/Scenes/Models/Apartment/Textures/Fabric Velvet0.mat
+Assets/Scenes/Models/Apartment/Textures/Minotti_Lawrence Sofa 5_052.mat
+Assets/Scenes/Models/Apartment/Textures/Material #-2147483344.mat
+Assets/Scenes/Models/Apartment/Textures/Fabric Velvet Crushed.mat

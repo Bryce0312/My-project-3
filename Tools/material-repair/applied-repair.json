@@ -1,0 +1,854 @@
+{
+  "summary": {
+    "materials": 40,
+    "bindings": 42,
+    "files": 41,
+    "skipped": [
+      {
+        "material": "Aluminium Brushed Clean",
+        "channel": "Bump",
+        "reason": "Height image requires a separate converted normal asset; original image preserved",
+        "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\assets\\f661d4030944.jpg"
+      },
+      {
+        "material": "Aluminium Brushed Clean",
+        "channel": "3dsMax|CoronaMtlPb|texmapReflectGlossiness",
+        "reason": "Corona channel requires shader/packing conversion",
+        "textures": [
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\assets\\d2e611dca1c6.jpg"
+        ]
+      },
+      {
+        "material": "Carpet Soft Rug Beige Pattern 1",
+        "channel": "Bump",
+        "reason": "Height image requires a separate converted normal asset; original image preserved",
+        "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\assets\\d9553a416b8b.jpg"
+      },
+      {
+        "material": "Carpet Soft Rug Beige Pattern 1",
+        "channel": "3dsMax|CoronaMtlPb|texmapDisplace",
+        "reason": "Corona channel requires shader/packing conversion",
+        "textures": [
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\assets\\425234ffa1fe.jpg"
+        ]
+      },
+      {
+        "material": "DOĞRAMA",
+        "channel": "Bump",
+        "reason": "Height image requires a separate converted normal asset; original image preserved",
+        "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\assets\\f661d4030944.jpg"
+      },
+      {
+        "material": "DOĞRAMA",
+        "channel": "3dsMax|CoronaMtlPb|texmapReflectGlossiness",
+        "reason": "Corona channel requires shader/packing conversion",
+        "textures": [
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\assets\\d2e611dca1c6.jpg"
+        ]
+      },
+      {
+        "material": "Fabric Curtain Heavy34",
+        "channel": "Bump",
+        "reason": "Height image requires a separate converted normal asset; original image preserved",
+        "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\assets\\89406364b6fb.jpg"
+      },
+      {
+        "material": "Fabric Curtain Heavy34",
+        "channel": "3dsMax|CoronaMtlPb|texmapTranslucency",
+        "reason": "Corona channel requires shader/packing conversion",
+        "textures": [
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\assets\\5a4a63361317.jpg"
+        ]
+      },
+      {
+        "material": "Fabric Linen",
+        "channel": "Bump",
+        "reason": "Height image requires a separate converted normal asset; original image preserved",
+        "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\assets\\89406364b6fb.jpg"
+      },
+      {
+        "material": "Fabric Linen",
+        "channel": "3dsMax|CoronaMtlPb|texmapOpacity",
+        "reason": "Corona channel requires shader/packing conversion",
+        "textures": [
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\assets\\5a4a63361317.jpg"
+        ]
+      },
+      {
+        "material": "Fabric Linen",
+        "channel": "3dsMax|CoronaMtlPb|texmapTranslucency",
+        "reason": "Corona channel requires shader/packing conversion",
+        "textures": [
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\assets\\5a4a63361317.jpg"
+        ]
+      },
+      {
+        "material": "Fabric Velvet Crushed",
+        "channel": "3dsMax|CoronaMtlPb|texmapDiffuse",
+        "reason": "Multiple image sources / procedural blend",
+        "targets": [
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\assets\\645ce3f9499b.jpg",
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\assets\\eb994ca2e893.jpg"
+        ]
+      },
+      {
+        "material": "Fabric Velvet Crushed",
+        "channel": "3dsMax|CoronaMtlPb|texmapBump",
+        "reason": "Multiple image sources / procedural blend",
+        "targets": [
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\assets\\9d916a7b49dd.jpg",
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\assets\\645ce3f9499b.jpg"
+        ]
+      },
+      {
+        "material": "Fabric Velvet Crushed2",
+        "channel": "3dsMax|CoronaMtlPb|texmapDiffuse",
+        "reason": "Multiple image sources / procedural blend",
+        "targets": [
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\assets\\645ce3f9499b.jpg",
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\assets\\eb994ca2e893.jpg"
+        ]
+      },
+      {
+        "material": "Fabric Velvet Crushed2",
+        "channel": "3dsMax|CoronaMtlPb|texmapBump",
+        "reason": "Multiple image sources / procedural blend",
+        "targets": [
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\assets\\9d916a7b49dd.jpg",
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\assets\\645ce3f9499b.jpg"
+        ]
+      },
+      {
+        "material": "Fabric Velvet0",
+        "channel": "3dsMax|CoronaMtlPb|texmapBump",
+        "reason": "Multiple image sources / procedural blend",
+        "targets": [
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\assets\\9d916a7b49dd.jpg",
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\assets\\645ce3f9499b.jpg"
+        ]
+      },
+      {
+        "material": "JianE_Mtl_20201023103059455_2",
+        "channel": "3dsMax|CoronaMtlPb|texmapDiffuse",
+        "reason": "Missing file or differing same-name material sources"
+      },
+      {
+        "material": "JianE_Mtl_20201023103059455_2",
+        "channel": "3dsMax|CoronaMtlPb|texmapBump",
+        "reason": "Missing file or differing same-name material sources"
+      },
+      {
+        "material": "JianE_Mtl_20201023103059455_2",
+        "channel": "3dsMax|CoronaMtlPb|texmapReflect",
+        "reason": "Corona channel requires shader/packing conversion",
+        "textures": [
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\JianE_Map_20201023103059239.jpg"
+        ]
+      },
+      {
+        "material": "JianE_Mtl_20201023103059455_2",
+        "channel": "3dsMax|CoronaMtlPb|texmapReflectGlossiness",
+        "reason": "Corona channel requires shader/packing conversion",
+        "textures": [
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\JianE_Map_20201023103059239.jpg"
+        ]
+      },
+      {
+        "material": "JianE_Mtl_20201023103059455_3",
+        "channel": "Bump",
+        "reason": "Height image requires a separate converted normal asset; original image preserved",
+        "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\JianE_Map_20201023103059239.jpg"
+      },
+      {
+        "material": "JianE_Mtl_20201023103059455_3",
+        "channel": "3dsMax|CoronaMtlPb|texmapReflect",
+        "reason": "Corona channel requires shader/packing conversion",
+        "textures": [
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\JianE_Map_20201023103059239.jpg"
+        ]
+      },
+      {
+        "material": "JianE_Mtl_20201023103059455_3",
+        "channel": "3dsMax|CoronaMtlPb|texmapReflectGlossiness",
+        "reason": "Corona channel requires shader/packing conversion",
+        "textures": [
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\JianE_Map_20201023103059239.jpg"
+        ]
+      },
+      {
+        "material": "JianE_Mtl_20201215201153928_1",
+        "channel": "3dsMax|CoronaMtlPb|texmapDiffuse",
+        "reason": "Rotation or inconsistent UV transforms requires visual conversion"
+      },
+      {
+        "material": "List 1",
+        "channel": "3dsMax|CoronaMtlPb|texmapReflectGlossiness",
+        "reason": "Corona channel requires shader/packing conversion",
+        "textures": [
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\List color 1.jpg"
+        ]
+      },
+      {
+        "material": "List 1",
+        "channel": "3dsMax|CoronaMtlPb|texmapTranslucency",
+        "reason": "Corona channel requires shader/packing conversion",
+        "textures": [
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\List color 1.jpg"
+        ]
+      },
+      {
+        "material": "List 2",
+        "channel": "3dsMax|CoronaMtlPb|texmapReflectGlossiness",
+        "reason": "Corona channel requires shader/packing conversion",
+        "textures": [
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\List color 2.jpg"
+        ]
+      },
+      {
+        "material": "List 2",
+        "channel": "3dsMax|CoronaMtlPb|texmapTranslucency",
+        "reason": "Corona channel requires shader/packing conversion",
+        "textures": [
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\List color 2.jpg"
+        ]
+      },
+      {
+        "material": "Material #-2147483502",
+        "channel": "Bump",
+        "reason": "Height image requires a separate converted normal asset; original image preserved",
+        "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Me\\wood1.jpg"
+      },
+      {
+        "material": "Material #2147475085",
+        "channel": "Bump",
+        "reason": "Height image requires a separate converted normal asset; original image preserved",
+        "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\tham tron1 grey.jpg"
+      },
+      {
+        "material": "Material #24442",
+        "channel": "3dsMax|LightMtlPb|texmap",
+        "reason": "Corona channel requires shader/packing conversion",
+        "textures": [
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\Me\\marble tv new.jpg"
+        ]
+      },
+      {
+        "material": "Material #4062384",
+        "channel": "3dsMax|CoronaMtlPb|texmapDiffuse",
+        "reason": "Multiple image sources / procedural blend",
+        "targets": [
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\Me\\marble tv new.jpg",
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\Me\\db5da091ff6a22632d32014aea776d0a.jpg"
+        ]
+      },
+      {
+        "material": "Minotti_White Sofa_069",
+        "channel": "3dsMax|CoronaMtlPb|texmapDiffuse",
+        "reason": "Multiple image sources / procedural blend",
+        "targets": [
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\nsr_lwrnn_vlvt_txt color_1.jpg",
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\nsr_lwrnn_vlvt_txt color_1a.jpg"
+        ]
+      },
+      {
+        "material": "Pampas 11",
+        "channel": "3dsMax|CoronaMtlPb|texmapOpacity",
+        "reason": "Corona channel requires shader/packing conversion",
+        "textures": [
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\Lagurus Opacity 1.jpg"
+        ]
+      },
+      {
+        "material": "Pampas opasity_",
+        "channel": "3dsMax|CoronaMtlPb|texmapOpacity",
+        "reason": "Corona channel requires shader/packing conversion",
+        "textures": [
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\Pampas Opacity.jpg"
+        ]
+      },
+      {
+        "material": "Plate 3",
+        "channel": "3dsMax|CoronaMtlPb|texmapReflect",
+        "reason": "Corona channel requires shader/packing conversion",
+        "textures": [
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\Dirt Texture map 7.jpg"
+        ]
+      },
+      {
+        "material": "Plate 3",
+        "channel": "3dsMax|CoronaMtlPb|texmapReflectGlossiness",
+        "reason": "Corona channel requires shader/packing conversion",
+        "textures": [
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\Dirt Texture map 7.jpg"
+        ]
+      },
+      {
+        "material": "Tis 13",
+        "channel": "3dsMax|CoronaMtlPb|texmapOpacity",
+        "reason": "Corona channel requires shader/packing conversion",
+        "textures": [
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\Texture Tis 2.jpg"
+        ]
+      },
+      {
+        "material": "Tis 13",
+        "channel": "3dsMax|CoronaMtlPb|texmapTranslucency",
+        "reason": "Corona channel requires shader/packing conversion",
+        "textures": [
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\Texture Tis 1.jpg"
+        ]
+      },
+      {
+        "material": "button",
+        "channel": "3dsMax|CoronaMtlPb|texmapReflect",
+        "reason": "Corona channel requires shader/packing conversion",
+        "textures": [
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\mpm_vol.10_p02_button_refl.JPG"
+        ]
+      },
+      {
+        "material": "frame",
+        "channel": "3dsMax|CoronaMtlPb|texmapReflect",
+        "reason": "Corona channel requires shader/packing conversion",
+        "textures": [
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\mpm_vol.10_p02_frame_refl.JPG"
+        ]
+      },
+      {
+        "material": "glass",
+        "channel": "3dsMax|CoronaMtlPb|texmapReflect",
+        "reason": "Corona channel requires shader/packing conversion",
+        "textures": [
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\mpm_vol.10_p15_glass_mask.JPG"
+        ]
+      },
+      {
+        "material": "glass",
+        "channel": "3dsMax|CoronaMtlPb|texmapRefract",
+        "reason": "Corona channel requires shader/packing conversion",
+        "textures": [
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\mpm_vol.10_p15_glass_mask.JPG"
+        ]
+      },
+      {
+        "material": "interior 1",
+        "channel": "Bump",
+        "reason": "Height image requires a separate converted normal asset; original image preserved",
+        "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\mpm_vol.10_p15_interior_bump.JPG"
+      },
+      {
+        "material": "interior 1",
+        "channel": "3dsMax|CoronaMtlPb|texmapOpacity",
+        "reason": "Corona channel requires shader/packing conversion",
+        "textures": [
+          "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\mpm_vol.10_p15_interior_mask.JPG"
+        ]
+      }
+    ]
+  },
+  "bindings": [
+    {
+      "material": "3dmitruk_AR_cover_18",
+      "materialFile": "Assets\\Scenes\\Models\\Apartment\\Textures\\3dmitruk_AR_cover_18.mat",
+      "slot": "_MainTex",
+      "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\3dmitruk_AR_cover_18.jpg",
+      "guid": "7f17eead342f8d944b5bd7c68ba6ce5c"
+    },
+    {
+      "material": "3dmitruk_AR_cover_75",
+      "materialFile": "Assets\\Scenes\\Models\\Apartment\\Textures\\3dmitruk_AR_cover_75.mat",
+      "slot": "_MainTex",
+      "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\3dmitruk_AR_cover_75.jpg",
+      "guid": "dd56200d2ceb7364cab6c454aa1aaaa9"
+    },
+    {
+      "material": "3dmitruk_AR_cover_76",
+      "materialFile": "Assets\\Scenes\\Models\\Apartment\\Textures\\3dmitruk_AR_cover_76.mat",
+      "slot": "_MainTex",
+      "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\3dmitruk_AR_cover_76.jpg",
+      "guid": "64bef51bd6a9e3f468961659f736055f"
+    },
+    {
+      "material": "Carpet Soft Rug Beige Pattern 1",
+      "materialFile": "Assets\\Scenes\\Models\\Apartment\\Textures\\Carpet Soft Rug Beige Pattern 1.mat",
+      "slot": "_MainTex",
+      "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\assets\\4c1de2cf743d.jpg",
+      "guid": "a38d6cbcdd6807e4a8e2c660380bd168"
+    },
+    {
+      "material": "Fabric Curtain Heavy34",
+      "materialFile": "Assets\\Scenes\\Models\\Apartment\\Textures\\Fabric Curtain Heavy34.mat",
+      "slot": "_MainTex",
+      "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\assets\\5a4a63361317.jpg",
+      "guid": "53d35b88dc516804ca10031fcab95d1f"
+    },
+    {
+      "material": "Fabric Linen",
+      "materialFile": "Assets\\Scenes\\Models\\Apartment\\Textures\\Fabric Linen.mat",
+      "slot": "_MainTex",
+      "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\assets\\5a4a63361317.jpg",
+      "guid": "53d35b88dc516804ca10031fcab95d1f"
+    },
+    {
+      "material": "Fabric Velvet0",
+      "materialFile": "Assets\\Scenes\\Models\\Apartment\\Textures\\Fabric Velvet0.mat",
+      "slot": "_MainTex",
+      "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\assets\\645ce3f9499b.jpg",
+      "guid": "5d169885b25d3054cb3103515b9491c8"
+    },
+    {
+      "material": "JianE_Mtl_20201023103059455_3",
+      "materialFile": "Assets\\Scenes\\Models\\Apartment\\Textures\\JianE_Mtl_20201023103059455_3.mat",
+      "slot": "_MainTex",
+      "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\JianE_Map_20201023103059239.jpg",
+      "guid": "a2d7494650a0bec43a2f1557d38c50f2"
+    },
+    {
+      "material": "JianE_Mtl_20201215201153929_1",
+      "materialFile": "Assets\\Scenes\\Models\\Apartment\\Textures\\JianE_Mtl_20201215201153929_1.mat",
+      "slot": "_MainTex",
+      "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\SXH2020-12-16-ASQ089.jpg",
+      "guid": "e28907bfd4fe05c46be3f143d94b0122"
+    },
+    {
+      "material": "JianE_Mtl_20201215201153930_1",
+      "materialFile": "Assets\\Scenes\\Models\\Apartment\\Textures\\JianE_Mtl_20201215201153930_1.mat",
+      "slot": "_MainTex",
+      "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\SXH2020-12-16-ASQ129.jpg",
+      "guid": "ffc307047565f684787c04332ad47d01"
+    },
+    {
+      "material": "JianE_Mtl_20201215201153930_2",
+      "materialFile": "Assets\\Scenes\\Models\\Apartment\\Textures\\JianE_Mtl_20201215201153930_2.mat",
+      "slot": "_MainTex",
+      "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\SXH2020-12-16-ASQ090.jpg",
+      "guid": "2e50d66e453666443b73ed5668c49e96"
+    },
+    {
+      "material": "List 1",
+      "materialFile": "Assets\\Scenes\\Models\\Apartment\\Textures\\List 1.mat",
+      "slot": "_MainTex",
+      "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\List color 1.jpg",
+      "guid": "4976fd96fa0d787438e725cb21e24876"
+    },
+    {
+      "material": "List 2",
+      "materialFile": "Assets\\Scenes\\Models\\Apartment\\Textures\\List 2.mat",
+      "slot": "_MainTex",
+      "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\List color 2.jpg",
+      "guid": "977800eb4de0f3d4cbdc4ad2b3a60781"
+    },
+    {
+      "material": "Material #-2147483387",
+      "materialFile": "Assets\\Scenes\\Models\\Apartment\\Textures\\Material #-2147483387.mat",
+      "slot": "_MainTex",
+      "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\nsr_hound txt_d.jpg",
+      "guid": "3429d066c07999c4ca85757673f8dcb5"
+    },
+    {
+      "material": "Material #-2147483481",
+      "materialFile": "Assets\\Scenes\\Models\\Apartment\\Textures\\Material #-2147483481.mat",
+      "slot": "_MainTex",
+      "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Me\\28d4315d63a1a6125940c7daf185e629.jpg",
+      "guid": "3a07d4698024ea44a867c9cb020552f0"
+    },
+    {
+      "material": "Material #-2147483502",
+      "materialFile": "Assets\\Scenes\\Models\\Apartment\\Textures\\Material #-2147483502.mat",
+      "slot": "_MainTex",
+      "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Me\\20220516-2647-noce-rig_main.jpg",
+      "guid": "256acdbb08fd33e47aa18d9c635deb40"
+    },
+    {
+      "material": "Material #-2147483546",
+      "materialFile": "Assets\\Scenes\\Models\\Apartment\\Textures\\Material #-2147483546.mat",
+      "slot": "_MainTex",
+      "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Me\\0ba0ed95bb075289562fe2ad42c1a8eb.jpg",
+      "guid": "a5bc728fc830f6947ae5a1c3cb8d3927"
+    },
+    {
+      "material": "Material #2147475085",
+      "materialFile": "Assets\\Scenes\\Models\\Apartment\\Textures\\Material #2147475085.mat",
+      "slot": "_MainTex",
+      "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\tham tron1 grey.jpg",
+      "guid": "22f796e65556852468f3542f39a25c70"
+    },
+    {
+      "material": "Material #2147483610",
+      "materialFile": "Assets\\Scenes\\Models\\Apartment\\Textures\\Material #2147483610.mat",
+      "slot": "_MainTex",
+      "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Me\\db5da091ff6a22632d32014aea776d0a.jpg",
+      "guid": "a0fbe2d6be94f7043b4e535c9261317f"
+    },
+    {
+      "material": "Material #4062572",
+      "materialFile": "Assets\\Scenes\\Models\\Apartment\\Textures\\Material #4062572.mat",
+      "slot": "_MainTex",
+      "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Me\\3439733487fecea5c86a76d14e8ceb39.jpg",
+      "guid": "e7e18d2dd22388e429233c38c2ad307f"
+    },
+    {
+      "material": "Minotti_Lawrence Sofa 5_026",
+      "materialFile": "Assets\\Scenes\\Models\\Apartment\\Textures\\Minotti_Lawrence Sofa 5_026.mat",
+      "slot": "_MainTex",
+      "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\Books For all furnitures 11x.jpg",
+      "guid": "e8a9bdc22d7213947aeebfaf4453cdb9"
+    },
+    {
+      "material": "Minotti_Lawrence Sofa 5_027",
+      "materialFile": "Assets\\Scenes\\Models\\Apartment\\Textures\\Minotti_Lawrence Sofa 5_027.mat",
+      "slot": "_MainTex",
+      "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\Books For all furnitures 3.jpg",
+      "guid": "5cdcb450e1988684fb2542a31091c51f"
+    },
+    {
+      "material": "Minotti_Lawrence Sofa 5_028",
+      "materialFile": "Assets\\Scenes\\Models\\Apartment\\Textures\\Minotti_Lawrence Sofa 5_028.mat",
+      "slot": "_MainTex",
+      "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\Books For all furnitures 2.jpg",
+      "guid": "054331106ec763f4db5a3b85f6c5ff7f"
+    },
+    {
+      "material": "Minotti_Lawrence Sofa 5_029",
+      "materialFile": "Assets\\Scenes\\Models\\Apartment\\Textures\\Minotti_Lawrence Sofa 5_029.mat",
+      "slot": "_MainTex",
+      "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\Books For all furnitures 6.jpg",
+      "guid": "3ca5bc3392db69d43a26ab81ca291302"
+    },
+    {
+      "material": "Minotti_Lawrence Sofa 5_030",
+      "materialFile": "Assets\\Scenes\\Models\\Apartment\\Textures\\Minotti_Lawrence Sofa 5_030.mat",
+      "slot": "_MainTex",
+      "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\Books For all furnitures 13x.jpg",
+      "guid": "4448423c77d4b9641b3134a8066862ac"
+    },
+    {
+      "material": "Minotti_Lawrence Sofa 5_031",
+      "materialFile": "Assets\\Scenes\\Models\\Apartment\\Textures\\Minotti_Lawrence Sofa 5_031.mat",
+      "slot": "_MainTex",
+      "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\Books For all furnitures 3.jpg",
+      "guid": "5cdcb450e1988684fb2542a31091c51f"
+    },
+    {
+      "material": "Minotti_Lawrence Sofa 5_032",
+      "materialFile": "Assets\\Scenes\\Models\\Apartment\\Textures\\Minotti_Lawrence Sofa 5_032.mat",
+      "slot": "_MainTex",
+      "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\Books For all furnitures 2.jpg",
+      "guid": "054331106ec763f4db5a3b85f6c5ff7f"
+    },
+    {
+      "material": "Minotti_Lawrence Sofa 5_033",
+      "materialFile": "Assets\\Scenes\\Models\\Apartment\\Textures\\Minotti_Lawrence Sofa 5_033.mat",
+      "slot": "_MainTex",
+      "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\Books For all furnitures 6.jpg",
+      "guid": "3ca5bc3392db69d43a26ab81ca291302"
+    },
+    {
+      "material": "Minotti_Lawrence Sofa 5_034",
+      "materialFile": "Assets\\Scenes\\Models\\Apartment\\Textures\\Minotti_Lawrence Sofa 5_034.mat",
+      "slot": "_MainTex",
+      "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\Books For all furnitures 13x.jpg",
+      "guid": "4448423c77d4b9641b3134a8066862ac"
+    },
+    {
+      "material": "Minotti_Lawrence Sofa 5_052",
+      "materialFile": "Assets\\Scenes\\Models\\Apartment\\Textures\\Minotti_Lawrence Sofa 5_052.mat",
+      "slot": "_MainTex",
+      "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\nsr_lawrence sofa_fbr d1.jpg",
+      "guid": "ad5d18a938c4e7a40a6edcf2fef1e622"
+    },
+    {
+      "material": "Napkin 13",
+      "materialFile": "Assets\\Scenes\\Models\\Apartment\\Textures\\Napkin 13.mat",
+      "slot": "_MainTex",
+      "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\Menu k1.jpg",
+      "guid": "bd8585e7a2b73d546b7e64809d47a0f0"
+    },
+    {
+      "material": "Napkin 13",
+      "materialFile": "Assets\\Scenes\\Models\\Apartment\\Textures\\Napkin 13.mat",
+      "slot": "_BumpMap",
+      "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\Textile Normal N.jpg",
+      "guid": "e4b1fae3c95e6b94a8a2f4064ce9985e"
+    },
+    {
+      "material": "Napkin 3",
+      "materialFile": "Assets\\Scenes\\Models\\Apartment\\Textures\\Napkin 3.mat",
+      "slot": "_MainTex",
+      "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\Textile Cot.jpg",
+      "guid": "40cf921da861be8408f5e1eb8dcd41b6"
+    },
+    {
+      "material": "Napkin 3",
+      "materialFile": "Assets\\Scenes\\Models\\Apartment\\Textures\\Napkin 3.mat",
+      "slot": "_BumpMap",
+      "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\Textile Normal N.jpg",
+      "guid": "e4b1fae3c95e6b94a8a2f4064ce9985e"
+    },
+    {
+      "material": "Napkin 5",
+      "materialFile": "Assets\\Scenes\\Models\\Apartment\\Textures\\Napkin 5.mat",
+      "slot": "_MainTex",
+      "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\Menu k2.jpg",
+      "guid": "ca3f7ccc4c798f44aab20045e456a435"
+    },
+    {
+      "material": "Pampas 10",
+      "materialFile": "Assets\\Scenes\\Models\\Apartment\\Textures\\Pampas 10.mat",
+      "slot": "_MainTex",
+      "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\Marble 291.jpg",
+      "guid": "9ad852958a4a7894cab9e1eff365f6dc"
+    },
+    {
+      "material": "Pampas 4",
+      "materialFile": "Assets\\Scenes\\Models\\Apartment\\Textures\\Pampas 4.mat",
+      "slot": "_MainTex",
+      "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\Texture Tis 3.jpg",
+      "guid": "421298a35272dc543a8c4841e9df428d"
+    },
+    {
+      "material": "Pampas 9",
+      "materialFile": "Assets\\Scenes\\Models\\Apartment\\Textures\\Pampas 9.mat",
+      "slot": "_MainTex",
+      "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\Tree Cora.jpg",
+      "guid": "14895bbac4fb2a645b61b051c9dc7749"
+    },
+    {
+      "material": "Tis 13",
+      "materialFile": "Assets\\Scenes\\Models\\Apartment\\Textures\\Tis 13.mat",
+      "slot": "_MainTex",
+      "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\Texture Tis 1.jpg",
+      "guid": "9df6ee6519c18934a85b1405663e36b8"
+    },
+    {
+      "material": "ZEMİN",
+      "materialFile": "Assets\\Scenes\\Models\\Apartment\\Textures\\ZEMİN.mat",
+      "slot": "_MainTex",
+      "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Me\\bedroom tile.jpg",
+      "guid": "0b5f3619fe4db5d4297b41e986455e02"
+    },
+    {
+      "material": "cooktop",
+      "materialFile": "Assets\\Scenes\\Models\\Apartment\\Textures\\cooktop.mat",
+      "slot": "_MainTex",
+      "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\mpm_vol.10_p02_5_areas_diff.JPG",
+      "guid": "99613b735743a6f44958426c62ef97c9"
+    },
+    {
+      "material": "panel",
+      "materialFile": "Assets\\Scenes\\Models\\Apartment\\Textures\\panel.mat",
+      "slot": "_MainTex",
+      "texture": "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\mpm_vol.10_p15_panel_diff.JPG",
+      "guid": "1e5e249c39f0d5b41be8796b8a216849"
+    }
+  ],
+  "changes": [
+    {
+      "file": "Assets\\Scenes\\Models\\Apartment\\Textures\\3dmitruk_AR_cover_18.mat",
+      "beforeHash": "a252641ec69f682d03db1849c466c27b031574e9b6f88fd76243f951fdbab5b1",
+      "afterHash": "717c733f43f5edf8893a5acd3dca3b9ad75d343741ff60630bb68ccd5ac01452"
+    },
+    {
+      "file": "Assets\\Scenes\\Models\\Apartment\\Textures\\3dmitruk_AR_cover_75.mat",
+      "beforeHash": "750144bccd49854936c1d95897170dbd9a5cd2613bcbbeebb0b0a8208997ec28",
+      "afterHash": "288f12f4775a8658595a72baa6bdb6310863e4579dc2011e3d74bb980119cf97"
+    },
+    {
+      "file": "Assets\\Scenes\\Models\\Apartment\\Textures\\3dmitruk_AR_cover_76.mat",
+      "beforeHash": "3c0b023601b5a3a47c4368079905f2a474d8d4271174131424b0ec385b5d646f",
+      "afterHash": "769040e5ae2e89e063d65da7f962ccada995d5f8fe743f3e5964940c6b6bb37d"
+    },
+    {
+      "file": "Assets\\Scenes\\Models\\Apartment\\Textures\\Carpet Soft Rug Beige Pattern 1.mat",
+      "beforeHash": "fc9dad3d388e3e74c3022c44e5c31f78a5b866ddb9396f45bf8d4f5df308ce6f",
+      "afterHash": "d64f422efec38c751aa84826486c06e340aaaf13d15b6808ddab40df78e12c17"
+    },
+    {
+      "file": "Assets\\Scenes\\Models\\Apartment\\Textures\\Fabric Curtain Heavy34.mat",
+      "beforeHash": "334e82432d6dddb4dd0ac125406fe57216e3f05d755400cab7e89bd23e4847a3",
+      "afterHash": "cfcd82293dd1ec530c5f6136fc623ab75f8551cdcbe680bb50fd978b6e1c3bba"
+    },
+    {
+      "file": "Assets\\Scenes\\Models\\Apartment\\Textures\\Fabric Linen.mat",
+      "beforeHash": "2baf90e3d264703d20027b8840081048c235a7468fc8ddad2ccfe410de5e2065",
+      "afterHash": "ca57593d7d787838568f74f0ed1162b5408c43293d098c17c580122d22be5433"
+    },
+    {
+      "file": "Assets\\Scenes\\Models\\Apartment\\Textures\\Fabric Velvet0.mat",
+      "beforeHash": "026c0059f21b4256eff0517f9e105107c8775f77c7c29dfcba30c2224629e1dd",
+      "afterHash": "93b1f4744949abbef759f731265968874a81c6c8bc8c26f49693ea40c1bf070c"
+    },
+    {
+      "file": "Assets\\Scenes\\Models\\Apartment\\Textures\\JianE_Mtl_20201023103059455_3.mat",
+      "beforeHash": "a434fca1898e38a6769cd14573e5802fa0ace1d8c5c01eeb3b8d9778072df827",
+      "afterHash": "271a10e1030a3874cdb474b227205834ab24723720098b1390c19a0996f7bfc6"
+    },
+    {
+      "file": "Assets\\Scenes\\Models\\Apartment\\Textures\\JianE_Mtl_20201215201153929_1.mat",
+      "beforeHash": "f91818acb245816a19853c686aefef20593a5f77dc60d6c04b8dc3e490b4f0d6",
+      "afterHash": "65de99d7878eab80d5fbfd76e82eed82c4178684906b48c9bbf6b55ba79948c8"
+    },
+    {
+      "file": "Assets\\Scenes\\Models\\Apartment\\Textures\\JianE_Mtl_20201215201153930_1.mat",
+      "beforeHash": "72fa30d23dc08f8ea164e2d856fa1bdadf2da49ff5d1e4ef38f63f70fa887672",
+      "afterHash": "a3c07e4312fcfa7c51301f14d5f1dadfd6f6bea548f3095598abcd595d5adc8f"
+    },
+    {
+      "file": "Assets\\Scenes\\Models\\Apartment\\Textures\\JianE_Mtl_20201215201153930_2.mat",
+      "beforeHash": "97155ab81a7d6dec8d3cb0e07490f3e65107161148dafdaa1309379850c09b7b",
+      "afterHash": "0eb88eb24be7010818fa69bdb3e3fbfbeca1744c8e5d3927575fb920934e6b2e"
+    },
+    {
+      "file": "Assets\\Scenes\\Models\\Apartment\\Textures\\List 1.mat",
+      "beforeHash": "a380f37332a11ee5378aae909caedd0e9a5cf6204deccbfadc25f4e84f3a3ed3",
+      "afterHash": "062c32165ae1cae8cc475ee9f69cfe8f7be8c424db3088c3e4e5d7807e781544"
+    },
+    {
+      "file": "Assets\\Scenes\\Models\\Apartment\\Textures\\List 2.mat",
+      "beforeHash": "dc5ed4190a60d60692a7f7ee5e12e7a4e5b1c78f59c5ea067b44755c831fd8c1",
+      "afterHash": "9437c98f56a10a1c960c7146a21f8631069de886d404d37856158eb596f1503c"
+    },
+    {
+      "file": "Assets\\Scenes\\Models\\Apartment\\Textures\\Material #-2147483387.mat",
+      "beforeHash": "465b02628b818573ab610447dabfb8179ca5a03bee876f999ce517d20c236c3f",
+      "afterHash": "6074f5cc184c16fac7ecfae4c0d879eb049d08303a7743569e5922681f50a8ef"
+    },
+    {
+      "file": "Assets\\Scenes\\Models\\Apartment\\Textures\\Material #-2147483481.mat",
+      "beforeHash": "ae760b13c89f8c6da49eaa990fac5f1332dc29cb1f2a954660ade4a78c4a5fec",
+      "afterHash": "a67c566dfba19681454388eabbd99f61a4ac95c15778479824fd9d749c309822"
+    },
+    {
+      "file": "Assets\\Scenes\\Models\\Apartment\\Textures\\Material #-2147483502.mat",
+      "beforeHash": "ba93a149561b91a9589e6eadd2b9700b90cfe8e501c8ee8e4c617246bdef043d",
+      "afterHash": "e9d1aa5b54362e1885938bf71031abe65ef7a3fc16a4f4a38b489c10537c17df"
+    },
+    {
+      "file": "Assets\\Scenes\\Models\\Apartment\\Textures\\Material #-2147483546.mat",
+      "beforeHash": "9935e8cfdee7b884e653ac02e0d79afdadaed9950c5277fa8d5fbc350a2c1ea5",
+      "afterHash": "21e40be081b2ba020776caf149b80554789a4938ac6017b88a8ad6a8e9b4690d"
+    },
+    {
+      "file": "Assets\\Scenes\\Models\\Apartment\\Textures\\Material #2147475085.mat",
+      "beforeHash": "87b7ed33f569fce81f87f310372aa03dac5f295154acd9eaca4a1b9963895ad8",
+      "afterHash": "f8185f1267d1f7e7d975758556c63c292c864793b9b2311ef9156fa06b154050"
+    },
+    {
+      "file": "Assets\\Scenes\\Models\\Apartment\\Textures\\Material #2147483610.mat",
+      "beforeHash": "65a3936a7754b18625a5d27167079c1b0b7a09cad68a24dab227d727946283fa",
+      "afterHash": "92731d0dbdbeafff5175416ea45b5c53ef9e9667d0cc86a5aaf57d187fcec1c0"
+    },
+    {
+      "file": "Assets\\Scenes\\Models\\Apartment\\Textures\\Material #4062572.mat",
+      "beforeHash": "7f07ae652aa92fdbcbb795057f8757681e386893d241040566fb9a96b2e5b2b4",
+      "afterHash": "c55b9907ab611011e61f10e970e20d2023a5511bc7291817a66f9e2ca231d9a9"
+    },
+    {
+      "file": "Assets\\Scenes\\Models\\Apartment\\Textures\\Minotti_Lawrence Sofa 5_026.mat",
+      "beforeHash": "3e9f357871cef34b2c431cbb0a4961ceaeeebbb2514c9e5f81018cffcf94955b",
+      "afterHash": "cdf387e97d5674fe95d45f749b77cfaccde1bea97a3c39e22a519d3262654050"
+    },
+    {
+      "file": "Assets\\Scenes\\Models\\Apartment\\Textures\\Minotti_Lawrence Sofa 5_027.mat",
+      "beforeHash": "62b8b83ede208b3e50805e196d5d3fac8a8746ec6cecfb6149fb7482b6e088c3",
+      "afterHash": "b747ab567933661d7f202efff056c863ac74a74f5c318ded830d6921db7d3834"
+    },
+    {
+      "file": "Assets\\Scenes\\Models\\Apartment\\Textures\\Minotti_Lawrence Sofa 5_028.mat",
+      "beforeHash": "3d4befa804c9101d41b9f5ef1e70ed20d5cfe8431eebbee845e9522803990c28",
+      "afterHash": "46f31ff1777be852166fbd7bfbefda46f606fbea2767a70e202d7b51f344dc2f"
+    },
+    {
+      "file": "Assets\\Scenes\\Models\\Apartment\\Textures\\Minotti_Lawrence Sofa 5_029.mat",
+      "beforeHash": "6b9cc3c61acb0477c200f385b38e74bf4818140d911f0ad81591b662aba81847",
+      "afterHash": "ed850415e9589ecb646bd0bb1de284b979740dd86f29ede19a58a48a4a9389bc"
+    },
+    {
+      "file": "Assets\\Scenes\\Models\\Apartment\\Textures\\Minotti_Lawrence Sofa 5_030.mat",
+      "beforeHash": "0be0b42fb96a34cd399c5ad328a52ea9fe64eb7cf6c620b233729751617f07f4",
+      "afterHash": "d4429294a1c09a1ad3c5afd7fd6b7c0704fd22a9b155b2bfc09f78f4d62a3620"
+    },
+    {
+      "file": "Assets\\Scenes\\Models\\Apartment\\Textures\\Minotti_Lawrence Sofa 5_031.mat",
+      "beforeHash": "ab1a0e8277077bdfe78b7257451f6cc85326cd98541947b315b42dc1f1289988",
+      "afterHash": "a2983efcbf0f212ca1c107cf998eadadfff641181c7d8c82c8e74437a0f400c9"
+    },
+    {
+      "file": "Assets\\Scenes\\Models\\Apartment\\Textures\\Minotti_Lawrence Sofa 5_032.mat",
+      "beforeHash": "a00c98dd7500ea3936454c361d169669a15402afdcfb31b5b511faeb7d8a499d",
+      "afterHash": "5759b7a84acf85210385c69cf35ea19e70fb96f0ba8047d63c74d07f8d7885a6"
+    },
+    {
+      "file": "Assets\\Scenes\\Models\\Apartment\\Textures\\Minotti_Lawrence Sofa 5_033.mat",
+      "beforeHash": "4f3ade2784b46a1da87dc9b39baf127148c656e77d4df7dfbc90451d81a59cc4",
+      "afterHash": "7b652d7182b11dbf057718cd6cda2be228f5375203dfa2b7b2200a369c473895"
+    },
+    {
+      "file": "Assets\\Scenes\\Models\\Apartment\\Textures\\Minotti_Lawrence Sofa 5_034.mat",
+      "beforeHash": "de8c26dc3a4caa62bfaaffbe526c7ed2f46ba663d5145e9c7ef7d03693246833",
+      "afterHash": "081fa50ccad4003b87c2c099bc89c122c0808936780501307c2132a7290ae774"
+    },
+    {
+      "file": "Assets\\Scenes\\Models\\Apartment\\Textures\\Minotti_Lawrence Sofa 5_052.mat",
+      "beforeHash": "01d5ddad86b8d79a6d4ec761257ea8c70d4aee5d20c29411e384d3bbb9efe0b5",
+      "afterHash": "55ff2ed13b245bf40364ba68a1d8c07bbec5af2514cd45da7162e86a6001d893"
+    },
+    {
+      "file": "Assets\\Scenes\\Models\\Apartment\\Textures\\Napkin 13.mat",
+      "beforeHash": "f7b97e99c8113453075d2ba9c065744902dc8ab26f212dc96dcecd5f1f4c10d0",
+      "afterHash": "1da74413b449488e2f4d76364c0875e0f645ba9d6b9581d9f40407e30c65d13d"
+    },
+    {
+      "file": "Assets\\Scenes\\Models\\Apartment\\Textures\\Maps\\Textile Normal N.jpg.meta",
+      "beforeHash": "247e62053cbfb7316006001ca279baa04b96d123104c86c91c6da9ee216836b1",
+      "afterHash": "c01ad717ec344a4a6a45f4961e08b3d8dfdb7c63ebfc6a6be84391ca1ef48781"
+    },
+    {
+      "file": "Assets\\Scenes\\Models\\Apartment\\Textures\\Napkin 3.mat",
+      "beforeHash": "5c938e495379f495983adb0f58f20c98ed2ea4c8f8f4b67bb2189c4935873024",
+      "afterHash": "be05dea20fb89f296057828221f54ce8c73e2a5cfbda1c694bb22aa5b76fb8e6"
+    },
+    {
+      "file": "Assets\\Scenes\\Models\\Apartment\\Textures\\Napkin 5.mat",
+      "beforeHash": "24deed4162344021c48866e53c43dd1314b76c99b5203f6da7e2d7483160aac3",
+      "afterHash": "d424c2788136cc0f48ffdb9826b4a3e3e9226655a0b7fbdcae6308ede326e6d1"
+    },
+    {
+      "file": "Assets\\Scenes\\Models\\Apartment\\Textures\\Pampas 10.mat",
+      "beforeHash": "bb9b3f1b02e98f2bfc78de4c9823192f577c2ca1d56d722eb40b3f5b9c20bec5",
+      "afterHash": "df0075e87b659644b67230f65b737e04908149f62bee057ee01b455506fc1c26"
+    },
+    {
+      "file": "Assets\\Scenes\\Models\\Apartment\\Textures\\Pampas 4.mat",
+      "beforeHash": "7c6f1ba156ff588d90ba8bfa2be16dcca86cba0e0d27f0485237c4b1b213e757",
+      "afterHash": "8480c8dc831335053094ca73fcfc6fa0c08316d1554d02536e8688238d98386a"
+    },
+    {
+      "file": "Assets\\Scenes\\Models\\Apartment\\Textures\\Pampas 9.mat",
+      "beforeHash": "c5bbe8257b3a5abe674308675470cba454a8d37e5f206ea1b93353ff3c355788",
+      "afterHash": "690fb392d1e202a518af317db34543885f2f7d0e62038d898b8ccb1e702f3322"
+    },
+    {
+      "file": "Assets\\Scenes\\Models\\Apartment\\Textures\\Tis 13.mat",
+      "beforeHash": "31b2fa072f87b6a82f24dcace030d4c44f70efe8d7978ccf5cf4325b0940ecf0",
+      "afterHash": "20cb1a868fee402214d9c984dbd1b57ccfd5eb237b8844913d12bbfcc65bbe7e"
+    },
+    {
+      "file": "Assets\\Scenes\\Models\\Apartment\\Textures\\ZEMİN.mat",
+      "beforeHash": "5a7a2db64c9744c742cb4e8dca3b532cf97d494651319fd5447bc0c040466784",
+      "afterHash": "b5276f8fd65cdcb155157b0336967e0035af41e48ba0bcc1fcc8bafea2f06c17"
+    },
+    {
+      "file": "Assets\\Scenes\\Models\\Apartment\\Textures\\cooktop.mat",
+      "beforeHash": "7160f7fe0a03516c3e58e89384a0303ca142a1ad613c8038bbf9b907a6cf6896",
+      "afterHash": "937402dc4fe2fbcbf0463351a539173e25d4e32f5af4fc94c49aa84d64e344a9"
+    },
+    {
+      "file": "Assets\\Scenes\\Models\\Apartment\\Textures\\panel.mat",
+      "beforeHash": "a7520f97d11cebb515c8f07d50dfee246065fe65878ffe8958886a56ba4f7bd5",
+      "afterHash": "f7f229c39a26fb40bcbc0242373c63714c684114628251d9ad665dbec7e561e3"
+    }
+  ],
+  "backup": "Backups\\material-repair-2026-10-03T06-28-13-535Z",
+  "verified": true
+}
