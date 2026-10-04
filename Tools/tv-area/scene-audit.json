@@ -551,7 +551,7 @@
                 "Sofa_WarmIvory",
                 "Sofa_WarmIvory",
                 "Material #-2147483344",
-                "Fabric Velvet Crushed"
+                "Sofa_WarmBrown"
             ],
             "center": {
                 "x": -27.25935935974121,
@@ -3813,7 +3813,7 @@
         {
             "path": "VLOGGER'S APARTMENT (FBX)/Object2113134100",
             "materials": [
-                "PVC Black Glossy2"
+                "20220516-2647-noce-rig_main"
             ],
             "center": {
                 "x": -23.608501434326173,
@@ -3942,11 +3942,11 @@
         {
             "path": "VLOGGER'S APARTMENT (FBX)/Rectangle028",
             "materials": [
-                "Material #4062384",
+                "db5da091ff6a22632d32014aea776d0a",
                 "Material #4062572",
                 "WALL 1",
                 "Brass Satin",
-                "PVC Black Glossy2"
+                "20220516-2647-noce-rig_main"
             ],
             "center": {
                 "x": -23.804790496826173,
