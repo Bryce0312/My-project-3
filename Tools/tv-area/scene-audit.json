@@ -712,7 +712,7 @@
         {
             "path": "VLOGGER'S APARTMENT (FBX)/Cylinder082",
             "materials": [
-                "Brass Satin"
+                "glass 1"
             ],
             "center": {
                 "x": -23.747034072875978,
@@ -1174,7 +1174,7 @@
         {
             "path": "VLOGGER'S APARTMENT (FBX)/Group1871013652/Rectangle267",
             "materials": [
-                "Brass Satin"
+                "glass"
             ],
             "center": {
                 "x": -23.737628936767579,
