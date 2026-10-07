@@ -62,6 +62,18 @@ public static class XRSceneClassifier
         "pendant", "chand", "wall light", "ceiling light"
     };
 
+    private static readonly string[] ExactFixedFurnitureNames =
+    {
+        "object2113134037", "box2138775881", "group2146513366", "group2146513367"
+    };
+
+    private static readonly string[] ExactMovableFurnitureNames =
+    {
+        "object2113133998", "object2113134102", "blotches", "group004", "group005",
+        "chamfercyl008", "chamfercyl009", "chamfercyl010", "chamfercyl011", "chamfercyl017",
+        "lenox_004", "lenox_005", "lenox_006", "lenox_007"
+    };
+
     static XRSceneClassifier()
     {
         EditorApplication.delayCall += RunIfRequested;
@@ -148,6 +160,7 @@ public static class XRSceneClassifier
     private static string Classify(Transform item)
     {
         string searchableName = string.Join(" ", item.GetComponentsInChildren<Transform>(true).Select(t => t.name)).ToLowerInvariant();
+        string itemName = item.name.ToLowerInvariant();
 
         if (item.GetComponentInChildren<Light>(true) != null ||
             searchableName.Contains(".target") || searchableName.StartsWith("ies") ||
@@ -156,6 +169,10 @@ public static class XRSceneClassifier
 
         if (ContainsAny(searchableName, LightFixtureWords))
             return CategoryNames[4];
+        if (ExactFixedFurnitureNames.Contains(itemName))
+            return CategoryNames[1];
+        if (ExactMovableFurnitureNames.Contains(itemName))
+            return CategoryNames[2];
         if (ContainsAny(searchableName, ArchitectureWords))
             return CategoryNames[0];
         if (ContainsAny(searchableName, FixedFurnitureWords))

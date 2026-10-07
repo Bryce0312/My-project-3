@@ -13,12 +13,12 @@ TagManager:
   - UI
   - 
   - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
+  - Environment
+  - Furniture
+  - Interactable
+  - Teleport
+  - PlayerBody
+  - SafetyTrigger
   - 
   - 
   - 

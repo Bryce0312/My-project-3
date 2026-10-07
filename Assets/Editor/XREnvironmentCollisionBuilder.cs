@@ -16,6 +16,12 @@ public static class XREnvironmentCollisionBuilder
     private const string ClassificationRequestFileName = "XR_CLASSIFY_SCENE.request";
     private const string CollisionRootName = "XR_Collision";
 
+    private static readonly string[] RedundantWallSources =
+    {
+        "Object2113134074",
+        "Object2113134058"
+    };
+
     static XREnvironmentCollisionBuilder()
     {
         EditorApplication.delayCall += RunIfRequested;
@@ -81,9 +87,11 @@ public static class XREnvironmentCollisionBuilder
         SceneManager.MoveGameObjectToScene(collisionRoot, scene);
         GameObject floorRoot = CreateGroup("COL_Floors", collisionRoot.transform);
         GameObject wallRoot = CreateGroup("COL_Walls", collisionRoot.transform);
+        GameObject windowRoot = CreateGroup("COL_WindowBoundaries", collisionRoot.transform);
 
         List<ProxyRecord> floorRecords = new List<ProxyRecord>();
         List<ProxyRecord> wallRecords = new List<ProxyRecord>();
+        List<ProxyRecord> windowRecords = new List<ProxyRecord>();
         HashSet<string> signatures = new HashSet<string>();
 
         Renderer[] architectureRenderers = architecture.GetComponentsInChildren<Renderer>(true);
@@ -94,18 +102,50 @@ public static class XREnvironmentCollisionBuilder
                 continue;
 
             bool floorCandidate = IsFloor(renderer, bounds, modelBounds);
-            bool wallCandidate = IsWall(bounds);
-            if (!floorCandidate && !wallCandidate)
+            if (floorCandidate)
+            {
+                string signature = Signature(bounds);
+                if (!signatures.Add(signature))
+                    continue;
+                floorRecords.Add(CreateProxy(renderer, bounds, floorRoot.transform, "COL_Floor", 0.08f));
+            }
+        }
+
+        if (floorRecords.Count == 0)
+            throw new InvalidOperationException("No review floor was identified; wall collision was not rebuilt.");
+
+        float reviewFloorSurface = floorRecords.Max(record => record.center.y + record.size.y * 0.5f);
+
+        signatures.Clear();
+        foreach (Renderer renderer in architectureRenderers)
+        {
+            Bounds bounds = renderer.bounds;
+            if (!IsFinite(bounds) || !IsWall(bounds) || RedundantWallSources.Contains(renderer.gameObject.name))
                 continue;
 
+            bounds = ExtendWallToFloor(bounds, reviewFloorSurface);
             string signature = Signature(bounds);
             if (!signatures.Add(signature))
                 continue;
 
-            if (floorCandidate)
-                floorRecords.Add(CreateProxy(renderer, bounds, floorRoot.transform, "COL_Floor", 0.08f));
-            else
-                wallRecords.Add(CreateProxy(renderer, bounds, wallRoot.transform, "COL_Wall", 0.12f));
+            wallRecords.Add(CreateProxy(renderer, bounds, wallRoot.transform, "COL_Wall", 0.12f));
+        }
+
+        Renderer[] upperCurtains = modelRoot.GetComponentsInChildren<Renderer>(true)
+            .Where(renderer => renderer.gameObject.name.StartsWith("CURTAIN", StringComparison.OrdinalIgnoreCase))
+            .Where(renderer => renderer.bounds.center.y > reviewFloorSurface + 1f)
+            .Where(renderer => renderer.bounds.size.y >= 2f && renderer.bounds.size.x >= 1.5f && renderer.bounds.size.z <= 0.4f)
+            .OrderBy(renderer => renderer.bounds.center.x)
+            .ToArray();
+
+        foreach (Renderer curtain in upperCurtains)
+        {
+            Bounds boundary = curtain.bounds;
+            float upperEdge = Mathf.Min(boundary.max.y, modelBounds.max.y);
+            boundary.SetMinMax(
+                new Vector3(boundary.min.x, reviewFloorSurface, boundary.min.z),
+                new Vector3(boundary.max.x, upperEdge, boundary.max.z));
+            windowRecords.Add(CreateProxy(curtain, boundary, windowRoot.transform, "COL_Window", 0.12f));
         }
 
         BoxCollider importedRootCollider = modelRoot.GetComponent<BoxCollider>();
@@ -116,9 +156,10 @@ public static class XREnvironmentCollisionBuilder
         if (!EditorSceneManager.SaveScene(scene))
             throw new IOException("Unity could not save " + ScenePath);
 
-        WriteReport(modelBounds, floorRecords, wallRecords, importedRootCollider != null);
+        WriteReport(modelBounds, floorRecords, wallRecords, windowRecords, importedRootCollider != null);
         Debug.Log("XR collision proxies complete. Floors: " + floorRecords.Count +
-                  ", walls: " + wallRecords.Count + ", scene: " + ScenePath);
+                  ", walls: " + wallRecords.Count + ", windows: " + windowRecords.Count +
+                  ", scene: " + ScenePath);
 
         if (openedForTask)
             EditorSceneManager.CloseScene(scene, true);
@@ -142,6 +183,17 @@ public static class XREnvironmentCollisionBuilder
         bool wallAlongX = size.y >= 2.1f && size.x >= 1.5f && size.z <= 0.65f;
         bool wallAlongZ = size.y >= 2.1f && size.z >= 1.5f && size.x <= 0.65f;
         return wallAlongX || wallAlongZ;
+    }
+
+    private static Bounds ExtendWallToFloor(Bounds bounds, float floorSurface)
+    {
+        if (bounds.min.y > floorSurface && bounds.min.y - floorSurface <= 0.5f)
+        {
+            Vector3 minimum = bounds.min;
+            minimum.y = floorSurface;
+            bounds.SetMinMax(minimum, bounds.max);
+        }
+        return bounds;
     }
 
     private static ProxyRecord CreateProxy(Renderer source, Bounds bounds, Transform parent, string prefix, float minimumThickness)
@@ -219,7 +271,8 @@ public static class XREnvironmentCollisionBuilder
         return transform.parent == null ? transform.name : HierarchyPath(transform.parent) + "/" + transform.name;
     }
 
-    private static void WriteReport(Bounds modelBounds, List<ProxyRecord> floors, List<ProxyRecord> walls, bool disabledImportedCollider)
+    private static void WriteReport(Bounds modelBounds, List<ProxyRecord> floors, List<ProxyRecord> walls,
+        List<ProxyRecord> windows, bool disabledImportedCollider)
     {
         string projectRoot = Directory.GetParent(Application.dataPath).FullName;
         string reportDirectory = Path.Combine(projectRoot, "Tools", "xr-review");
@@ -235,10 +288,12 @@ public static class XREnvironmentCollisionBuilder
             writer.WriteLine("Imported root BoxCollider disabled: " + disabledImportedCollider);
             writer.WriteLine("Floor proxies: " + floors.Count);
             writer.WriteLine("Wall proxies: " + walls.Count);
+            writer.WriteLine("Window boundary proxies: " + windows.Count);
             writer.WriteLine();
 
             WriteRecords(writer, "FLOORS", floors);
             WriteRecords(writer, "WALLS", walls);
+            WriteRecords(writer, "WINDOW BOUNDARIES", windows);
         }
     }
 

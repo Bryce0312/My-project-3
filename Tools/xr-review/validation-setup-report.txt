@@ -1,0 +1,9 @@
+Scene: Assets/Scenes/SampleScene_edit.unity
+Generated: 2026-10-07 15:44:16
+Scale: 1 Unity unit = 1 metre
+Review floor surface Y: 3.348
+Probe height: 1.750
+Probe radius: 0.220
+Probe spawn: (-24.500, 3.348, -4.000)
+Validation root active: False
+Validation camera active: False

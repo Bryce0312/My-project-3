@@ -1,8 +1,8 @@
 Scene: Assets/Scenes/SampleScene_edit.unity
-Generated: 2026-10-07 15:09:17
+Generated: 2026-10-07 15:38:55
 Classified top-level objects: 232
 
-01_Architecture_Static (79)
+01_Architecture_Static (78)
   - Arch137_006_obj_486
   - Arch137_006_obj_487
   - Box2138775883
@@ -49,7 +49,6 @@ Classified top-level objects: 232
   - Object2113133994
   - Object2113133995
   - Object2113133996
-  - Object2113133998
   - Object2113134004
   - Object2113134015
   - Object2113134018
@@ -83,7 +82,7 @@ Classified top-level objects: 232
   - Shape026
   - Shape027
 
-02_Furniture_Fixed (12)
+02_Furniture_Fixed (13)
   - Box2138775881
   - Group2146513366
   - Group2146513367
@@ -94,18 +93,33 @@ Classified top-level objects: 232
   - MUTFAK RAF003
   - MUTFAK RAF004
   - MUTFAK RAF005
+  - Object2113134037
   - TV RAF001
   - TV RAF003
 
-03_Furniture_Movable_Candidates (16)
+03_Furniture_Movable_Candidates (30)
+  - blotches
+  - ChamferCyl008
+  - ChamferCyl009
+  - ChamferCyl010
+  - ChamferCyl011
+  - ChamferCyl017
   - crp_Koltuk minotti
+  - Group004
+  - Group005
   - Group007
   - Group2146510303
   - Group2146513355
+  - lenox_004
+  - lenox_005
+  - lenox_006
+  - lenox_007
   - Minotti_Lawrence Sofa 5_002
   - Minotti_Lawrence Sofa 5_052
   - Minotti_Lawrence Sofa 5_071
   - Minotti_Lawrence Sofa 5_075
+  - Object2113133998
+  - Object2113134102
   - Table set 003
   - Table set 004
   - Table set 005
@@ -153,29 +167,23 @@ Classified top-level objects: 232
   - Sphere002
   - Sphere018
 
-05_Decor_Static (59)
+05_Decor_Static (45)
   - ¡¡×ý×û
   - ¡¡×ý×û 1
   - ×þ×ü
   - ×þ×ü 1
   - 02 Gaggenau ceramic 5 areas
   - 15 Miele oven
-  - blotches
   - Box2138775867
   - Box2138775884
   - Box2138775894
   - Box2138775896
   - Box2138775908
-  - ChamferCyl008
-  - ChamferCyl009
-  - ChamferCyl010
-  - ChamferCyl011
   - ChamferCyl012
   - ChamferCyl013
   - ChamferCyl014
   - ChamferCyl015
   - ChamferCyl016
-  - ChamferCyl017
   - CHAND SALON
   - Circle1591
   - CURTAIN_006
@@ -186,18 +194,11 @@ Classified top-level objects: 232
   - CURTAIN_013
   - CURTAIN_015
   - CURTAIN_016
-  - Group004
-  - Group005
   - Group2146513368
   - ISLAND PENDANT
-  - lenox_004
-  - lenox_005
-  - lenox_006
-  - lenox_007
   - Line786
   - Line877526427
   - Object2113133966
-  - Object2113134037
   - Object2113134038
   - Object2113134048
   - Object2113134049
@@ -206,7 +207,6 @@ Classified top-level objects: 232
   - Object2113134075
   - Object2113134098
   - Object2113134100
-  - Object2113134102
   - Object2113134104
   - Pampas 1
   - Rectangle184

@@ -1,0 +1,33 @@
+Scene: Assets/Scenes/SampleScene_edit.unity
+Generated: 2026-10-07 15:38:56
+Furniture proxies: 28
+No Rigidbody components were added.
+
+COL_Island_Object2113134037 | BoxCollider | source=VLOGGER'S APARTMENT (FBX)/02_Furniture_Fixed/Object2113134037 | center=(-31.580, 3.746, -7.516) | size=(3.677, 0.795, 0.880)
+COL_TallCabinets | BoxCollider | source=combined fixed cabinet group | center=(-33.047, 4.898, -9.434) | size=(2.056, 2.900, 1.123)
+COL_Sofa_crp_Koltuk_minotti_Part01 | Compound BoxCollider | source=VLOGGER'S APARTMENT (FBX)/03_Furniture_Movable_Candidates/crp_Koltuk minotti | center=(-28.515, 3.778, -4.808) | size=(0.867, 0.831, 2.814)
+COL_Sofa_crp_Koltuk_minotti_Part02 | Compound BoxCollider | source=VLOGGER'S APARTMENT (FBX)/03_Furniture_Movable_Candidates/crp_Koltuk minotti | center=(-26.143, 3.778, -3.834) | size=(1.146, 0.831, 1.422)
+COL_Sofa_crp_Koltuk_minotti_Part03 | Compound BoxCollider | source=VLOGGER'S APARTMENT (FBX)/03_Furniture_Movable_Candidates/crp_Koltuk minotti | center=(-27.399, 3.778, -3.555) | size=(1.425, 0.831, 0.865)
+COL_Sofa_Object2113134102_Part01 | Compound BoxCollider | source=VLOGGER'S APARTMENT (FBX)/03_Furniture_Movable_Candidates/Object2113134102 | center=(-33.206, 3.779, -4.858) | size=(0.309, 0.861, 3.089)
+COL_Sofa_Object2113134102_Part02 | Compound BoxCollider | source=VLOGGER'S APARTMENT (FBX)/03_Furniture_Movable_Candidates/Object2113134102 | center=(-33.486, 3.779, -4.858) | size=(0.309, 0.861, 2.533)
+COL_Sofa_Object2113134102_Part03 | Compound BoxCollider | source=VLOGGER'S APARTMENT (FBX)/03_Furniture_Movable_Candidates/Object2113134102 | center=(-32.927, 3.779, -5.970) | size=(0.309, 0.861, 0.308)
+COL_Sofa_Object2113134102_Part04 | Compound BoxCollider | source=VLOGGER'S APARTMENT (FBX)/03_Furniture_Movable_Candidates/Object2113134102 | center=(-33.765, 3.779, -4.997) | size=(0.309, 0.861, 1.699)
+COL_Sofa_Object2113134102_Part05 | Compound BoxCollider | source=VLOGGER'S APARTMENT (FBX)/03_Furniture_Movable_Candidates/Object2113134102 | center=(-32.927, 3.779, -3.884) | size=(0.309, 0.861, 1.142)
+COL_Sofa_Object2113134102_Part06 | Compound BoxCollider | source=VLOGGER'S APARTMENT (FBX)/03_Furniture_Movable_Candidates/Object2113134102 | center=(-32.647, 3.779, -3.745) | size=(0.309, 0.861, 0.864)
+COL_Sofa_Object2113134102_Part07 | Compound BoxCollider | source=VLOGGER'S APARTMENT (FBX)/03_Furniture_Movable_Candidates/Object2113134102 | center=(-32.368, 3.779, -3.606) | size=(0.309, 0.861, 0.586)
+COL_Seat_Group007 | BoxCollider | source=VLOGGER'S APARTMENT (FBX)/03_Furniture_Movable_Candidates/Group007 | center=(-27.283, 3.590, -5.076) | size=(0.798, 0.451, 1.191)
+COL_Seat_Group2146513355 | BoxCollider | source=VLOGGER'S APARTMENT (FBX)/03_Furniture_Movable_Candidates/Group2146513355 | center=(-28.614, 3.596, -3.318) | size=(1.065, 0.464, 0.636)
+COL_Seat_Group004 | BoxCollider | source=VLOGGER'S APARTMENT (FBX)/03_Furniture_Movable_Candidates/Group004 | center=(-25.757, 3.696, -6.120) | size=(1.081, 0.667, 1.081)
+COL_Seat_Group005 | BoxCollider | source=VLOGGER'S APARTMENT (FBX)/03_Furniture_Movable_Candidates/Group005 | center=(-26.294, 3.562, -5.523) | size=(0.847, 0.404, 0.847)
+COL_Table_blotches | BoxCollider | source=VLOGGER'S APARTMENT (FBX)/03_Furniture_Movable_Candidates/blotches | center=(-31.713, 3.509, -4.842) | size=(1.170, 0.306, 1.551)
+COL_Table_Minotti_Lawrence_Sofa_5_052 | BoxCollider | source=VLOGGER'S APARTMENT (FBX)/03_Furniture_Movable_Candidates/Minotti_Lawrence Sofa 5_052 | center=(-26.338, 3.628, -6.303) | size=(0.495, 0.531, 0.495)
+COL_DiningTable_Object2113133998 | BoxCollider | source=VLOGGER'S APARTMENT (FBX)/03_Furniture_Movable_Candidates/Object2113133998 | center=(-26.852, 3.722, -8.299) | size=(3.313, 0.746, 1.135)
+COL_Chair_ChamferCyl008 | BoxCollider | source=VLOGGER'S APARTMENT (FBX)/03_Furniture_Movable_Candidates/ChamferCyl008 | center=(-28.021, 3.753, -9.141) | size=(0.571, 0.810, 0.566)
+COL_Chair_ChamferCyl009 | BoxCollider | source=VLOGGER'S APARTMENT (FBX)/03_Furniture_Movable_Candidates/ChamferCyl009 | center=(-27.267, 3.753, -9.141) | size=(0.571, 0.810, 0.566)
+COL_Chair_ChamferCyl010 | BoxCollider | source=VLOGGER'S APARTMENT (FBX)/03_Furniture_Movable_Candidates/ChamferCyl010 | center=(-26.464, 3.753, -9.141) | size=(0.571, 0.810, 0.566)
+COL_Chair_ChamferCyl011 | BoxCollider | source=VLOGGER'S APARTMENT (FBX)/03_Furniture_Movable_Candidates/ChamferCyl011 | center=(-25.710, 3.753, -9.141) | size=(0.571, 0.810, 0.566)
+COL_Chair_ChamferCyl017 | BoxCollider | source=VLOGGER'S APARTMENT (FBX)/03_Furniture_Movable_Candidates/ChamferCyl017 | center=(-24.959, 3.753, -8.282) | size=(0.566, 0.810, 0.571)
+COL_Chair_lenox_004 | BoxCollider | source=VLOGGER'S APARTMENT (FBX)/03_Furniture_Movable_Candidates/lenox_004 | center=(-31.378, 3.796, -6.644) | size=(0.499, 0.898, 0.476)
+COL_Chair_lenox_005 | BoxCollider | source=VLOGGER'S APARTMENT (FBX)/03_Furniture_Movable_Candidates/lenox_005 | center=(-32.019, 3.796, -6.644) | size=(0.499, 0.898, 0.476)
+COL_Chair_lenox_006 | BoxCollider | source=VLOGGER'S APARTMENT (FBX)/03_Furniture_Movable_Candidates/lenox_006 | center=(-32.665, 3.796, -6.644) | size=(0.499, 0.898, 0.476)
+COL_Chair_lenox_007 | BoxCollider | source=VLOGGER'S APARTMENT (FBX)/03_Furniture_Movable_Candidates/lenox_007 | center=(-30.753, 3.796, -6.644) | size=(0.499, 0.898, 0.476)

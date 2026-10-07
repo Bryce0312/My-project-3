@@ -1,27 +1,30 @@
 Scene: Assets/Scenes/SampleScene_edit.unity
-Generated: 2026-10-07 15:09:17
+Generated: 2026-10-07 15:29:59
 Model center: (-21.075, 3.374, -7.176)
 Model size: (26.760, 6.748, 12.960)
 Imported root BoxCollider disabled: True
 Floor proxies: 1
-Wall proxies: 14
+Wall proxies: 12
+Window boundary proxies: 2
 
 FLOORS
 COL_Floor_001_Line877526425 | VLOGGER'S APARTMENT (FBX)/01_Architecture_Static/Line877526425 | center=(-21.075, 3.298, -7.176) | size=(26.760, 0.100, 12.960)
 
 WALLS
-COL_Wall_001_Object2113133975 | VLOGGER'S APARTMENT (FBX)/01_Architecture_Static/Object2113133975 | center=(-23.054, 4.861, -10.106) | size=(0.120, 2.526, 5.049)
-COL_Wall_002_Object2113133982 | VLOGGER'S APARTMENT (FBX)/01_Architecture_Static/Object2113133982 | center=(-19.416, 4.861, -6.769) | size=(6.717, 2.526, 0.120)
-COL_Wall_003_Object2113133996 | VLOGGER'S APARTMENT (FBX)/01_Architecture_Static/Object2113133996 | center=(-19.416, 4.861, -5.473) | size=(6.717, 2.526, 0.120)
-COL_Wall_004_Object2113134074 | VLOGGER'S APARTMENT (FBX)/01_Architecture_Static/Object2113134074 | center=(-23.070, 4.848, -9.134) | size=(0.120, 3.000, 3.333)
-COL_Wall_005_Rectangle028 | VLOGGER'S APARTMENT (FBX)/01_Architecture_Static/Rectangle028 | center=(-23.805, 4.843, -4.174) | size=(0.411, 3.008, 3.050)
-COL_Wall_006_Box2138775883 | VLOGGER'S APARTMENT (FBX)/01_Architecture_Static/Box2138775883 | center=(-33.720, 4.948, -7.827) | size=(0.601, 3.200, 2.102)
-COL_Wall_007_Box2138775893 | VLOGGER'S APARTMENT (FBX)/01_Architecture_Static/Box2138775893 | center=(-34.010, 4.848, -4.787) | size=(0.120, 3.000, 2.724)
-COL_Wall_008_Object2113133976 | VLOGGER'S APARTMENT (FBX)/01_Architecture_Static/Object2113133976 | center=(-24.002, 4.861, -12.722) | size=(1.815, 2.526, 0.120)
-COL_Wall_009_Object2113133981 | VLOGGER'S APARTMENT (FBX)/01_Architecture_Static/Object2113133981 | center=(-26.937, 4.861, -10.057) | size=(2.148, 2.526, 0.120)
-COL_Wall_010_Object2113134018 | VLOGGER'S APARTMENT (FBX)/01_Architecture_Static/Object2113134018 | center=(-28.710, 4.861, -10.420) | size=(0.120, 2.526, 1.529)
-COL_Wall_011_Object2113134020 | VLOGGER'S APARTMENT (FBX)/01_Architecture_Static/Object2113134020 | center=(-29.495, 4.861, -11.276) | size=(1.533, 2.526, 0.120)
-COL_Wall_012_Object2113134021 | VLOGGER'S APARTMENT (FBX)/01_Architecture_Static/Object2113134021 | center=(-30.336, 4.861, -10.440) | size=(0.120, 2.526, 1.599)
-COL_Wall_013_Object2113134044 | VLOGGER'S APARTMENT (FBX)/01_Architecture_Static/Object2113134044 | center=(-33.410, 4.861, -7.827) | size=(0.120, 2.527, 1.902)
-COL_Wall_014_Object2113134058 | VLOGGER'S APARTMENT (FBX)/01_Architecture_Static/Object2113134058 | center=(-24.131, 4.411, -12.759) | size=(1.557, 2.126, 0.120)
+COL_Wall_001_Object2113133975 | VLOGGER'S APARTMENT (FBX)/01_Architecture_Static/Object2113133975 | center=(-23.054, 4.736, -10.106) | size=(0.120, 2.776, 5.049)
+COL_Wall_002_Object2113133982 | VLOGGER'S APARTMENT (FBX)/01_Architecture_Static/Object2113133982 | center=(-19.416, 4.736, -6.769) | size=(6.717, 2.776, 0.120)
+COL_Wall_003_Object2113133996 | VLOGGER'S APARTMENT (FBX)/01_Architecture_Static/Object2113133996 | center=(-19.416, 4.736, -5.473) | size=(6.717, 2.776, 0.120)
+COL_Wall_004_Rectangle028 | VLOGGER'S APARTMENT (FBX)/01_Architecture_Static/Rectangle028 | center=(-23.805, 4.843, -4.174) | size=(0.411, 3.008, 3.050)
+COL_Wall_005_Box2138775883 | VLOGGER'S APARTMENT (FBX)/01_Architecture_Static/Box2138775883 | center=(-33.720, 4.948, -7.827) | size=(0.601, 3.200, 2.102)
+COL_Wall_006_Box2138775893 | VLOGGER'S APARTMENT (FBX)/01_Architecture_Static/Box2138775893 | center=(-34.010, 4.848, -4.787) | size=(0.120, 3.000, 2.724)
+COL_Wall_007_Object2113133976 | VLOGGER'S APARTMENT (FBX)/01_Architecture_Static/Object2113133976 | center=(-24.002, 4.736, -12.722) | size=(1.815, 2.776, 0.120)
+COL_Wall_008_Object2113133981 | VLOGGER'S APARTMENT (FBX)/01_Architecture_Static/Object2113133981 | center=(-26.937, 4.736, -10.057) | size=(2.148, 2.776, 0.120)
+COL_Wall_009_Object2113134018 | VLOGGER'S APARTMENT (FBX)/01_Architecture_Static/Object2113134018 | center=(-28.710, 4.736, -10.420) | size=(0.120, 2.776, 1.529)
+COL_Wall_010_Object2113134020 | VLOGGER'S APARTMENT (FBX)/01_Architecture_Static/Object2113134020 | center=(-29.495, 4.736, -11.276) | size=(1.533, 2.776, 0.120)
+COL_Wall_011_Object2113134021 | VLOGGER'S APARTMENT (FBX)/01_Architecture_Static/Object2113134021 | center=(-30.336, 4.736, -10.440) | size=(0.120, 2.776, 1.599)
+COL_Wall_012_Object2113134044 | VLOGGER'S APARTMENT (FBX)/01_Architecture_Static/Object2113134044 | center=(-33.410, 4.736, -7.827) | size=(0.120, 2.776, 1.902)
+
+WINDOW BOUNDARIES
+COL_Window_001_CURTAIN_016 | VLOGGER'S APARTMENT (FBX)/05_Decor_Static/CURTAIN_016 | center=(-32.582, 5.000, -2.730) | size=(2.096, 3.303, 0.155)
+COL_Window_002_CURTAIN_011 | VLOGGER'S APARTMENT (FBX)/05_Decor_Static/CURTAIN_011 | center=(-28.431, 5.015, -2.715) | size=(2.115, 3.332, 0.156)
 
