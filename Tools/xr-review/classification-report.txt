@@ -1,0 +1,248 @@
+Scene: Assets/Scenes/SampleScene_edit.unity
+Generated: 2026-10-07 15:09:17
+Classified top-level objects: 232
+
+01_Architecture_Static (79)
+  - Arch137_006_obj_486
+  - Arch137_006_obj_487
+  - Box2138775883
+  - Box2138775893
+  - Cylinder002
+  - DESTEK
+  - DESTEK TAVAN
+  - DESTEK TAVAN001
+  - DESTEK TAVAN002
+  - DESTEK002
+  - DESTEK003
+  - DESTEK004
+  - DESTEK006
+  - GİRİŞ LİNE
+  - Group2146510305
+  - Layer:A-WALL-BLWO
+  - Line017
+  - Line877526425
+  - Line877526428
+  - Line877526429
+  - Line877526431
+  - Line877526438
+  - Line877526441
+  - Line877526444
+  - Line877526445
+  - Line877526446
+  - Line877526448
+  - Nalichnik right 003
+  - Nalichnik right 004
+  - Nalichnik right 005
+  - Nalichnik right 006
+  - Nalichnik right 007
+  - Nalichnik right 008
+  - Nalichnik right 010
+  - Nalichnik right 1
+  - Object2113133969
+  - Object2113133975
+  - Object2113133976
+  - Object2113133977
+  - Object2113133981
+  - Object2113133982
+  - Object2113133987
+  - Object2113133989
+  - Object2113133994
+  - Object2113133995
+  - Object2113133996
+  - Object2113133998
+  - Object2113134004
+  - Object2113134015
+  - Object2113134018
+  - Object2113134020
+  - Object2113134021
+  - Object2113134022
+  - Object2113134025
+  - Object2113134029
+  - Object2113134030
+  - Object2113134041
+  - Object2113134042
+  - Object2113134044
+  - Object2113134045
+  - Object2113134046
+  - Object2113134047
+  - Object2113134050
+  - Object2113134058
+  - Object2113134061
+  - Object2113134062
+  - Object2113134074
+  - Object2113134087
+  - Object2113134103
+  - Object2113134106
+  - Rectangle028
+  - Shape001
+  - Shape002
+  - Shape005
+  - Shape006
+  - Shape023
+  - Shape025
+  - Shape026
+  - Shape027
+
+02_Furniture_Fixed (12)
+  - Box2138775881
+  - Group2146513366
+  - Group2146513367
+  - ISLAND TOP
+  - MUTFAK RAF
+  - MUTFAK RAF001
+  - MUTFAK RAF002
+  - MUTFAK RAF003
+  - MUTFAK RAF004
+  - MUTFAK RAF005
+  - TV RAF001
+  - TV RAF003
+
+03_Furniture_Movable_Candidates (16)
+  - crp_Koltuk minotti
+  - Group007
+  - Group2146510303
+  - Group2146513355
+  - Minotti_Lawrence Sofa 5_002
+  - Minotti_Lawrence Sofa 5_052
+  - Minotti_Lawrence Sofa 5_071
+  - Minotti_Lawrence Sofa 5_075
+  - Table set 003
+  - Table set 004
+  - Table set 005
+  - Table set 006
+  - Table set 007
+  - Table set 008
+  - Table set 009
+  - Table set 2
+
+04_Small_Interactable_Candidates (36)
+  - ChamferCyl001
+  - ChamferCyl002
+  - ChamferCyl003
+  - ChamferCyl004
+  - ChamferCyl005
+  - ChamferCyl006
+  - Cylinder082
+  - Glass 003
+  - Glass 004
+  - Glass 005
+  - Glass 006
+  - Glass 007
+  - Glass 008
+  - Glass 009
+  - Glass 010
+  - Glass 011
+  - Glass 012
+  - Glass 013
+  - Glass 014
+  - Glass 015
+  - Glass 016
+  - Glass 1
+  - Glass 2
+  - Group1871013652
+  - Group2146505894
+  - Group2146513356
+  - Group2146513357
+  - Group2146513359
+  - Group2146513360
+  - JianE_model_20201023103059451
+  - JianE_model_20201215201153305
+  - Line1132
+  - Line877526447
+  - Object2113134059
+  - Sphere002
+  - Sphere018
+
+05_Decor_Static (59)
+  - ¡¡×ý×û
+  - ¡¡×ý×û 1
+  - ×þ×ü
+  - ×þ×ü 1
+  - 02 Gaggenau ceramic 5 areas
+  - 15 Miele oven
+  - blotches
+  - Box2138775867
+  - Box2138775884
+  - Box2138775894
+  - Box2138775896
+  - Box2138775908
+  - ChamferCyl008
+  - ChamferCyl009
+  - ChamferCyl010
+  - ChamferCyl011
+  - ChamferCyl012
+  - ChamferCyl013
+  - ChamferCyl014
+  - ChamferCyl015
+  - ChamferCyl016
+  - ChamferCyl017
+  - CHAND SALON
+  - Circle1591
+  - CURTAIN_006
+  - CURTAIN_009
+  - CURTAIN_010
+  - CURTAIN_011
+  - CURTAIN_012
+  - CURTAIN_013
+  - CURTAIN_015
+  - CURTAIN_016
+  - Group004
+  - Group005
+  - Group2146513368
+  - ISLAND PENDANT
+  - lenox_004
+  - lenox_005
+  - lenox_006
+  - lenox_007
+  - Line786
+  - Line877526427
+  - Object2113133966
+  - Object2113134037
+  - Object2113134038
+  - Object2113134048
+  - Object2113134049
+  - Object2113134057
+  - Object2113134065
+  - Object2113134075
+  - Object2113134098
+  - Object2113134100
+  - Object2113134102
+  - Object2113134104
+  - Pampas 1
+  - Rectangle184
+  - Shape004
+  - WALL LIGHT001
+  - 组370
+
+06_Lighting_Helpers (30)
+  - C01
+  - C01.Target
+  - C02
+  - C02.Target
+  - C03
+  - C03.Target
+  - C04
+  - C04.Target
+  - C05
+  - C05.Target
+  - C06
+  - C06.Target
+  - C07
+  - C07.Target
+  - C08
+  - C08.Target
+  - C09
+  - C09.Target
+  - Group2146513327
+  - Group2146513328
+  - Group2146513330
+  - Group2146513331
+  - Group2146513332
+  - Group2146513333
+  - Group2146513334
+  - Group2146513335
+  - Group2146513336
+  - Group2146513337
+  - Group2146513348
+  - Group2146513349
+
