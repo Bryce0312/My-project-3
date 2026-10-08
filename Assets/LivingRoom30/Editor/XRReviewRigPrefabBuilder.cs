@@ -19,7 +19,13 @@ namespace LivingRoom30.Editor
         {
             if (!File.Exists(SourceScenePath))
             {
-                throw new FileNotFoundException("The reusable XR source scene was not found.", SourceScenePath);
+                if (File.Exists(PrefabPath))
+                {
+                    Debug.LogWarning("The original XR source scene has been archived. The existing reusable XR_ReviewRig prefab remains valid.");
+                    return;
+                }
+
+                throw new FileNotFoundException("Neither the reusable XR source scene nor the generated XR prefab was found.", SourceScenePath);
             }
 
             EnsurePrefabFolder();

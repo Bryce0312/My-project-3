@@ -3,6 +3,7 @@
 # Get latest from https://github.com/github/gitignore/blob/main/Unity.gitignore
 #
 .utmp/
+/_Archive/
 
 # Local recovery copies and Unity Version Control workspace metadata
 /Backups/
