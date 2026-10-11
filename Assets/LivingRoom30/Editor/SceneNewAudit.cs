@@ -4,6 +4,7 @@ using System.Linq;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 namespace LivingRoom30.Editor
 {
@@ -127,6 +128,29 @@ namespace LivingRoom30.Editor
             Transform simulator = system.Find("S04_XR_DeviceSimulator_EditorOnly");
             if (simulator == null || !simulator.CompareTag("EditorOnly")) failures.Add("Editor-only XR Device Simulator is missing or incorrectly tagged.");
 
+            Transform hud = system.Find("S05_ReviewHud");
+            if (hud == null)
+            {
+                failures.Add("Review HUD is missing.");
+            }
+            else
+            {
+                Canvas hudCanvas = hud.GetComponent<Canvas>();
+                if (hudCanvas == null || hudCanvas.renderMode != RenderMode.WorldSpace)
+                {
+                    failures.Add("Review HUD canvas is missing or is not world space.");
+                }
+
+                Text hudLabel = hud.GetComponentInChildren<Text>(true);
+                if (hudLabel == null || hudLabel.fontSize <= 0) failures.Add("Review HUD label is missing or has no font size.");
+
+                HudLazyFollow follow = hud.GetComponent<HudLazyFollow>();
+                if (follow == null || follow.target == null) failures.Add("Review HUD needs the upright HudLazyFollow with an assigned head target.");
+
+                StopwatchHud stopwatch = hud.GetComponentInChildren<StopwatchHud>(true);
+                if (stopwatch == null || stopwatch.Label == null) failures.Add("Review HUD stopwatch is not wired to its label.");
+            }
+
             if (failures.Count > 0)
             {
                 throw new InvalidOperationException("SceneNew audit failed:\n- " + string.Join("\n- ", failures));
@@ -135,7 +159,7 @@ namespace LivingRoom30.Editor
             Debug.Log(
                 "SceneNew audit passed. Architecture colliders=" + architecture.GetComponentsInChildren<Collider>(true).Length +
                 ", furniture surface colliders=" + furnitureColliderCount +
-                ", XR rig/body/continuous movement present.");
+                ", XR rig/body/continuous movement and review HUD present.");
         }
     }
 }

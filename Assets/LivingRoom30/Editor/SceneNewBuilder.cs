@@ -1,11 +1,13 @@
 using System.IO;
 using System.Linq;
 using LivingRoom30;
+using Unity.XR.CoreUtils;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 namespace LivingRoom30.Editor
 {
@@ -16,6 +18,14 @@ namespace LivingRoom30.Editor
         private const string MaterialFolder = "Assets/LivingRoom30/Materials";
         private const string XRReviewRigPrefabPath = "Assets/LivingRoom30/Prefabs/XR_ReviewRig.prefab";
         private const string XRDeviceSimulatorPrefabPath = "Assets/Samples/XR Interaction Toolkit/2.3.2/XR Device Simulator/XR Device Simulator.prefab";
+        private const string ReviewHudName = "S05_ReviewHud";
+        private const float ReviewHudCanvasScale = 0.0005f;
+        private const float ReviewHudEditHeadHeight = 1.60f;
+        private const float ReviewHudMovementSpeed = 12f;
+
+        // Offset in head-local space: lower right of the view, ~0.69 m away.
+        private static readonly Vector3 ReviewHudViewOffset = new Vector3(0.22f, -0.14f, 0.60f);
+        private static readonly Vector2 ReviewHudCanvasSize = new Vector2(400f, 140f);
 
         private static Material wallMaterial;
         private static Material floorMaterial;
@@ -479,6 +489,12 @@ namespace LivingRoom30.Editor
             camera.fieldOfView = 68f;
             camera.nearClipPlane = 0.05f;
             camera.farClipPlane = 60f;
+
+            int uiLayer = LayerMask.NameToLayer("UI");
+            if (uiLayer >= 0)
+            {
+                camera.cullingMask = ~(1 << uiLayer);
+            }
             AudioListener previewListener = cameraObject.AddComponent<AudioListener>();
             previewListener.enabled = false;
 
@@ -525,6 +541,84 @@ namespace LivingRoom30.Editor
             {
                 Debug.LogWarning("XR Device Simulator prefab was not found; headset play remains available.");
             }
+
+            BuildReviewHud(parent, xrRig);
+        }
+
+        private static void BuildReviewHud(Transform parent, GameObject xrRig)
+        {
+            Font font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            if (font == null)
+            {
+                throw new MissingReferenceException("The built-in LegacyRuntime font is unavailable; the review HUD label would not render.");
+            }
+
+            GameObject hud = new GameObject(ReviewHudName, typeof(RectTransform));
+            hud.transform.SetParent(parent, false);
+            hud.GetComponent<RectTransform>().sizeDelta = ReviewHudCanvasSize;
+            hud.transform.localScale = Vector3.one * ReviewHudCanvasScale;
+            hud.transform.position = xrRig.transform.position +
+                                     Vector3.up * ReviewHudEditHeadHeight +
+                                     xrRig.transform.rotation * ReviewHudViewOffset;
+            hud.transform.rotation = xrRig.transform.rotation;
+
+            Canvas canvas = hud.AddComponent<Canvas>();
+            canvas.renderMode = RenderMode.WorldSpace;
+
+            CanvasScaler scaler = hud.AddComponent<CanvasScaler>();
+            scaler.dynamicPixelsPerUnit = 1f;
+
+            HudLazyFollow follow = hud.AddComponent<HudLazyFollow>();
+            follow.target = ResolveHeadTransform(xrRig);
+            follow.targetOffset = ReviewHudViewOffset;
+            follow.movementSpeed = ReviewHudMovementSpeed;
+
+            GameObject panel = new GameObject("Panel_Background", typeof(RectTransform));
+            panel.transform.SetParent(hud.transform, false);
+            StretchToParent(panel.GetComponent<RectTransform>(), Vector2.zero);
+            Image background = panel.AddComponent<Image>();
+            background.color = new Color(0.06f, 0.07f, 0.09f, 0.55f);
+
+            GameObject labelObject = new GameObject("Label_Time", typeof(RectTransform));
+            labelObject.transform.SetParent(hud.transform, false);
+            StretchToParent(labelObject.GetComponent<RectTransform>(), new Vector2(16f, 10f));
+
+            Text label = labelObject.AddComponent<Text>();
+            label.font = font;
+            label.fontSize = 72;
+            label.alignment = TextAnchor.MiddleCenter;
+            label.color = new Color(0.92f, 0.93f, 0.95f);
+            label.text = "00:00";
+
+            StopwatchHud stopwatch = labelObject.AddComponent<StopwatchHud>();
+            stopwatch.Configure(label);
+
+            SetLayerRecursively(hud, "UI");
+        }
+
+        private static Transform ResolveHeadTransform(GameObject xrRig)
+        {
+            XROrigin origin = xrRig.GetComponentInChildren<XROrigin>(true);
+            if (origin != null && origin.Camera != null)
+            {
+                return origin.Camera.transform;
+            }
+
+            Camera fallback = xrRig.GetComponentsInChildren<Camera>(true).FirstOrDefault(item => item.name == "Main Camera");
+            if (fallback != null)
+            {
+                return fallback.transform;
+            }
+
+            throw new MissingReferenceException("The XR review rig exposes no camera for the review HUD to follow.");
+        }
+
+        private static void StretchToParent(RectTransform rect, Vector2 padding)
+        {
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = Vector2.one;
+            rect.offsetMin = padding;
+            rect.offsetMax = -padding;
         }
 
         private static Transform CreateFurnitureRoot(Transform parent, string id, string englishName, string objectName, Vector3 position, float rotationY, float labelHeight)
