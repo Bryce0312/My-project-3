@@ -2,6 +2,30 @@
 
 本文件记录项目中值得关注的功能、资源和配置变更。
 
+## [0.4.0] - 2026-10-11
+
+### 新增
+
+- 新增空间测量工具集（`Assets/LivingRoom30/Scripts/Measurement/`）：家具尺寸、两点距离、两物体距离三种模式，
+  XR 与桌面输入自动切换，可行走路线（NavMesh）预览，顶部 UI 面板与 Toast 引导。
+- 新增桌面评审双模式：行走（WASD + 右键视角）/ 轨道相机，`F` 切换；无头显时自动回退桌面预览。
+- 新增家具邻近尺寸显示（`FurnitureProximityDisplay`）：走近家具自动显示名称与真实长宽高并绘制线框。
+- 新增编辑器工具 `MeasurementSetup`：一键为客厅地面烘焙测量用 NavMesh。
+- 新增 `README.md`：需求到功能的映射、XR 交互与 UX 决策说明、构建运行指南、外部资源与已知限制。
+
+### 修复
+
+- 修复 Quest 3（Quest Link / OpenXR）下视角不跟随头转、场景"跟着头一起转"导致的眩晕：
+  `TrackedPoseDriver` 的 `<XRHMD>` 单例动作路径在该环境不更新，已改为 `XRHeadPoseFollower`
+  （旧版 `InputDevices` API，Update + onBeforeRender 双时机驱动相机），并保留手柄 45° Snap 转向。
+- 修复 XR 出生高度塌地：XR Origin 改为 Floor 跟踪原点 + 1.6m 眼高 Camera Offset，并加追踪丢失防穿地守卫。
+
+### 已知限制
+
+- 空间标注、结构化反馈与 Feedback List 为 Phase 3 范围。
+- 已验证环境为 Quest 3 + Quest Link 的 PCVR；一体机直连（Android 构建）尚未验证。
+- 测量用 NavMesh 在家具布局变更后需通过菜单重新烘焙。
+
 ## [0.3.0] - 2026-10-04
 
 ### 新增
