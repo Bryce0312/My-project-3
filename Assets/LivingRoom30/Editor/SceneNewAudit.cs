@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using UnityEngine.XR.Interaction.Toolkit.UI;
 
 namespace LivingRoom30.Editor
 {
@@ -140,6 +142,15 @@ namespace LivingRoom30.Editor
                 {
                     failures.Add("Review HUD canvas is missing or is not world space.");
                 }
+                else if (hudCanvas.worldCamera == null)
+                {
+                    failures.Add("Review HUD canvas has no world camera; tracked device raycasts would silently fall back to Camera.main.");
+                }
+
+                if (hud.GetComponent<TrackedDeviceGraphicRaycaster>() == null)
+                {
+                    failures.Add("Review HUD canvas has no TrackedDeviceGraphicRaycaster, so the controller ray cannot reach it.");
+                }
 
                 Text hudLabel = hud.GetComponentInChildren<Text>(true);
                 if (hudLabel == null || hudLabel.fontSize <= 0) failures.Add("Review HUD label is missing or has no font size.");
@@ -149,6 +160,54 @@ namespace LivingRoom30.Editor
 
                 StopwatchHud stopwatch = hud.GetComponentInChildren<StopwatchHud>(true);
                 if (stopwatch == null || stopwatch.Label == null) failures.Add("Review HUD stopwatch is not wired to its label.");
+
+                Button pauseButton = hud.GetComponentInChildren<Button>(true);
+                HudPauseButton pauseHandler = hud.GetComponentInChildren<HudPauseButton>(true);
+                if (pauseButton == null || pauseHandler == null)
+                {
+                    failures.Add("Review HUD pause button is missing.");
+                }
+                else if (pauseButton.gameObject != pauseHandler.gameObject)
+                {
+                    failures.Add("Review HUD pause button and its handler are on different objects; the click would never reach the stopwatch.");
+                }
+                else if (pauseHandler.Stopwatch != stopwatch || pauseHandler.Label == null)
+                {
+                    failures.Add("Review HUD pause button is not wired to the stopwatch and its own label.");
+                }
+                else if (!pauseHandler.Label.resizeTextForBestFit)
+                {
+                    failures.Add("Review HUD button label is not set to best fit, so PAUSE / RESUME would wrap onto two lines.");
+                }
+
+                if (stopwatch != null && stopwatch.Label != null && stopwatch.Label.horizontalOverflow != HorizontalWrapMode.Overflow)
+                {
+                    failures.Add("Review HUD time label is allowed to wrap; a session past one hour would break onto two lines.");
+                }
+            }
+
+            Transform uiEventSystem = system.Find("S06_XR_UIEventSystem");
+            if (uiEventSystem == null)
+            {
+                failures.Add("XR UI EventSystem is missing; the controller ray cannot drive UI.");
+            }
+            else
+            {
+                if (uiEventSystem.GetComponent<EventSystem>() == null) failures.Add("XR UI EventSystem object has no EventSystem component.");
+
+                XRUIInputModule inputModule = uiEventSystem.GetComponent<XRUIInputModule>();
+                if (inputModule == null)
+                {
+                    failures.Add("XR UI EventSystem object has no XRUIInputModule.");
+                }
+                else
+                {
+                    if (!inputModule.enableXRInput) failures.Add("XR UI input module has XR input disabled.");
+                    if (inputModule.activeInputMode != XRUIInputModule.ActiveInputMode.InputSystemActions)
+                    {
+                        failures.Add("XR UI input module is not using Input System actions; this project runs with activeInputHandler set to Both.");
+                    }
+                }
             }
 
             if (failures.Count > 0)
@@ -159,7 +218,7 @@ namespace LivingRoom30.Editor
             Debug.Log(
                 "SceneNew audit passed. Architecture colliders=" + architecture.GetComponentsInChildren<Collider>(true).Length +
                 ", furniture surface colliders=" + furnitureColliderCount +
-                ", XR rig/body/continuous movement and review HUD present.");
+                ", XR rig/body/continuous movement, review HUD with pause button and XR UI event system present.");
         }
     }
 }

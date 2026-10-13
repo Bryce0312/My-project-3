@@ -7,6 +7,8 @@ namespace LivingRoom30
     public sealed class StopwatchHud : MonoBehaviour
     {
         [SerializeField] private Text label;
+        [SerializeField] private Color runningColor = new Color(0.92f, 0.93f, 0.95f);
+        [SerializeField] private Color pausedColor = new Color(1f, 0.72f, 0.29f);
 
         // Accumulated instead of Time.timeSinceLevelLoad so the timer can be paused later.
         private float elapsedSeconds;
@@ -31,17 +33,29 @@ namespace LivingRoom30
         {
             label = labelComponent;
             RefreshLabel();
+            ApplyColor();
         }
 
         public void SetRunning(bool value)
         {
             running = value;
+            ApplyColor();
         }
 
         public void ResetTimer()
         {
             elapsedSeconds = 0f;
             RefreshLabel();
+        }
+
+        private void ApplyColor()
+        {
+            if (label == null)
+            {
+                return;
+            }
+
+            label.color = running ? runningColor : pausedColor;
         }
 
         private void RefreshLabel()

@@ -5,9 +5,11 @@ using Unity.XR.CoreUtils;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using UnityEngine.XR.Interaction.Toolkit.UI;
 
 namespace LivingRoom30.Editor
 {
@@ -19,13 +21,21 @@ namespace LivingRoom30.Editor
         private const string XRReviewRigPrefabPath = "Assets/LivingRoom30/Prefabs/XR_ReviewRig.prefab";
         private const string XRDeviceSimulatorPrefabPath = "Assets/Samples/XR Interaction Toolkit/2.3.2/XR Device Simulator/XR Device Simulator.prefab";
         private const string ReviewHudName = "S05_ReviewHud";
+        private const string XrUiEventSystemName = "S06_XR_UIEventSystem";
         private const float ReviewHudCanvasScale = 0.0005f;
         private const float ReviewHudEditHeadHeight = 1.60f;
         private const float ReviewHudMovementSpeed = 12f;
+        private const float ReviewHudTimeAnchorMaxX = 0.62f;
+        private const float ReviewHudButtonAnchorMinX = 0.64f;
 
         // Offset in head-local space: lower right of the view, ~0.69 m away.
         private static readonly Vector3 ReviewHudViewOffset = new Vector3(0.22f, -0.14f, 0.60f);
         private static readonly Vector2 ReviewHudCanvasSize = new Vector2(400f, 140f);
+        private static readonly Color ReviewHudPanelColor = new Color(0.06f, 0.07f, 0.09f, 0.55f);
+        private static readonly Color ReviewHudButtonColor = new Color(0.16f, 0.18f, 0.22f);
+        private static readonly Color ReviewHudButtonHighlightedColor = new Color(0.30f, 0.34f, 0.42f);
+        private static readonly Color ReviewHudButtonPressedColor = new Color(0.44f, 0.51f, 0.62f);
+        private static readonly Color ReviewHudButtonDisabledColor = new Color(0.10f, 0.10f, 0.12f, 0.5f);
 
         private static Material wallMaterial;
         private static Material floorMaterial;
@@ -542,10 +552,12 @@ namespace LivingRoom30.Editor
                 Debug.LogWarning("XR Device Simulator prefab was not found; headset play remains available.");
             }
 
-            BuildReviewHud(parent, xrRig);
+            Camera headCamera = ResolveHeadCamera(xrRig);
+            BuildReviewHud(parent, xrRig, headCamera);
+            BuildXrUiEventSystem(parent, headCamera);
         }
 
-        private static void BuildReviewHud(Transform parent, GameObject xrRig)
+        private static void BuildReviewHud(Transform parent, GameObject xrRig, Camera headCamera)
         {
             Font font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             if (font == null)
@@ -564,12 +576,16 @@ namespace LivingRoom30.Editor
 
             Canvas canvas = hud.AddComponent<Canvas>();
             canvas.renderMode = RenderMode.WorldSpace;
+            canvas.worldCamera = headCamera;
 
             CanvasScaler scaler = hud.AddComponent<CanvasScaler>();
             scaler.dynamicPixelsPerUnit = 1f;
 
+            // Without this the controller ray never reaches the canvas graphics.
+            hud.AddComponent<TrackedDeviceGraphicRaycaster>();
+
             HudLazyFollow follow = hud.AddComponent<HudLazyFollow>();
-            follow.target = ResolveHeadTransform(xrRig);
+            follow.target = headCamera.transform;
             follow.targetOffset = ReviewHudViewOffset;
             follow.movementSpeed = ReviewHudMovementSpeed;
 
@@ -577,48 +593,117 @@ namespace LivingRoom30.Editor
             panel.transform.SetParent(hud.transform, false);
             StretchToParent(panel.GetComponent<RectTransform>(), Vector2.zero);
             Image background = panel.AddComponent<Image>();
-            background.color = new Color(0.06f, 0.07f, 0.09f, 0.55f);
+            background.color = ReviewHudPanelColor;
+            // The panel shares the button's plane, so it must not compete for the raycast.
+            background.raycastTarget = false;
 
             GameObject labelObject = new GameObject("Label_Time", typeof(RectTransform));
             labelObject.transform.SetParent(hud.transform, false);
-            StretchToParent(labelObject.GetComponent<RectTransform>(), new Vector2(16f, 10f));
+            AnchorTo(labelObject.GetComponent<RectTransform>(),
+                Vector2.zero, new Vector2(ReviewHudTimeAnchorMaxX, 1f), new Vector2(16f, 10f));
 
             Text label = labelObject.AddComponent<Text>();
             label.font = font;
             label.fontSize = 72;
             label.alignment = TextAnchor.MiddleCenter;
-            label.color = new Color(0.92f, 0.93f, 0.95f);
+            label.raycastTarget = false;
+            // Without this a session past one hour ("1:23:45") would wrap onto a second line.
+            label.horizontalOverflow = HorizontalWrapMode.Overflow;
             label.text = "00:00";
 
             StopwatchHud stopwatch = labelObject.AddComponent<StopwatchHud>();
             stopwatch.Configure(label);
 
+            BuildPauseButton(hud.transform, font, stopwatch);
+
             SetLayerRecursively(hud, "UI");
         }
 
-        private static Transform ResolveHeadTransform(GameObject xrRig)
+        private static void BuildPauseButton(Transform hud, Font font, StopwatchHud stopwatch)
+        {
+            GameObject buttonObject = new GameObject("Button_Pause", typeof(RectTransform));
+            buttonObject.transform.SetParent(hud, false);
+            AnchorTo(buttonObject.GetComponent<RectTransform>(),
+                new Vector2(ReviewHudButtonAnchorMinX, 0f), Vector2.one, new Vector2(8f, 10f));
+
+            Image buttonBackground = buttonObject.AddComponent<Image>();
+            buttonBackground.color = ReviewHudButtonColor;
+
+            Button button = buttonObject.AddComponent<Button>();
+            button.targetGraphic = buttonBackground;
+            ColorBlock colors = button.colors;
+            colors.normalColor = ReviewHudButtonColor;
+            colors.highlightedColor = ReviewHudButtonHighlightedColor;
+            colors.pressedColor = ReviewHudButtonPressedColor;
+            colors.selectedColor = ReviewHudButtonHighlightedColor;
+            colors.disabledColor = ReviewHudButtonDisabledColor;
+            colors.colorMultiplier = 1f;
+            colors.fadeDuration = 0.1f;
+            button.colors = colors;
+
+            GameObject labelObject = new GameObject("Label_Button", typeof(RectTransform));
+            labelObject.transform.SetParent(buttonObject.transform, false);
+            StretchToParent(labelObject.GetComponent<RectTransform>(), new Vector2(6f, 4f));
+
+            Text label = labelObject.AddComponent<Text>();
+            label.font = font;
+            label.fontSize = 40;
+            label.alignment = TextAnchor.MiddleCenter;
+            label.raycastTarget = false;
+            // PAUSE / RESUME are single words with nowhere to break, so let Unity shrink the
+            // text to the button instead of wrapping it onto two lines.
+            label.resizeTextForBestFit = true;
+            label.resizeTextMinSize = 22;
+            label.resizeTextMaxSize = 38;
+            label.text = "PAUSE";
+
+            HudPauseButton pauseButton = buttonObject.AddComponent<HudPauseButton>();
+            pauseButton.Configure(stopwatch, label);
+        }
+
+        private static void BuildXrUiEventSystem(Transform parent, Camera headCamera)
+        {
+            GameObject eventSystemObject = new GameObject(XrUiEventSystemName);
+            eventSystemObject.transform.SetParent(parent, false);
+            eventSystemObject.AddComponent<EventSystem>();
+
+            XRUIInputModule inputModule = eventSystemObject.AddComponent<XRUIInputModule>();
+            inputModule.activeInputMode = XRUIInputModule.ActiveInputMode.InputSystemActions;
+            inputModule.enableXRInput = true;
+            // Controller rays drive the UI; leaving the mouse path on would fight the device simulator.
+            inputModule.enableMouseInput = false;
+            inputModule.enableTouchInput = false;
+            inputModule.uiCamera = headCamera;
+        }
+
+        private static Camera ResolveHeadCamera(GameObject xrRig)
         {
             XROrigin origin = xrRig.GetComponentInChildren<XROrigin>(true);
             if (origin != null && origin.Camera != null)
             {
-                return origin.Camera.transform;
+                return origin.Camera;
             }
 
             Camera fallback = xrRig.GetComponentsInChildren<Camera>(true).FirstOrDefault(item => item.name == "Main Camera");
             if (fallback != null)
             {
-                return fallback.transform;
+                return fallback;
             }
 
             throw new MissingReferenceException("The XR review rig exposes no camera for the review HUD to follow.");
         }
 
-        private static void StretchToParent(RectTransform rect, Vector2 padding)
+        private static void AnchorTo(RectTransform rect, Vector2 anchorMin, Vector2 anchorMax, Vector2 padding)
         {
-            rect.anchorMin = Vector2.zero;
-            rect.anchorMax = Vector2.one;
+            rect.anchorMin = anchorMin;
+            rect.anchorMax = anchorMax;
             rect.offsetMin = padding;
             rect.offsetMax = -padding;
+        }
+
+        private static void StretchToParent(RectTransform rect, Vector2 padding)
+        {
+            AnchorTo(rect, Vector2.zero, Vector2.one, padding);
         }
 
         private static Transform CreateFurnitureRoot(Transform parent, string id, string englishName, string objectName, Vector3 position, float rotationY, float labelHeight)
