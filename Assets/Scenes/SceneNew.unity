@@ -345,6 +345,7 @@ GameObject:
   - component: {fileID: 8546491}
   - component: {fileID: 8546493}
   - component: {fileID: 8546494}
+  - component: {fileID: 2508546489}
   m_Layer: 0
   m_Name: D03_TableLamp
   m_TagString: Untagged
@@ -477,7 +478,19 @@ MonoBehaviour:
       m_Calls: []
   m_SelectEntered:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 2508546489}
+        m_TargetAssemblyTypeName: AnnotationSpawner, Assembly-CSharp
+        m_MethodName: OnSelectEntered
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_SelectExited:
     m_PersistentCalls:
       m_Calls: []
@@ -1440,6 +1453,7 @@ GameObject:
   - component: {fileID: 68511885}
   - component: {fileID: 68511887}
   - component: {fileID: 68511888}
+  - component: {fileID: 2568511883}
   m_Layer: 0
   m_Name: D02_FloorLamp
   m_TagString: Untagged
@@ -1572,7 +1586,19 @@ MonoBehaviour:
       m_Calls: []
   m_SelectEntered:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 2568511883}
+        m_TargetAssemblyTypeName: AnnotationSpawner, Assembly-CSharp
+        m_MethodName: OnSelectEntered
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_SelectExited:
     m_PersistentCalls:
       m_Calls: []
@@ -2103,6 +2129,7 @@ GameObject:
   - component: {fileID: 161975293}
   - component: {fileID: 161975295}
   - component: {fileID: 161975296}
+  - component: {fileID: 2661975291}
   m_Layer: 0
   m_Name: D07_Plant_Small
   m_TagString: Untagged
@@ -2241,7 +2268,19 @@ MonoBehaviour:
       m_Calls: []
   m_SelectEntered:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 2661975291}
+        m_TargetAssemblyTypeName: AnnotationSpawner, Assembly-CSharp
+        m_MethodName: OnSelectEntered
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_SelectExited:
     m_PersistentCalls:
       m_Calls: []
@@ -2397,6 +2436,7 @@ GameObject:
   - component: {fileID: 169119386}
   - component: {fileID: 169119388}
   - component: {fileID: 169119389}
+  - component: {fileID: 2669119382}
   m_Layer: 0
   m_Name: D09_WallArt_02
   m_TagString: Untagged
@@ -2576,7 +2616,19 @@ MonoBehaviour:
       m_Calls: []
   m_SelectEntered:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 2669119382}
+        m_TargetAssemblyTypeName: AnnotationSpawner, Assembly-CSharp
+        m_MethodName: OnSelectEntered
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_SelectExited:
     m_PersistentCalls:
       m_Calls: []
@@ -2941,6 +2993,7 @@ GameObject:
   - component: {fileID: 290879178}
   - component: {fileID: 290879180}
   - component: {fileID: 290879181}
+  - component: {fileID: 2790879175}
   m_Layer: 9
   m_Name: F10_StorageCabinet
   m_TagString: Untagged
@@ -3092,7 +3145,19 @@ MonoBehaviour:
       m_Calls: []
   m_SelectEntered:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 2790879175}
+        m_TargetAssemblyTypeName: AnnotationSpawner, Assembly-CSharp
+        m_MethodName: OnSelectEntered
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_SelectExited:
     m_PersistentCalls:
       m_Calls: []
@@ -4375,6 +4440,7 @@ GameObject:
   - component: {fileID: 475003986}
   - component: {fileID: 475003988}
   - component: {fileID: 475003989}
+  - component: {fileID: 2975003982}
   m_Layer: 0
   m_Name: D12_ThrowBlanket
   m_TagString: Untagged
@@ -4554,7 +4620,19 @@ MonoBehaviour:
       m_Calls: []
   m_SelectEntered:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 2975003982}
+        m_TargetAssemblyTypeName: AnnotationSpawner, Assembly-CSharp
+        m_MethodName: OnSelectEntered
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_SelectExited:
     m_PersistentCalls:
       m_Calls: []
@@ -4765,6 +4843,7 @@ GameObject:
   - component: {fileID: 507009846}
   - component: {fileID: 507009848}
   - component: {fileID: 507009849}
+  - component: {fileID: 3007009842}
   m_Layer: 0
   m_Name: D08_WallArt_01
   m_TagString: Untagged
@@ -4944,7 +5023,19 @@ MonoBehaviour:
       m_Calls: []
   m_SelectEntered:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 3007009842}
+        m_TargetAssemblyTypeName: AnnotationSpawner, Assembly-CSharp
+        m_MethodName: OnSelectEntered
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_SelectExited:
     m_PersistentCalls:
       m_Calls: []
@@ -5016,6 +5107,7 @@ GameObject:
   - component: {fileID: 510483236}
   - component: {fileID: 510483238}
   - component: {fileID: 510483239}
+  - component: {fileID: 3010483233}
   m_Layer: 9
   m_Name: F04_CoffeeTable
   m_TagString: Untagged
@@ -5165,7 +5257,19 @@ MonoBehaviour:
       m_Calls: []
   m_SelectEntered:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 3010483233}
+        m_TargetAssemblyTypeName: AnnotationSpawner, Assembly-CSharp
+        m_MethodName: OnSelectEntered
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_SelectExited:
     m_PersistentCalls:
       m_Calls: []
@@ -5436,6 +5540,7 @@ GameObject:
   - component: {fileID: 530105856}
   - component: {fileID: 530105855}
   - component: {fileID: 530105854}
+  - component: {fileID: 3030105851}
   m_Layer: 9
   m_Name: F02_Armchair_Left
   m_TagString: Untagged
@@ -5573,7 +5678,19 @@ MonoBehaviour:
       m_Calls: []
   m_SelectEntered:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 3030105851}
+        m_TargetAssemblyTypeName: AnnotationSpawner, Assembly-CSharp
+        m_MethodName: OnSelectEntered
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_SelectExited:
     m_PersistentCalls:
       m_Calls: []
@@ -7149,6 +7266,7 @@ GameObject:
   - component: {fileID: 729157204}
   - component: {fileID: 729157206}
   - component: {fileID: 729157207}
+  - component: {fileID: 3229157202}
   m_Layer: 0
   m_Name: D11_Cushions_Set
   m_TagString: Untagged
@@ -7280,7 +7398,19 @@ MonoBehaviour:
       m_Calls: []
   m_SelectEntered:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 3229157202}
+        m_TargetAssemblyTypeName: AnnotationSpawner, Assembly-CSharp
+        m_MethodName: OnSelectEntered
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_SelectExited:
     m_PersistentCalls:
       m_Calls: []
@@ -7932,6 +8062,7 @@ GameObject:
   - component: {fileID: 792673276}
   - component: {fileID: 792673278}
   - component: {fileID: 792673279}
+  - component: {fileID: 3292673273}
   m_Layer: 9
   m_Name: F03_Armchair_Right
   m_TagString: Untagged
@@ -8085,7 +8216,19 @@ MonoBehaviour:
       m_Calls: []
   m_SelectEntered:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 3292673273}
+        m_TargetAssemblyTypeName: AnnotationSpawner, Assembly-CSharp
+        m_MethodName: OnSelectEntered
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_SelectExited:
     m_PersistentCalls:
       m_Calls: []
@@ -9195,6 +9338,7 @@ GameObject:
   - component: {fileID: 914230604}
   - component: {fileID: 914230606}
   - component: {fileID: 914230607}
+  - component: {fileID: 3414230601}
   m_Layer: 9
   m_Name: F11_Bookcase
   m_TagString: Untagged
@@ -9362,7 +9506,19 @@ MonoBehaviour:
       m_Calls: []
   m_SelectEntered:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 3414230601}
+        m_TargetAssemblyTypeName: AnnotationSpawner, Assembly-CSharp
+        m_MethodName: OnSelectEntered
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_SelectExited:
     m_PersistentCalls:
       m_Calls: []
@@ -11455,6 +11611,7 @@ GameObject:
   - component: {fileID: 1155399979}
   - component: {fileID: 1155399981}
   - component: {fileID: 1155399982}
+  - component: {fileID: 3655399975}
   m_Layer: 0
   m_Name: D05_Curtain_Right
   m_TagString: Untagged
@@ -11634,7 +11791,19 @@ MonoBehaviour:
       m_Calls: []
   m_SelectEntered:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 3655399975}
+        m_TargetAssemblyTypeName: AnnotationSpawner, Assembly-CSharp
+        m_MethodName: OnSelectEntered
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_SelectExited:
     m_PersistentCalls:
       m_Calls: []
@@ -12773,6 +12942,7 @@ GameObject:
   - component: {fileID: 1232091610}
   - component: {fileID: 1232091612}
   - component: {fileID: 1232091613}
+  - component: {fileID: 3732091607}
   m_Layer: 9
   m_Name: F07_SideTable_Left
   m_TagString: Untagged
@@ -12920,7 +13090,19 @@ MonoBehaviour:
       m_Calls: []
   m_SelectEntered:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 3732091607}
+        m_TargetAssemblyTypeName: AnnotationSpawner, Assembly-CSharp
+        m_MethodName: OnSelectEntered
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_SelectExited:
     m_PersistentCalls:
       m_Calls: []
@@ -13097,6 +13279,7 @@ GameObject:
   - component: {fileID: 1262313344}
   - component: {fileID: 1262313346}
   - component: {fileID: 1262313347}
+  - component: {fileID: 3762313341}
   m_Layer: 9
   m_Name: F09_DisplayCabinet
   m_TagString: Untagged
@@ -13246,7 +13429,19 @@ MonoBehaviour:
       m_Calls: []
   m_SelectEntered:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 3762313341}
+        m_TargetAssemblyTypeName: AnnotationSpawner, Assembly-CSharp
+        m_MethodName: OnSelectEntered
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_SelectExited:
     m_PersistentCalls:
       m_Calls: []
@@ -14472,6 +14667,7 @@ GameObject:
   - component: {fileID: 1431287573}
   - component: {fileID: 1431287575}
   - component: {fileID: 1431287576}
+  - component: {fileID: 3931287569}
   m_Layer: 0
   m_Name: D01_AreaRug
   m_TagString: Untagged
@@ -14651,7 +14847,19 @@ MonoBehaviour:
       m_Calls: []
   m_SelectEntered:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 3931287569}
+        m_TargetAssemblyTypeName: AnnotationSpawner, Assembly-CSharp
+        m_MethodName: OnSelectEntered
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_SelectExited:
     m_PersistentCalls:
       m_Calls: []
@@ -14724,6 +14932,7 @@ GameObject:
   - component: {fileID: 1452728306}
   - component: {fileID: 1452728308}
   - component: {fileID: 1452728309}
+  - component: {fileID: 3952728302}
   m_Layer: 0
   m_Name: D04_Curtain_Left
   m_TagString: Untagged
@@ -14903,7 +15112,19 @@ MonoBehaviour:
       m_Calls: []
   m_SelectEntered:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 3952728302}
+        m_TargetAssemblyTypeName: AnnotationSpawner, Assembly-CSharp
+        m_MethodName: OnSelectEntered
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_SelectExited:
     m_PersistentCalls:
       m_Calls: []
@@ -15080,6 +15301,7 @@ GameObject:
   - component: {fileID: 1476551132}
   - component: {fileID: 1476551134}
   - component: {fileID: 1476551135}
+  - component: {fileID: 3976551129}
   m_Layer: 9
   m_Name: F05_TVConsole
   m_TagString: Untagged
@@ -15232,7 +15454,19 @@ MonoBehaviour:
       m_Calls: []
   m_SelectEntered:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 3976551129}
+        m_TargetAssemblyTypeName: AnnotationSpawner, Assembly-CSharp
+        m_MethodName: OnSelectEntered
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_SelectExited:
     m_PersistentCalls:
       m_Calls: []
@@ -17862,6 +18096,7 @@ GameObject:
   - component: {fileID: 1746486964}
   - component: {fileID: 1746486966}
   - component: {fileID: 1746486967}
+  - component: {fileID: 4246486961}
   m_Layer: 9
   m_Name: F06_Television_65Inch
   m_TagString: Untagged
@@ -18010,7 +18245,19 @@ MonoBehaviour:
       m_Calls: []
   m_SelectEntered:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 4246486961}
+        m_TargetAssemblyTypeName: AnnotationSpawner, Assembly-CSharp
+        m_MethodName: OnSelectEntered
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_SelectExited:
     m_PersistentCalls:
       m_Calls: []
@@ -18618,6 +18865,7 @@ GameObject:
   - component: {fileID: 1863217801}
   - component: {fileID: 1863217803}
   - component: {fileID: 1863217804}
+  - component: {fileID: 4363217799}
   m_Layer: 0
   m_Name: D06_Plant_Tall
   m_TagString: Untagged
@@ -18756,7 +19004,19 @@ MonoBehaviour:
       m_Calls: []
   m_SelectEntered:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 4363217799}
+        m_TargetAssemblyTypeName: AnnotationSpawner, Assembly-CSharp
+        m_MethodName: OnSelectEntered
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_SelectExited:
     m_PersistentCalls:
       m_Calls: []
@@ -18828,6 +19088,7 @@ GameObject:
   - component: {fileID: 1869637825}
   - component: {fileID: 1869637827}
   - component: {fileID: 1869637828}
+  - component: {fileID: 4369637822}
   m_Layer: 9
   m_Name: F08_SideTable_Right
   m_TagString: Untagged
@@ -18975,7 +19236,19 @@ MonoBehaviour:
       m_Calls: []
   m_SelectEntered:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 4369637822}
+        m_TargetAssemblyTypeName: AnnotationSpawner, Assembly-CSharp
+        m_MethodName: OnSelectEntered
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_SelectExited:
     m_PersistentCalls:
       m_Calls: []
@@ -20676,6 +20949,7 @@ GameObject:
   - component: {fileID: 2046574958}
   - component: {fileID: 2046574960}
   - component: {fileID: 2046574961}
+  - component: {fileID: 4546574956}
   m_Layer: 0
   m_Name: D10_Books_Set
   m_TagString: Untagged
@@ -20810,7 +21084,19 @@ MonoBehaviour:
       m_Calls: []
   m_SelectEntered:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 4546574956}
+        m_TargetAssemblyTypeName: AnnotationSpawner, Assembly-CSharp
+        m_MethodName: OnSelectEntered
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_SelectExited:
     m_PersistentCalls:
       m_Calls: []
@@ -21465,6 +21751,292 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2142933567}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &2508546489
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8546489}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d02eafe8b591c794b9b35f90000413b9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  annotationUIPrefab: {fileID: 598420615772612889, guid: 5a19c775c996b034da1c314fdef1dd8d, type: 3}
+--- !u!114 &2568511883
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 68511883}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d02eafe8b591c794b9b35f90000413b9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  annotationUIPrefab: {fileID: 598420615772612889, guid: 5a19c775c996b034da1c314fdef1dd8d, type: 3}
+--- !u!114 &2661975291
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 161975291}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d02eafe8b591c794b9b35f90000413b9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  annotationUIPrefab: {fileID: 598420615772612889, guid: 5a19c775c996b034da1c314fdef1dd8d, type: 3}
+--- !u!114 &2669119382
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 169119382}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d02eafe8b591c794b9b35f90000413b9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  annotationUIPrefab: {fileID: 598420615772612889, guid: 5a19c775c996b034da1c314fdef1dd8d, type: 3}
+--- !u!114 &2790879175
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 290879175}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d02eafe8b591c794b9b35f90000413b9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  annotationUIPrefab: {fileID: 598420615772612889, guid: 5a19c775c996b034da1c314fdef1dd8d, type: 3}
+--- !u!114 &2975003982
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 475003982}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d02eafe8b591c794b9b35f90000413b9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  annotationUIPrefab: {fileID: 598420615772612889, guid: 5a19c775c996b034da1c314fdef1dd8d, type: 3}
+--- !u!114 &3007009842
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 507009842}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d02eafe8b591c794b9b35f90000413b9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  annotationUIPrefab: {fileID: 598420615772612889, guid: 5a19c775c996b034da1c314fdef1dd8d, type: 3}
+--- !u!114 &3010483233
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 510483233}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d02eafe8b591c794b9b35f90000413b9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  annotationUIPrefab: {fileID: 598420615772612889, guid: 5a19c775c996b034da1c314fdef1dd8d, type: 3}
+--- !u!114 &3030105851
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 530105851}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d02eafe8b591c794b9b35f90000413b9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  annotationUIPrefab: {fileID: 598420615772612889, guid: 5a19c775c996b034da1c314fdef1dd8d, type: 3}
+--- !u!114 &3229157202
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 729157202}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d02eafe8b591c794b9b35f90000413b9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  annotationUIPrefab: {fileID: 598420615772612889, guid: 5a19c775c996b034da1c314fdef1dd8d, type: 3}
+--- !u!114 &3292673273
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 792673273}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d02eafe8b591c794b9b35f90000413b9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  annotationUIPrefab: {fileID: 598420615772612889, guid: 5a19c775c996b034da1c314fdef1dd8d, type: 3}
+--- !u!114 &3414230601
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 914230601}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d02eafe8b591c794b9b35f90000413b9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  annotationUIPrefab: {fileID: 598420615772612889, guid: 5a19c775c996b034da1c314fdef1dd8d, type: 3}
+--- !u!114 &3655399975
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1155399975}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d02eafe8b591c794b9b35f90000413b9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  annotationUIPrefab: {fileID: 598420615772612889, guid: 5a19c775c996b034da1c314fdef1dd8d, type: 3}
+--- !u!114 &3732091607
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1232091607}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d02eafe8b591c794b9b35f90000413b9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  annotationUIPrefab: {fileID: 598420615772612889, guid: 5a19c775c996b034da1c314fdef1dd8d, type: 3}
+--- !u!114 &3762313341
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1262313341}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d02eafe8b591c794b9b35f90000413b9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  annotationUIPrefab: {fileID: 598420615772612889, guid: 5a19c775c996b034da1c314fdef1dd8d, type: 3}
+--- !u!114 &3931287569
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1431287569}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d02eafe8b591c794b9b35f90000413b9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  annotationUIPrefab: {fileID: 598420615772612889, guid: 5a19c775c996b034da1c314fdef1dd8d, type: 3}
+--- !u!114 &3952728302
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1452728302}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d02eafe8b591c794b9b35f90000413b9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  annotationUIPrefab: {fileID: 598420615772612889, guid: 5a19c775c996b034da1c314fdef1dd8d, type: 3}
+--- !u!114 &3976551129
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1476551129}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d02eafe8b591c794b9b35f90000413b9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  annotationUIPrefab: {fileID: 598420615772612889, guid: 5a19c775c996b034da1c314fdef1dd8d, type: 3}
+--- !u!114 &4246486961
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1746486961}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d02eafe8b591c794b9b35f90000413b9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  annotationUIPrefab: {fileID: 598420615772612889, guid: 5a19c775c996b034da1c314fdef1dd8d, type: 3}
+--- !u!114 &4363217799
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1863217799}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d02eafe8b591c794b9b35f90000413b9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  annotationUIPrefab: {fileID: 598420615772612889, guid: 5a19c775c996b034da1c314fdef1dd8d, type: 3}
+--- !u!114 &4369637822
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1869637822}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d02eafe8b591c794b9b35f90000413b9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  annotationUIPrefab: {fileID: 598420615772612889, guid: 5a19c775c996b034da1c314fdef1dd8d, type: 3}
+--- !u!114 &4546574956
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2046574956}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d02eafe8b591c794b9b35f90000413b9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  annotationUIPrefab: {fileID: 598420615772612889, guid: 5a19c775c996b034da1c314fdef1dd8d, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
