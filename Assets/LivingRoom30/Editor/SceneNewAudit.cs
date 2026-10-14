@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR.Interaction.Toolkit.UI;
 
 namespace LivingRoom30.Editor
@@ -120,6 +121,17 @@ namespace LivingRoom30.Editor
 
                 Camera xrCamera = xrRig.GetComponentsInChildren<Camera>(true).FirstOrDefault(item => item.name == "Main Camera");
                 if (xrCamera == null || !xrCamera.enabled) failures.Add("XR Main Camera is missing or disabled.");
+
+                XRBaseController[] controllers = xrRig.GetComponentsInChildren<XRBaseController>(true);
+                if (controllers.Length != 2) failures.Add("Expected two XR controllers in the review rig, found " + controllers.Length + ".");
+
+                foreach (XRBaseController controller in controllers)
+                {
+                    if (controller.modelPrefab == null)
+                    {
+                        failures.Add("XR controller has no visible model: " + controller.gameObject.name);
+                    }
+                }
             }
 
             Camera previewCamera = system.Find("S02_PreviewCamera")?.GetComponent<Camera>();
@@ -129,6 +141,7 @@ namespace LivingRoom30.Editor
 
             Transform simulator = system.Find("S04_XR_DeviceSimulator_EditorOnly");
             if (simulator == null || !simulator.CompareTag("EditorOnly")) failures.Add("Editor-only XR Device Simulator is missing or incorrectly tagged.");
+            else if (simulator.GetComponent<XRDeviceSimulatorGate>() == null) failures.Add("XR Device Simulator has no gate; with a headset connected it would strip the real HMD from the Input System and head tracking would stop.");
 
             Transform hud = system.Find("S05_ReviewHud");
             if (hud == null)
@@ -218,7 +231,7 @@ namespace LivingRoom30.Editor
             Debug.Log(
                 "SceneNew audit passed. Architecture colliders=" + architecture.GetComponentsInChildren<Collider>(true).Length +
                 ", furniture surface colliders=" + furnitureColliderCount +
-                ", XR rig/body/continuous movement, review HUD with pause button and XR UI event system present.");
+                ", XR rig/body/controllers/continuous movement, review HUD with pause button and XR UI event system present.");
         }
     }
 }
