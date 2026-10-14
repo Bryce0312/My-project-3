@@ -26,6 +26,9 @@ namespace LivingRoom30.Measurement
     {
         public MeasureMode mode = MeasureMode.Dimensions;
 
+        [Header("调试")]
+        [SerializeField] private bool m_EnableDiagnostics = false; // 关闭则不每 0.5s 打印 [XR诊断] 相机追踪日志（排查头转视角问题时在 Inspector 勾选）
+
         private MeasurementVisualizer visualizer;
         private MeasureUIPanel ui;
 
@@ -218,7 +221,7 @@ namespace LivingRoom30.Measurement
             if (m_DiagTimer >= 0.5f)
             {
                 m_DiagTimer = 0f;
-                LogXrCameraDiagnostics();
+                if (m_EnableDiagnostics) LogXrCameraDiagnostics();
             }
         }
 
