@@ -9,6 +9,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR.Interaction.Toolkit.UI;
 
 namespace LivingRoom30.Editor
@@ -20,6 +21,9 @@ namespace LivingRoom30.Editor
         private const string MaterialFolder = "Assets/LivingRoom30/Materials";
         private const string XRReviewRigPrefabPath = "Assets/LivingRoom30/Prefabs/XR_ReviewRig.prefab";
         private const string XRDeviceSimulatorPrefabPath = "Assets/Samples/XR Interaction Toolkit/2.3.2/XR Device Simulator/XR Device Simulator.prefab";
+        private const string XRControllerModelFolder = "Assets/Samples/XR Interaction Toolkit/2.3.2/Starter Assets/Prefabs/XR Origin Pieces";
+        private const string XRControllerLeftModelName = "XR Controller Left.prefab";
+        private const string XRControllerRightModelName = "XR Controller Right.prefab";
         private const string ReviewHudName = "S05_ReviewHud";
         private const string XrUiEventSystemName = "S06_XR_UIEventSystem";
         private const float ReviewHudCanvasScale = 0.0005f;
@@ -535,6 +539,8 @@ namespace LivingRoom30.Editor
                 body.stepOffset = 0.20f;
             }
 
+            ApplyControllerModels(xrRig);
+
             GameObject simulatorPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(XRDeviceSimulatorPrefabPath);
             if (simulatorPrefab != null)
             {
@@ -545,6 +551,8 @@ namespace LivingRoom30.Editor
                     simulator.tag = "EditorOnly";
                     simulator.transform.localPosition = Vector3.zero;
                     simulator.transform.localRotation = Quaternion.identity;
+                    // Without this the simulator removes a connected headset from the Input System.
+                    simulator.AddComponent<XRDeviceSimulatorGate>();
                 }
             }
             else
@@ -691,6 +699,46 @@ namespace LivingRoom30.Editor
             }
 
             throw new MissingReferenceException("The XR review rig exposes no camera for the review HUD to follow.");
+        }
+
+        // The rig prefab ships without controller models, so reviewers see only a bare ray.
+        private static void ApplyControllerModels(GameObject xrRig)
+        {
+            Transform leftModel = LoadControllerModel(XRControllerLeftModelName);
+            Transform rightModel = LoadControllerModel(XRControllerRightModelName);
+
+            int matched = 0;
+            foreach (XRBaseController controller in xrRig.GetComponentsInChildren<XRBaseController>(true))
+            {
+                string controllerName = controller.gameObject.name;
+                if (controllerName.StartsWith("Left", System.StringComparison.Ordinal))
+                {
+                    controller.modelPrefab = leftModel;
+                    matched++;
+                }
+                else if (controllerName.StartsWith("Right", System.StringComparison.Ordinal))
+                {
+                    controller.modelPrefab = rightModel;
+                    matched++;
+                }
+            }
+
+            if (matched != 2)
+            {
+                Debug.LogWarning("SceneNew expected to attach models to two XR controllers but matched " + matched + ".");
+            }
+        }
+
+        private static Transform LoadControllerModel(string fileName)
+        {
+            string path = XRControllerModelFolder + "/" + fileName;
+            GameObject model = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+            if (model == null)
+            {
+                throw new FileNotFoundException("XR controller model prefab was not found.", path);
+            }
+
+            return model.transform;
         }
 
         private static void AnchorTo(RectTransform rect, Vector2 anchorMin, Vector2 anchorMax, Vector2 padding)
