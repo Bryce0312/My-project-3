@@ -77,3 +77,7 @@ crashlytics-build.properties
 # Temporary auto-generated Android Assets
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
+
+# Generated scene bounds report. Rewritten by Assets/Editor/TvAreaSetup.cs whenever the
+# editor reloads, so its contents depend on export timing rather than on real scene changes.
+/Tools/tv-area/scene-audit.json
