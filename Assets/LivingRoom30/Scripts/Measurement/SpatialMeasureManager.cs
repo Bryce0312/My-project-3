@@ -10,7 +10,7 @@ namespace LivingRoom30.Measurement
     /// <summary>测量工具模式。</summary>
     public enum MeasureMode
     {
-        Dimensions = 0,    // 家具尺寸 + 边长
+        Dimensions = 0,    // 家具尺寸（黄色包围盒线框已按需求移除，尺寸由读数与邻近标签承担）
         PointToPoint = 1, // 两点距离
         ObjectToObject = 2 // 两物体距离
     }
@@ -439,7 +439,7 @@ namespace LivingRoom30.Measurement
             pickCount = 0;
             ui?.SetActiveMode(m);
             ui?.SetReadout(m == MeasureMode.Dimensions
-                ? "点击家具查看尺寸与边长"
+                ? "点击家具查看尺寸"
                 : m == MeasureMode.PointToPoint
                     ? "依次点击空间中的两点"
                     : "依次点击两个家具");
@@ -487,7 +487,8 @@ namespace LivingRoom30.Measurement
 
             visualizer.Clear();
             var b = GeometryUtils.GetWorldAABB(root);
-            visualizer.DrawBox(b, true);
+            // 黄色包围盒线框（DrawBox）已按需求移除：家具尺寸信息仍由下方 UI 读数与
+            // FurnitureProximityDisplay 的邻近尺寸标签/贴合轮廓继续展示。
             var size = GeometryUtils.GetObjectAlignedSize(root);
             string name = root.GetComponent<FurnitureInfo>()?.EnglishName ?? root.name;
             ui.SetReadout($"家具：{name}\n长 {size.x:F2}  宽 {size.z:F2}  高 {size.y:F2} (m)\n整体 {b.size.x:F2}×{b.size.y:F2}×{b.size.z:F2} (m)");
