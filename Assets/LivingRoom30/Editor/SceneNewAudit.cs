@@ -154,10 +154,19 @@ namespace LivingRoom30.Editor
                 }
             }
 
-            Transform hud = system.Find("S05_ReviewHud");
+            // The HUD lives under the left controller, not under the system group: looking it up
+            // from there makes the mounting itself part of the check.
+            ActionBasedController leftController = xrRig != null
+                ? xrRig.GetComponentsInChildren<ActionBasedController>(true)
+                    .FirstOrDefault(item => item.gameObject.name.StartsWith("Left", StringComparison.Ordinal))
+                : null;
+            Transform hud = leftController != null
+                ? leftController.GetComponentsInChildren<Transform>(true).FirstOrDefault(item => item.name == "S05_ReviewHud")
+                : null;
+
             if (hud == null)
             {
-                failures.Add("Review HUD is missing.");
+                failures.Add("Review HUD is missing from the left controller, so it would not follow the wrist.");
             }
             else
             {
@@ -179,8 +188,16 @@ namespace LivingRoom30.Editor
                 Text hudLabel = hud.GetComponentInChildren<Text>(true);
                 if (hudLabel == null || hudLabel.fontSize <= 0) failures.Add("Review HUD label is missing or has no font size.");
 
-                HudLazyFollow follow = hud.GetComponent<HudLazyFollow>();
-                if (follow == null || follow.target == null) failures.Add("Review HUD needs the upright HudLazyFollow with an assigned head target.");
+                if (hud.GetComponent<HudLazyFollow>() != null)
+                {
+                    failures.Add("Review HUD still carries HudLazyFollow; it is mounted on the wrist now and two positioning schemes would fight.");
+                }
+
+                WristPanelFacing facing = hud.GetComponent<WristPanelFacing>();
+                if (facing == null || facing.HeadCamera == null)
+                {
+                    failures.Add("Review HUD has no WristPanelFacing wired to the head camera, so it would not be readable on the wrist.");
+                }
 
                 StopwatchHud stopwatch = hud.GetComponentInChildren<StopwatchHud>(true);
                 if (stopwatch == null || stopwatch.Label == null) failures.Add("Review HUD stopwatch is not wired to its label.");
