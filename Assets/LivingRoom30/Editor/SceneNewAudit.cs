@@ -141,7 +141,18 @@ namespace LivingRoom30.Editor
 
             Transform simulator = system.Find("S04_XR_DeviceSimulator_EditorOnly");
             if (simulator == null || !simulator.CompareTag("EditorOnly")) failures.Add("Editor-only XR Device Simulator is missing or incorrectly tagged.");
-            else if (simulator.GetComponent<XRDeviceSimulatorGate>() == null) failures.Add("XR Device Simulator has no gate; with a headset connected it would strip the real HMD from the Input System and head tracking would stop.");
+            else
+            {
+                XRDeviceSimulatorGate gate = simulator.GetComponent<XRDeviceSimulatorGate>();
+                if (gate == null)
+                {
+                    failures.Add("XR Device Simulator has no gate; with a headset connected it would strip the real HMD from the Input System and head tracking would stop.");
+                }
+                else if (gate.Origin == null)
+                {
+                    failures.Add("XR Device Simulator gate has no XR Origin, so a desktop session would start at floor level.");
+                }
+            }
 
             Transform hud = system.Find("S05_ReviewHud");
             if (hud == null)
@@ -264,6 +275,34 @@ namespace LivingRoom30.Editor
                     if (controller.HelpButton == null) failures.Add("Tutorial controller is not wired to the HUD HELP button.");
                     if (controller.MoveProvider == null) failures.Add("Tutorial cannot read the move provider, so step 1 would never advance.");
                     if (controller.TurnProvider == null) failures.Add("Tutorial cannot read the snap turn provider, so step 2 would never advance.");
+                    if (controller.Highlighter == null) failures.Add("Tutorial controller has no ControlHighlighter, so the key highlight would never appear.");
+                }
+
+                ControlHighlighter highlighter = tutorial.GetComponent<ControlHighlighter>();
+                if (highlighter == null)
+                {
+                    failures.Add("Tutorial panel has no ControlHighlighter.");
+                }
+                else
+                {
+                    if (highlighter.LeftController == null || highlighter.RightController == null)
+                    {
+                        failures.Add("ControlHighlighter is not wired to both controllers, so the key highlight would never appear.");
+                    }
+
+                    if (highlighter.LeftBeacon == null || highlighter.RightBeacon == null)
+                    {
+                        failures.Add("ControlHighlighter has no hand beacons, so the trigger step would have no visible cue.");
+                    }
+
+                    foreach (Transform beacon in new[] { highlighter.LeftBeacon, highlighter.RightBeacon })
+                    {
+                        // A collider here would block the interactor ray for anything behind the hand.
+                        if (beacon != null && beacon.GetComponent<Collider>() != null)
+                        {
+                            failures.Add("Hand beacon has a collider, which would block the interactor ray: " + beacon.name);
+                        }
+                    }
                 }
 
                 foreach (Button button in tutorial.GetComponentsInChildren<Button>(true))

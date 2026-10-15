@@ -34,6 +34,8 @@ namespace LivingRoom30.Editor
         private const float ReviewHudPauseAnchorMaxX = 0.72f;
         private const float ReviewHudHelpAnchorMinX = 0.74f;
         private const string TutorialPanelName = "S07_TutorialPanel";
+        private const float BeaconSize = 0.02f;
+        private const float BeaconEditHeight = 1.0f;
         private const float TutorialPanelScale = 0.00055f;
         private const float TutorialPanelMovementSpeed = 12f;
         private const float TutorialPanelEditHeadHeight = 1.60f;
@@ -563,7 +565,8 @@ namespace LivingRoom30.Editor
                     simulator.transform.localPosition = Vector3.zero;
                     simulator.transform.localRotation = Quaternion.identity;
                     // Without this the simulator removes a connected headset from the Input System.
-                    simulator.AddComponent<XRDeviceSimulatorGate>();
+                    XRDeviceSimulatorGate gate = simulator.AddComponent<XRDeviceSimulatorGate>();
+                    gate.Configure(xrRig.GetComponentInChildren<XROrigin>(true));
                 }
             }
             else
@@ -743,16 +746,40 @@ namespace LivingRoom30.Editor
             Button skipButton = BuildHudButton(panel.transform, font, "Button_Skip",
                 new Vector2(0.64f, 0.06f), new Vector2(0.97f, 0.34f), "SKIP");
 
+            ControlHighlighter highlighter = panel.AddComponent<ControlHighlighter>();
+            highlighter.Configure(
+                FindController(xrRig, "Left"),
+                FindController(xrRig, "Right"),
+                BuildBeacon(parent, "Beacon_Left", xrRig),
+                BuildBeacon(parent, "Beacon_Right", xrRig));
+
             TutorialController tutorial = panel.AddComponent<TutorialController>();
             tutorial.Configure(
                 label,
                 practiceButton,
                 skipButton,
                 helpButton,
+                highlighter,
                 xrRig.GetComponentInChildren<ActionBasedContinuousMoveProvider>(true),
                 xrRig.GetComponentInChildren<ActionBasedSnapTurnProvider>(true));
 
             SetLayerRecursively(panel, "UI");
+        }
+
+        // Floats above a hand to pull the reviewer's gaze down to a control they cannot see.
+        private static Transform BuildBeacon(Transform parent, string name, GameObject xrRig)
+        {
+            GameObject beacon = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            beacon.name = name;
+            beacon.transform.SetParent(parent, false);
+            beacon.transform.localScale = Vector3.one * BeaconSize;
+            beacon.transform.position = xrRig.transform.position + Vector3.up * BeaconEditHeight;
+
+            // CreatePrimitive adds a collider, and a collider in the world would block the
+            // interactor ray for anything behind the reviewer's hand.
+            Object.DestroyImmediate(beacon.GetComponent<Collider>());
+            beacon.SetActive(false);
+            return beacon.transform;
         }
 
         private static void BuildXrUiEventSystem(Transform parent, Camera headCamera)
@@ -790,29 +817,37 @@ namespace LivingRoom30.Editor
         // The rig prefab ships without controller models, so reviewers see only a bare ray.
         private static void ApplyControllerModels(GameObject xrRig)
         {
-            Transform leftModel = LoadControllerModel(XRControllerLeftModelName);
-            Transform rightModel = LoadControllerModel(XRControllerRightModelName);
+            ActionBasedController left = FindController(xrRig, "Left");
+            ActionBasedController right = FindController(xrRig, "Right");
 
-            int matched = 0;
+            if (left != null)
+            {
+                left.modelPrefab = LoadControllerModel(XRControllerLeftModelName);
+            }
+
+            if (right != null)
+            {
+                right.modelPrefab = LoadControllerModel(XRControllerRightModelName);
+            }
+
+            if (left == null || right == null)
+            {
+                Debug.LogWarning("SceneNew expected to attach models to two XR controllers.");
+            }
+        }
+
+        private static ActionBasedController FindController(GameObject xrRig, string namePrefix)
+        {
             foreach (XRBaseController controller in xrRig.GetComponentsInChildren<XRBaseController>(true))
             {
-                string controllerName = controller.gameObject.name;
-                if (controllerName.StartsWith("Left", System.StringComparison.Ordinal))
+                if (controller is ActionBasedController actionController &&
+                    actionController.gameObject.name.StartsWith(namePrefix, System.StringComparison.Ordinal))
                 {
-                    controller.modelPrefab = leftModel;
-                    matched++;
-                }
-                else if (controllerName.StartsWith("Right", System.StringComparison.Ordinal))
-                {
-                    controller.modelPrefab = rightModel;
-                    matched++;
+                    return actionController;
                 }
             }
 
-            if (matched != 2)
-            {
-                Debug.LogWarning("SceneNew expected to attach models to two XR controllers but matched " + matched + ".");
-            }
+            return null;
         }
 
         private static Transform LoadControllerModel(string fileName)

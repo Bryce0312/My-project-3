@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.XR.CoreUtils;
 using UnityEngine;
 using UnityEngine.XR;
 using UnityEngine.XR.Interaction.Toolkit.Inputs.Simulation;
@@ -20,8 +21,18 @@ namespace LivingRoom30
     public sealed class XRDeviceSimulatorGate : MonoBehaviour
     {
         private const float XrStartupTimeout = 3f;
+        private const float DesktopEyeHeight = 1.6f;
+
+        [SerializeField] private XROrigin xrOrigin;
 
         private XRDeviceSimulator simulator;
+
+        public XROrigin Origin => xrOrigin;
+
+        public void Configure(XROrigin origin)
+        {
+            xrOrigin = origin;
+        }
 
         private void Awake()
         {
@@ -47,6 +58,24 @@ namespace LivingRoom30
 
             Debug.Log("No XR device after " + XrStartupTimeout + "s, so the XR device simulator is enabled for mouse control.");
             simulator.enabled = true;
+            RaiseDesktopView();
+        }
+
+        /// <summary>
+        /// The simulator resets its HMD to the origin, and with no XR subsystem the XR Origin never
+        /// moves its camera offset (its tracking origin mode stays Unknown, so none of the branches
+        /// in <c>MoveOffsetHeight</c> run). Without this a desktop session would start at floor
+        /// level. The value survives because nothing else writes that transform while XR is absent.
+        /// </summary>
+        private void RaiseDesktopView()
+        {
+            if (xrOrigin == null || xrOrigin.CameraFloorOffsetObject == null)
+            {
+                return;
+            }
+
+            Transform offset = xrOrigin.CameraFloorOffsetObject.transform;
+            offset.localPosition = new Vector3(offset.localPosition.x, DesktopEyeHeight, offset.localPosition.z);
         }
 
         private static bool XrIsRunning()

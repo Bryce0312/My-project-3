@@ -14,17 +14,28 @@ namespace LivingRoom30
     {
         private const float InputDeadzone = 0.2f;
 
-        private static readonly string[] StepInstructions =
+        private struct Step
         {
-            "Push the LEFT stick to walk",
-            "Push the RIGHT stick to turn",
-            "Point at the button and press the TRIGGER",
+            public string Instruction;
+            public string PartName;
+            public HighlightTarget Hand;
+            public bool ShowBeacon;
+        }
+
+        private static readonly Step[] Steps =
+        {
+            new Step { Instruction = "Push the LEFT stick to walk", PartName = "ThumbStick", Hand = HighlightTarget.Left },
+            new Step { Instruction = "Push the RIGHT stick to turn", PartName = "ThumbStick", Hand = HighlightTarget.Right },
+            // The trigger faces away from the eyes, so it needs a visible marker to pull the gaze
+            // down to the hand before the glow on the trigger itself means anything.
+            new Step { Instruction = "Look at your controller and press the TRIGGER", PartName = "Trigger", Hand = HighlightTarget.Both, ShowBeacon = true },
         };
 
         [SerializeField] private Text stepLabel;
         [SerializeField] private Button practiceButton;
         [SerializeField] private Button skipButton;
         [SerializeField] private Button helpButton;
+        [SerializeField] private ControlHighlighter highlighter;
         [SerializeField] private ActionBasedContinuousMoveProvider moveProvider;
         [SerializeField] private ActionBasedSnapTurnProvider turnProvider;
 
@@ -34,16 +45,19 @@ namespace LivingRoom30
         public Button PracticeButton => practiceButton;
         public Button SkipButton => skipButton;
         public Button HelpButton => helpButton;
+        public ControlHighlighter Highlighter => highlighter;
         public ActionBasedContinuousMoveProvider MoveProvider => moveProvider;
         public ActionBasedSnapTurnProvider TurnProvider => turnProvider;
 
         public void Configure(Text stepText, Button practice, Button skip, Button help,
+            ControlHighlighter controlHighlighter,
             ActionBasedContinuousMoveProvider movement, ActionBasedSnapTurnProvider turning)
         {
             stepLabel = stepText;
             practiceButton = practice;
             skipButton = skip;
             helpButton = help;
+            highlighter = controlHighlighter;
             moveProvider = movement;
             turnProvider = turning;
         }
@@ -100,13 +114,18 @@ namespace LivingRoom30
 
         private void Hide()
         {
+            if (highlighter != null)
+            {
+                highlighter.Clear();
+            }
+
             gameObject.SetActive(false);
         }
 
         private void AdvanceStep()
         {
             stepIndex++;
-            if (stepIndex >= StepInstructions.Length)
+            if (stepIndex >= Steps.Length)
             {
                 Hide();
                 return;
@@ -117,14 +136,21 @@ namespace LivingRoom30
 
         private void RefreshStep()
         {
+            Step step = Steps[stepIndex];
+
             if (stepLabel != null)
             {
-                stepLabel.text = (stepIndex + 1) + " / " + StepInstructions.Length + "\n" + StepInstructions[stepIndex];
+                stepLabel.text = (stepIndex + 1) + " / " + Steps.Length + "\n" + step.Instruction;
             }
 
             if (practiceButton != null)
             {
-                practiceButton.gameObject.SetActive(stepIndex == 2);
+                practiceButton.gameObject.SetActive(stepIndex == Steps.Length - 1);
+            }
+
+            if (highlighter != null)
+            {
+                highlighter.Highlight(step.PartName, step.Hand, step.ShowBeacon);
             }
         }
 
