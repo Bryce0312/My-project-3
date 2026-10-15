@@ -29,17 +29,30 @@ namespace LivingRoom30.Editor
         private const float ReviewHudCanvasScale = 0.0005f;
         private const float ReviewHudEditHeadHeight = 1.60f;
         private const float ReviewHudMovementSpeed = 12f;
-        private const float ReviewHudTimeAnchorMaxX = 0.62f;
-        private const float ReviewHudButtonAnchorMinX = 0.64f;
+        private const float ReviewHudTimeAnchorMaxX = 0.44f;
+        private const float ReviewHudPauseAnchorMinX = 0.46f;
+        private const float ReviewHudPauseAnchorMaxX = 0.72f;
+        private const float ReviewHudHelpAnchorMinX = 0.74f;
+        private const string TutorialPanelName = "S07_TutorialPanel";
+        private const float BeaconSize = 0.02f;
+        private const float BeaconEditHeight = 1.0f;
+        private const float TutorialPanelScale = 0.00055f;
+        private const float TutorialPanelMovementSpeed = 12f;
+        private const float TutorialPanelEditHeadHeight = 1.60f;
 
         // Offset in head-local space: lower right of the view, ~0.69 m away.
         private static readonly Vector3 ReviewHudViewOffset = new Vector3(0.22f, -0.14f, 0.60f);
-        private static readonly Vector2 ReviewHudCanvasSize = new Vector2(400f, 140f);
+        private static readonly Vector2 ReviewHudCanvasSize = new Vector2(520f, 140f);
         private static readonly Color ReviewHudPanelColor = new Color(0.06f, 0.07f, 0.09f, 0.55f);
         private static readonly Color ReviewHudButtonColor = new Color(0.16f, 0.18f, 0.22f);
         private static readonly Color ReviewHudButtonHighlightedColor = new Color(0.30f, 0.34f, 0.42f);
         private static readonly Color ReviewHudButtonPressedColor = new Color(0.44f, 0.51f, 0.62f);
         private static readonly Color ReviewHudButtonDisabledColor = new Color(0.10f, 0.10f, 0.12f, 0.5f);
+
+        // Below the HUD and centred, so it is readable while the reviewer is walking or turning.
+        private static readonly Vector3 TutorialPanelViewOffset = new Vector3(0f, -0.26f, 0.80f);
+        private static readonly Vector2 TutorialPanelSize = new Vector2(620f, 260f);
+        private static readonly Color TutorialPanelColor = new Color(0.06f, 0.07f, 0.09f, 0.72f);
 
         private static Material wallMaterial;
         private static Material floorMaterial;
@@ -552,7 +565,8 @@ namespace LivingRoom30.Editor
                     simulator.transform.localPosition = Vector3.zero;
                     simulator.transform.localRotation = Quaternion.identity;
                     // Without this the simulator removes a connected headset from the Input System.
-                    simulator.AddComponent<XRDeviceSimulatorGate>();
+                    XRDeviceSimulatorGate gate = simulator.AddComponent<XRDeviceSimulatorGate>();
+                    gate.Configure(xrRig.GetComponentInChildren<XROrigin>(true));
                 }
             }
             else
@@ -561,11 +575,12 @@ namespace LivingRoom30.Editor
             }
 
             Camera headCamera = ResolveHeadCamera(xrRig);
-            BuildReviewHud(parent, xrRig, headCamera);
+            Button helpButton = BuildReviewHud(parent, xrRig, headCamera);
+            BuildTutorialPanel(parent, xrRig, headCamera, helpButton);
             BuildXrUiEventSystem(parent, headCamera);
         }
 
-        private static void BuildReviewHud(Transform parent, GameObject xrRig, Camera headCamera)
+        private static Button BuildReviewHud(Transform parent, GameObject xrRig, Camera headCamera)
         {
             Font font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             if (font == null)
@@ -622,17 +637,24 @@ namespace LivingRoom30.Editor
             StopwatchHud stopwatch = labelObject.AddComponent<StopwatchHud>();
             stopwatch.Configure(label);
 
-            BuildPauseButton(hud.transform, font, stopwatch);
+            Button pauseButton = BuildHudButton(hud.transform, font, "Button_Pause",
+                new Vector2(ReviewHudPauseAnchorMinX, 0f), new Vector2(ReviewHudPauseAnchorMaxX, 1f), "PAUSE");
+            HudPauseButton pauseHandler = pauseButton.gameObject.AddComponent<HudPauseButton>();
+            pauseHandler.Configure(stopwatch, pauseButton.GetComponentInChildren<Text>());
+
+            Button helpButton = BuildHudButton(hud.transform, font, "Button_Help",
+                new Vector2(ReviewHudHelpAnchorMinX, 0f), Vector2.one, "HELP");
 
             SetLayerRecursively(hud, "UI");
+            return helpButton;
         }
 
-        private static void BuildPauseButton(Transform hud, Font font, StopwatchHud stopwatch)
+        private static Button BuildHudButton(Transform parent, Font font, string name,
+            Vector2 anchorMin, Vector2 anchorMax, string text)
         {
-            GameObject buttonObject = new GameObject("Button_Pause", typeof(RectTransform));
-            buttonObject.transform.SetParent(hud, false);
-            AnchorTo(buttonObject.GetComponent<RectTransform>(),
-                new Vector2(ReviewHudButtonAnchorMinX, 0f), Vector2.one, new Vector2(8f, 10f));
+            GameObject buttonObject = new GameObject(name, typeof(RectTransform));
+            buttonObject.transform.SetParent(parent, false);
+            AnchorTo(buttonObject.GetComponent<RectTransform>(), anchorMin, anchorMax, new Vector2(8f, 10f));
 
             Image buttonBackground = buttonObject.AddComponent<Image>();
             buttonBackground.color = ReviewHudButtonColor;
@@ -658,15 +680,106 @@ namespace LivingRoom30.Editor
             label.fontSize = 40;
             label.alignment = TextAnchor.MiddleCenter;
             label.raycastTarget = false;
-            // PAUSE / RESUME are single words with nowhere to break, so let Unity shrink the
-            // text to the button instead of wrapping it onto two lines.
+            // Labels like PAUSE / RESUME / HELP have nowhere to break, so let Unity shrink the
+            // text to fit the button instead of wrapping it onto two lines.
             label.resizeTextForBestFit = true;
             label.resizeTextMinSize = 22;
             label.resizeTextMaxSize = 38;
-            label.text = "PAUSE";
+            label.text = text;
 
-            HudPauseButton pauseButton = buttonObject.AddComponent<HudPauseButton>();
-            pauseButton.Configure(stopwatch, label);
+            return button;
+        }
+
+        private static void BuildTutorialPanel(Transform parent, GameObject xrRig, Camera headCamera, Button helpButton)
+        {
+            Font font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            if (font == null)
+            {
+                throw new MissingReferenceException("The built-in LegacyRuntime font is unavailable; the tutorial label would not render.");
+            }
+
+            GameObject panel = new GameObject(TutorialPanelName, typeof(RectTransform));
+            panel.transform.SetParent(parent, false);
+            panel.GetComponent<RectTransform>().sizeDelta = TutorialPanelSize;
+            panel.transform.localScale = Vector3.one * TutorialPanelScale;
+            panel.transform.position = xrRig.transform.position +
+                                       Vector3.up * TutorialPanelEditHeadHeight +
+                                       xrRig.transform.rotation * TutorialPanelViewOffset;
+            panel.transform.rotation = xrRig.transform.rotation;
+
+            Canvas canvas = panel.AddComponent<Canvas>();
+            canvas.renderMode = RenderMode.WorldSpace;
+            canvas.worldCamera = headCamera;
+
+            CanvasScaler scaler = panel.AddComponent<CanvasScaler>();
+            scaler.dynamicPixelsPerUnit = 1f;
+
+            panel.AddComponent<TrackedDeviceGraphicRaycaster>();
+
+            HudLazyFollow follow = panel.AddComponent<HudLazyFollow>();
+            follow.target = headCamera.transform;
+            follow.targetOffset = TutorialPanelViewOffset;
+            follow.movementSpeed = TutorialPanelMovementSpeed;
+
+            GameObject background = new GameObject("Panel_Background", typeof(RectTransform));
+            background.transform.SetParent(panel.transform, false);
+            StretchToParent(background.GetComponent<RectTransform>(), Vector2.zero);
+            Image backgroundImage = background.AddComponent<Image>();
+            backgroundImage.color = TutorialPanelColor;
+            backgroundImage.raycastTarget = false;
+
+            GameObject labelObject = new GameObject("Label_Step", typeof(RectTransform));
+            labelObject.transform.SetParent(panel.transform, false);
+            AnchorTo(labelObject.GetComponent<RectTransform>(),
+                new Vector2(0f, 0.38f), Vector2.one, new Vector2(20f, 12f));
+
+            Text label = labelObject.AddComponent<Text>();
+            label.font = font;
+            label.fontSize = 34;
+            label.alignment = TextAnchor.MiddleCenter;
+            label.raycastTarget = false;
+            label.text = "1 / 3";
+
+            Button practiceButton = BuildHudButton(panel.transform, font, "Button_Practice",
+                new Vector2(0.03f, 0.06f), new Vector2(0.60f, 0.34f), "PRESS ME");
+
+            Button skipButton = BuildHudButton(panel.transform, font, "Button_Skip",
+                new Vector2(0.64f, 0.06f), new Vector2(0.97f, 0.34f), "SKIP");
+
+            ControlHighlighter highlighter = panel.AddComponent<ControlHighlighter>();
+            highlighter.Configure(
+                FindController(xrRig, "Left"),
+                FindController(xrRig, "Right"),
+                BuildBeacon(parent, "Beacon_Left", xrRig),
+                BuildBeacon(parent, "Beacon_Right", xrRig));
+
+            TutorialController tutorial = panel.AddComponent<TutorialController>();
+            tutorial.Configure(
+                label,
+                practiceButton,
+                skipButton,
+                helpButton,
+                highlighter,
+                xrRig.GetComponentInChildren<ActionBasedContinuousMoveProvider>(true),
+                xrRig.GetComponentInChildren<ActionBasedSnapTurnProvider>(true));
+
+            SetLayerRecursively(panel, "UI");
+        }
+
+        // Floats above a hand to pull the reviewer's gaze down to a control they cannot see.
+        private static Transform BuildBeacon(Transform parent, string name, GameObject xrRig)
+        {
+            GameObject beacon = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            beacon.name = name;
+            beacon.transform.SetParent(parent, false);
+            beacon.transform.localScale = Vector3.one * BeaconSize;
+            beacon.transform.position = xrRig.transform.position + Vector3.up * BeaconEditHeight;
+
+            // CreatePrimitive adds a collider, and a collider in the world would block the
+            // interactor ray for anything behind the reviewer's hand.
+            Object.DestroyImmediate(beacon.GetComponent<Collider>());
+            beacon.SetActive(false);
+            return beacon.transform;
         }
 
         private static void BuildXrUiEventSystem(Transform parent, Camera headCamera)
@@ -704,29 +817,37 @@ namespace LivingRoom30.Editor
         // The rig prefab ships without controller models, so reviewers see only a bare ray.
         private static void ApplyControllerModels(GameObject xrRig)
         {
-            Transform leftModel = LoadControllerModel(XRControllerLeftModelName);
-            Transform rightModel = LoadControllerModel(XRControllerRightModelName);
+            ActionBasedController left = FindController(xrRig, "Left");
+            ActionBasedController right = FindController(xrRig, "Right");
 
-            int matched = 0;
+            if (left != null)
+            {
+                left.modelPrefab = LoadControllerModel(XRControllerLeftModelName);
+            }
+
+            if (right != null)
+            {
+                right.modelPrefab = LoadControllerModel(XRControllerRightModelName);
+            }
+
+            if (left == null || right == null)
+            {
+                Debug.LogWarning("SceneNew expected to attach models to two XR controllers.");
+            }
+        }
+
+        private static ActionBasedController FindController(GameObject xrRig, string namePrefix)
+        {
             foreach (XRBaseController controller in xrRig.GetComponentsInChildren<XRBaseController>(true))
             {
-                string controllerName = controller.gameObject.name;
-                if (controllerName.StartsWith("Left", System.StringComparison.Ordinal))
+                if (controller is ActionBasedController actionController &&
+                    actionController.gameObject.name.StartsWith(namePrefix, System.StringComparison.Ordinal))
                 {
-                    controller.modelPrefab = leftModel;
-                    matched++;
-                }
-                else if (controllerName.StartsWith("Right", System.StringComparison.Ordinal))
-                {
-                    controller.modelPrefab = rightModel;
-                    matched++;
+                    return actionController;
                 }
             }
 
-            if (matched != 2)
-            {
-                Debug.LogWarning("SceneNew expected to attach models to two XR controllers but matched " + matched + ".");
-            }
+            return null;
         }
 
         private static Transform LoadControllerModel(string fileName)
