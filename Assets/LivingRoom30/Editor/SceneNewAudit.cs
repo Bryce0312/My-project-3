@@ -197,6 +197,12 @@ namespace LivingRoom30.Editor
                 {
                     failures.Add("Review HUD time label is allowed to wrap; a session past one hour would break onto two lines.");
                 }
+
+                Transform helpButton = hud.transform.Find("Button_Help");
+                if (helpButton == null || helpButton.GetComponent<Button>() == null)
+                {
+                    failures.Add("Review HUD has no HELP button, so the tutorial could not be replayed.");
+                }
             }
 
             Transform uiEventSystem = system.Find("S06_XR_UIEventSystem");
@@ -223,6 +229,59 @@ namespace LivingRoom30.Editor
                 }
             }
 
+            Transform tutorial = system.Find("S07_TutorialPanel");
+            if (tutorial == null)
+            {
+                failures.Add("Tutorial panel is missing.");
+            }
+            else
+            {
+                Canvas tutorialCanvas = tutorial.GetComponent<Canvas>();
+                if (tutorialCanvas == null || tutorialCanvas.renderMode != RenderMode.WorldSpace)
+                {
+                    failures.Add("Tutorial canvas is missing or is not world space.");
+                }
+                else if (tutorialCanvas.worldCamera == null)
+                {
+                    failures.Add("Tutorial canvas has no world camera; tracked device raycasts would fall back to Camera.main.");
+                }
+
+                if (tutorial.GetComponent<TrackedDeviceGraphicRaycaster>() == null)
+                {
+                    failures.Add("Tutorial canvas has no TrackedDeviceGraphicRaycaster, so the practice button could not be clicked.");
+                }
+
+                TutorialController controller = tutorial.GetComponent<TutorialController>();
+                if (controller == null)
+                {
+                    failures.Add("Tutorial panel has no TutorialController.");
+                }
+                else
+                {
+                    if (controller.StepLabel == null) failures.Add("Tutorial controller is not wired to its step label.");
+                    if (controller.PracticeButton == null) failures.Add("Tutorial controller has no practice button.");
+                    if (controller.SkipButton == null) failures.Add("Tutorial controller has no skip button.");
+                    if (controller.HelpButton == null) failures.Add("Tutorial controller is not wired to the HUD HELP button.");
+                    if (controller.MoveProvider == null) failures.Add("Tutorial cannot read the move provider, so step 1 would never advance.");
+                    if (controller.TurnProvider == null) failures.Add("Tutorial cannot read the snap turn provider, so step 2 would never advance.");
+                }
+
+                foreach (Button button in tutorial.GetComponentsInChildren<Button>(true))
+                {
+                    Text buttonLabel = button.GetComponentInChildren<Text>(true);
+                    if (buttonLabel == null)
+                    {
+                        continue;
+                    }
+
+                    // Best fit can only shrink to resizeTextMinSize; a shorter rect clips the text away.
+                    if (buttonLabel.rectTransform.rect.height < buttonLabel.resizeTextMinSize)
+                    {
+                        failures.Add("Tutorial button label is shorter than its minimum font size and would be clipped: " + button.name);
+                    }
+                }
+            }
+
             if (failures.Count > 0)
             {
                 throw new InvalidOperationException("SceneNew audit failed:\n- " + string.Join("\n- ", failures));
@@ -231,7 +290,7 @@ namespace LivingRoom30.Editor
             Debug.Log(
                 "SceneNew audit passed. Architecture colliders=" + architecture.GetComponentsInChildren<Collider>(true).Length +
                 ", furniture surface colliders=" + furnitureColliderCount +
-                ", XR rig/body/controllers/continuous movement, review HUD with pause button and XR UI event system present.");
+                ", XR rig/body/controllers/continuous movement, review HUD, XR UI event system and control tutorial present.");
         }
     }
 }
