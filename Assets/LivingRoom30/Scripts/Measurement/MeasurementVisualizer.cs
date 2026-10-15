@@ -6,7 +6,10 @@ namespace LivingRoom30.Measurement
     /// <summary>
     /// 测量可视化：管理 LineRenderer 对象池与 3D 文本标签对象池，
     /// 提供绘制线段（含可选路径样式与数值标签）、绘制包围盒棱线、整体回收等能力。
-    /// 材质在运行时按 Unlit/Color 创建；文本使用旧版 TextMesh + 内置字体 LegacyRuntime.ttf，
+    /// 线条美化：Sprites/Default 顶点色渐变材质（主线亮→尾端微淡）、
+    /// 每条主线附带一层更宽的低透明度辉光底线（两端渐隐）、圆滑端帽，
+    /// 测量距离线两端可绘制与线同色的端点圆点。
+    /// 文本使用旧版 TextMesh + 内置字体 LegacyRuntime.ttf，
     /// 不依赖 TextMeshPro 的 Essential Resources（该项目未导入，访问 TMP_Settings 会抛 NRE）。
     /// </summary>
     [RequireComponent(typeof(Transform))]
@@ -17,6 +20,14 @@ namespace LivingRoom30.Measurement
         public Color pathColor = Color.cyan;
         public float lineWidth = 0.012f;
         public float lineHeightOffset = 0.003f; // 线段整体向上浮起，避免与家具表面 Z-fight / 穿模
+
+        [Header("辉光底层")]
+        public float glowWidthMultiplier = 2.8f; // 辉光线宽 = lineWidth × 该倍数
+        [Range(0f, 1f)] public float glowAlpha = 0.22f;
+
+        [Header("端点圆点")]
+        public bool drawEndpoints = true;             // 测量线两端的小圆点（路径/包围盒棱不画）
+        public float endpointScale = 1.6f;            // 圆点直径 = lineWidth × 该倍数
 
         [Header("3D 标签")]
         public float labelCharSize = 0.1f;   // 字符世界尺寸（越大标签越大）
@@ -32,23 +43,46 @@ namespace LivingRoom30.Measurement
         public float labelMaxScale = 0.50f;
         public float labelUnitHeight = 1f;        // 校准系数：实际字高 = charSize×fontSize×0.1×unitHeight
 
-        private Material lineMaterial;
+        private Material lineMaterial;      // 主线（顶点色渐变）
         private Material pathMaterial;
+        private Material lineGlowMaterial;  // 辉光底层（低透明度、两端渐隐）
+        private Material pathGlowMaterial;
+        private Material dotMaterial;       // 端点圆点
         private Material labelMaterial;
         private Font font;
 
-        private readonly List<LineRenderer> linePool = new List<LineRenderer>();
+        private class LineEntry
+        {
+            public LineRenderer main;   // 主线
+            public LineRenderer glow;   // 辉光底层
+            public bool isPath;
+        }
+
+        private readonly List<LineEntry> linePool = new List<LineEntry>();
+        private readonly List<GameObject> dotPool = new List<GameObject>();
         private readonly List<GameObject> labelPool = new List<GameObject>();
         private Transform poolParent;
+        private Transform dotParent;
 
         private void Awake()
         {
             poolParent = new GameObject("MeasurePool").transform;
             poolParent.SetParent(transform);
             poolParent.localPosition = Vector3.zero;
+            dotParent = new GameObject("MeasureDots").transform;
+            dotParent.SetParent(transform);
+            dotParent.localPosition = Vector3.zero;
 
-            if (lineMaterial == null) lineMaterial = new Material(Shader.Find("Unlit/Color")) { color = lineColor };
-            if (pathMaterial == null) pathMaterial = new Material(Shader.Find("Unlit/Color")) { color = pathColor };
+            // Sprites/Default 支持 LineRenderer 顶点色渐变与透明度（Unlit/Color 不支持），
+            // 顶点色负责渐变，材质色负责整体色调：final = material.color × vertexColor。
+            var spriteShader = Shader.Find("Sprites/Default");
+            if (spriteShader == null) spriteShader = Shader.Find("Unlit/Color"); // 兜底：退化为纯色线
+
+            lineMaterial = new Material(spriteShader) { color = lineColor };
+            pathMaterial = new Material(spriteShader) { color = pathColor };
+            lineGlowMaterial = new Material(spriteShader) { color = lineColor };
+            pathGlowMaterial = new Material(spriteShader) { color = pathColor };
+            dotMaterial = new Material(spriteShader) { color = lineColor };
 
             // Unity 2022.2+ 已移除内置 Arial.ttf，改用 LegacyRuntime.ttf。
             // 旧版内置字体无需任何资源导入即可用，避免 TMP Essential Resources 缺失导致的 NRE。
@@ -66,28 +100,87 @@ namespace LivingRoom30.Measurement
 
         // ---- 对象池 ----
 
-        private LineRenderer GetLine(bool isPath)
+        private LineEntry GetLine(bool isPath)
         {
-            foreach (var lr in linePool)
+            foreach (var e in linePool)
             {
-                if (!lr.enabled) { lr.enabled = true; ConfigureLine(lr, isPath); return lr; }
+                if (!e.main.enabled)
+                {
+                    e.main.enabled = true;
+                    if (e.glow != null) e.glow.enabled = true;
+                    e.isPath = isPath;
+                    ConfigureLine(e);
+                    return e;
+                }
             }
+
+            var entry = new LineEntry { isPath = isPath };
+
+            // 主线
             var go = new GameObject("MeasureLine");
             go.transform.SetParent(poolParent);
-            var lr2 = go.AddComponent<LineRenderer>();
-            lr2.useWorldSpace = true;
-            linePool.Add(lr2);
-            lr2.enabled = true;
-            ConfigureLine(lr2, isPath);
-            return lr2;
+            entry.main = go.AddComponent<LineRenderer>();
+            entry.main.useWorldSpace = true;
+
+            // 辉光底层（同 GO 的子物体，随主线启停）
+            var glowGO = new GameObject("Glow");
+            glowGO.transform.SetParent(go.transform, false);
+            entry.glow = glowGO.AddComponent<LineRenderer>();
+            entry.glow.useWorldSpace = true;
+            entry.glow.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            entry.glow.receiveShadows = false;
+
+            linePool.Add(entry);
+            entry.main.enabled = true;
+            entry.glow.enabled = true;
+            ConfigureLine(entry);
+            return entry;
         }
 
-        private void ConfigureLine(LineRenderer lr, bool isPath)
+        private void ConfigureLine(LineEntry e)
         {
-            lr.material = isPath ? pathMaterial : lineMaterial;
-            lr.startWidth = lr.endWidth = lineWidth;
-            lr.positionCount = 0;
-            lr.numCapVertices = 4;
+            bool isPath = e.isPath;
+            var main = e.main;
+            main.material = isPath ? pathMaterial : lineMaterial;
+            main.startWidth = main.endWidth = lineWidth;
+            main.positionCount = 0;
+            main.numCapVertices = 8;   // 圆滑端帽
+            main.numCornerVertices = 4;
+            main.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            // 主线渐变：从头到尾轻微变淡，视觉更轻盈（材质色提供色调，顶点色提供明暗）
+            main.startColor = Color.white;
+            main.endColor = new Color(0.88f, 0.88f, 0.88f, 0.92f);
+
+            var glow = e.glow;
+            glow.material = isPath ? pathGlowMaterial : lineGlowMaterial;
+            float gw = lineWidth * glowWidthMultiplier;
+            glow.startWidth = glow.endWidth = gw;
+            glow.positionCount = 0;
+            glow.numCapVertices = 8;
+            glow.numCornerVertices = 4;
+            // 辉光：两端渐隐、中部最亮（低透明度），形成柔光衬托
+            var g = new Gradient();
+            g.SetKeys(
+                new[] { new GradientColorKey(Color.white, 0f), new GradientColorKey(Color.white, 1f) },
+                new[] { new GradientAlphaKey(0f, 0f), new GradientAlphaKey(glowAlpha, 0.5f), new GradientAlphaKey(0f, 1f) });
+            glow.colorGradient = g;
+        }
+
+        private GameObject GetDot()
+        {
+            foreach (var d in dotPool)
+            {
+                if (!d.activeSelf) { d.SetActive(true); return d; }
+            }
+            var go = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            Object.Destroy(go.GetComponent<Collider>()); // 纯视觉，不参与物理
+            go.transform.SetParent(dotParent);
+            var mr = go.GetComponent<MeshRenderer>();
+            mr.sharedMaterial = dotMaterial;
+            mr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            mr.receiveShadows = false;
+            dotPool.Add(go);
+            return go;
         }
 
         private GameObject GetLabel()
@@ -143,6 +236,9 @@ namespace LivingRoom30.Measurement
             pathColor = path;
             if (lineMaterial != null) lineMaterial.color = line;
             if (pathMaterial != null) pathMaterial.color = path;
+            if (lineGlowMaterial != null) lineGlowMaterial.color = line;
+            if (pathGlowMaterial != null) pathGlowMaterial.color = path;
+            if (dotMaterial != null) dotMaterial.color = line;
         }
 
         /// <summary>切换标签朝向相机，并同步更新对象池里所有已创建标签的 BillboardLabel。</summary>
@@ -175,14 +271,30 @@ namespace LivingRoom30.Measurement
 
         // ---- 对外绘制 API ----
 
-        /// <summary>绘制一条线段，并在中点放置数值标签（可选）。返回该线段的 LineRenderer。</summary>
-        public LineRenderer DrawLine(Vector3 a, Vector3 b, bool isPath, string label = null)
+        /// <summary>
+        /// 绘制一条线段，并在中点放置数值标签（可选）。endpoints 控制是否绘制两端圆点。
+        /// 返回该线段主线的 LineRenderer。
+        /// </summary>
+        public LineRenderer DrawLine(Vector3 a, Vector3 b, bool isPath, string label = null, bool endpoints = true)
         {
-            var lr = GetLine(isPath);
-            lr.positionCount = 2;
+            var e = GetLine(isPath);
             Vector3 lift = Vector3.up * lineHeightOffset;
-            lr.SetPosition(0, a + lift);
-            lr.SetPosition(1, b + lift);
+            Vector3 pa = a + lift, pb = b + lift;
+
+            e.main.positionCount = 2;
+            e.main.SetPosition(0, pa);
+            e.main.SetPosition(1, pb);
+            e.glow.positionCount = 2;
+            e.glow.SetPosition(0, pa);
+            e.glow.SetPosition(1, pb);
+
+            if (endpoints && drawEndpoints && !isPath)
+            {
+                float d = lineWidth * endpointScale;
+                SetDot(GetDot(), pa, d);
+                SetDot(GetDot(), pb, d);
+            }
+
             if (!string.IsNullOrEmpty(label))
             {
                 var lbl = GetLabel();
@@ -190,10 +302,16 @@ namespace LivingRoom30.Measurement
                 lbl.transform.position = (a + b) * 0.5f + Vector3.up * labelOffset;
                 SetLabelText(lbl, label);
             }
-            return lr;
+            return e.main;
         }
 
-        /// <summary>绘制包围盒 12 条棱；showEdgeLengths 为真时逐条标注边长。</summary>
+        private static void SetDot(GameObject dot, Vector3 pos, float diameter)
+        {
+            dot.transform.position = pos;
+            dot.transform.localScale = new Vector3(diameter, diameter, diameter);
+        }
+
+        /// <summary>绘制包围盒 12 条棱；showEdgeLengths 为真时逐条标注边长（棱线不画端点圆点）。</summary>
         public void DrawBox(Bounds b, bool showEdgeLengths)
         {
             GeometryUtils.GetBoxEdges(b, out Vector3[] corners, out int[][] edges, out int[] edgeAxis);
@@ -202,7 +320,7 @@ namespace LivingRoom30.Measurement
                 Vector3 p0 = corners[edges[i][0]];
                 Vector3 p1 = corners[edges[i][1]];
                 string label = showEdgeLengths ? GeometryUtils.Meters(Vector3.Distance(p0, p1)) : null;
-                DrawLine(p0, p1, false, label);
+                DrawLine(p0, p1, false, label, false);
             }
         }
 
@@ -215,10 +333,15 @@ namespace LivingRoom30.Measurement
             return lbl;
         }
 
-        /// <summary>回收所有线框与标签（切换模式/清空时调用）。</summary>
+        /// <summary>回收所有线框（含辉光层）、端点圆点与标签（切换模式/清空时调用）。</summary>
         public void Clear()
         {
-            foreach (var lr in linePool) { lr.enabled = false; lr.positionCount = 0; }
+            foreach (var e in linePool)
+            {
+                if (e.main != null) { e.main.enabled = false; e.main.positionCount = 0; }
+                if (e.glow != null) { e.glow.enabled = false; e.glow.positionCount = 0; }
+            }
+            foreach (var d in dotPool) if (d != null) d.SetActive(false);
             foreach (var g in labelPool) g.SetActive(false);
         }
     }

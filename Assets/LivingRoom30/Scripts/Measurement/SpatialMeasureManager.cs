@@ -193,8 +193,6 @@ namespace LivingRoom30.Measurement
         {
             ConfigureInput();
             SetMode(mode);
-            // Play 后自动弹出一次行走模式操作提示，7 秒后自动消失
-            ui?.ShowToast("行走模式：WASD 移动 · 右键拖拽视角 · Shift 加速 · F 切换轨道", 7f);
         }
 
         private float m_XrRecheckTimer;
@@ -393,9 +391,6 @@ namespace LivingRoom30.Measurement
                 desktopOrbit.SyncFromTransform(desktopCam.transform, 2.5f);
             }
             ui?.SetWalkModeActive(desktopWalkMode);
-            ui?.ShowToast(desktopWalkMode
-                ? "已切换到【行走模式】  WASD 移动 · Shift 加速 · 右键拖拽视角"
-                : "已切换到【轨道模式】  右键拖拽视角 · WASD 平移", 4f);
             string label = (forceDesktop ? "输入: 桌面" : (xrActive ? "输入: XR" : "输入: 桌面(无头显)"))
                 + (useXrNow ? "" : (desktopWalkMode ? " / 行走" : " / 轨道"));
             ui?.SetInputModeLabel(label);

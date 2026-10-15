@@ -23,16 +23,10 @@ namespace LivingRoom30.Measurement
         private Button walkBtn;
         private Button[] modeButtons;
 
-        // 临时提示横幅（屏幕顶部居中，显示若干秒后自动隐藏）
-        private Canvas canvasRef;
-        private GameObject toastGO;
-        private Text toastLabel;
-        private float toastTimer;
-
         private readonly Color normalCol = new Color(0.22f, 0.22f, 0.22f, 0.95f);
         private readonly Color activeCol = new Color(0.20f, 0.50f, 0.90f, 1f);
 
-        // 是否构建侧边测量面板（false 时只保留 Canvas 与顶部提示横幅，供 ShowToast 使用）。
+        // 是否构建侧边测量面板（false 时只保留 Canvas 基础设施）。
         // 由唯一使用方 SpatialMeasureManager 在 Build 前设置。
         public bool showSidePanel = true;
 
@@ -45,7 +39,6 @@ namespace LivingRoom30.Measurement
             var canvasGO = new GameObject("MeasureCanvas");
             canvasGO.transform.SetParent(transform);
             var canvas = canvasGO.AddComponent<Canvas>();
-            canvasRef = canvas;
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
             canvas.sortingOrder = 50;
             canvasGO.AddComponent<CanvasScaler>().uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
@@ -139,55 +132,6 @@ namespace LivingRoom30.Measurement
         public void SetInputModeLabel(string s) { if (toggleBtn) toggleBtn.GetComponentInChildren<Text>().text = s; }
         public void SetProximityActive(bool on) { if (proxBtn) proxBtn.GetComponent<Image>().color = on ? activeCol : normalCol; }
         public void SetWalkModeActive(bool on) { if (walkBtn) walkBtn.GetComponent<Image>().color = on ? activeCol : normalCol; }
-
-        /// <summary>屏幕顶部居中的临时提示横幅：Play 时自动弹出「按 F 切换行走/轨道」提示，若干秒后自动消失。</summary>
-        public void ShowToast(string message, float seconds = 6f)
-        {
-            if (canvasRef == null) return;
-            BuildToast();
-            if (toastLabel != null) toastLabel.text = message;
-            if (toastGO != null) toastGO.SetActive(true);
-            toastTimer = Mathf.Max(0.5f, seconds);
-        }
-
-        /// <summary>懒构建顶部居中的提示横幅（半透明暗底 + 暖黄文字，与面板提示同色系）。</summary>
-        private void BuildToast()
-        {
-            if (toastGO != null || canvasRef == null) return;
-            toastGO = new GameObject("Toast", typeof(Image));
-            toastGO.transform.SetParent(canvasRef.transform, false);
-            var bg = toastGO.GetComponent<Image>();
-            bg.color = new Color(0.10f, 0.10f, 0.10f, 0.82f);
-            bg.raycastTarget = false; // 横幅不拦截点击，绝不挡住右侧面板按钮
-
-            var rt = toastGO.GetComponent<RectTransform>();
-            rt.anchorMin = new Vector2(0.5f, 1f);
-            rt.anchorMax = new Vector2(0.5f, 1f);
-            rt.pivot = new Vector2(0.5f, 1f);
-            rt.anchoredPosition = new Vector2(0f, -16f);
-            rt.sizeDelta = new Vector2(460f, 42f);
-
-            var txt = new GameObject("ToastLabel", typeof(Text));
-            txt.transform.SetParent(toastGO.transform, false);
-            toastLabel = txt.GetComponent<Text>();
-            toastLabel.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-            toastLabel.fontSize = 16;
-            toastLabel.alignment = TextAnchor.MiddleCenter;
-            toastLabel.color = new Color(1f, 0.92f, 0.55f); // 与面板提示一致的暖黄
-            var trt = txt.GetComponent<RectTransform>();
-            trt.anchorMin = Vector2.zero; trt.anchorMax = Vector2.one;
-            trt.offsetMin = Vector2.zero; trt.offsetMax = Vector2.zero;
-
-            toastGO.SetActive(false);
-        }
-
-        /// <summary>倒计时隐藏提示横幅。</summary>
-        private void LateUpdate()
-        {
-            if (toastGO == null || !toastGO.activeSelf) return;
-            toastTimer -= Time.deltaTime;
-            if (toastTimer <= 0f) toastGO.SetActive(false);
-        }
 
         /// <summary>场景缺 EventSystem 时按需补建（本项目场景没有任何 EventSystem，缺它 UGUI 按钮收不到点击）。</summary>
         private static void EnsureEventSystem()
