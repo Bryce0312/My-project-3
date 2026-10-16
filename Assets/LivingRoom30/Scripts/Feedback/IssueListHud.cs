@@ -307,6 +307,12 @@ namespace LivingRoom30.Feedback
             FeedbackUi.SetLayerRecursively(listCanvas.gameObject, FeedbackUi.UiLayerName);
         }
 
+        /// <summary>
+        /// 构建一行问题。
+        /// 行宽 = PanelWidth − 左右各 20 边距 = 720，行内元素坐标必须落在这个范围内：
+        /// 编号 8..64 ｜ 分类/严重程度/目标 72..452 ｜ 位置与时间 458..638 ｜ FOCUS 646..710 ｜
+        /// 描述 72..646（第二行，与上面各元素靠 y 分离）。
+        /// </summary>
         private void BuildRow(IssueRecord record, float top, bool alternate)
         {
             var row = FeedbackUi.CreatePanel("Row_" + record.id, listRowsRoot,
@@ -315,34 +321,34 @@ namespace LivingRoom30.Feedback
 
             // 编号徽标（底色 = 分类色）
             var chip = FeedbackUi.CreatePanel("Chip", row, IssueCatalog.CategoryColor(record.CategoryEnum));
-            FeedbackUi.Place(chip, 8f, 16f, 58f, 30f);
+            FeedbackUi.Place(chip, 8f, 15f, 56f, 30f);
             var chipText = FeedbackUi.AddText(chip, "#" + record.id, 20, TextAnchor.MiddleCenter,
                 new Color(0.08f, 0.08f, 0.08f, 1f));
             FeedbackUi.Stretch(chipText.rectTransform);
 
             // 分类 / 严重程度 / 目标
-            FeedbackUi.AddPlacedText(row,
-                IssueCatalog.CategoryLabel(record.CategoryEnum)
+            string meta = IssueCatalog.CategoryLabel(record.CategoryEnum)
                 + "  ·  " + IssueCatalog.SeverityLabel(record.SeverityEnum)
-                + (string.IsNullOrEmpty(record.targetName) ? "" : "  ·  " + record.targetName),
-                20, TextAnchor.MiddleLeft, IssueCatalog.SeverityColor(record.SeverityEnum),
-                74f, 8f, 420f, 26f);
+                + (string.IsNullOrEmpty(record.targetName) ? "" : "  ·  " + record.targetName);
+            if (meta.Length > 28) meta = meta.Substring(0, 28) + "…";
+            FeedbackUi.AddPlacedText(row, meta, 20, TextAnchor.MiddleLeft,
+                IssueCatalog.SeverityColor(record.SeverityEnum), 72f, 8f, 380f, 26f);
 
             // 位置与时间
             FeedbackUi.AddPlacedText(row, record.position.ToString() + "   " + record.createdAt,
-                16, TextAnchor.MiddleRight, FeedbackUi.DimText, 500f, 8f, 190f, 26f);
+                16, TextAnchor.MiddleRight, FeedbackUi.DimText, 458f, 8f, 180f, 26f);
 
             // 描述（换行压平，避免撑破行高）
             string description = string.IsNullOrEmpty(record.description) ? "（无补充描述）" : record.description;
             description = description.Replace('\n', ' ').Replace('\r', ' ');
             if (description.Length > 64) description = description.Substring(0, 64) + "…";
             FeedbackUi.AddPlacedText(row, description, 18, TextAnchor.MiddleLeft,
-                FeedbackUi.TextPrimary, 74f, 34f, 616f, 26f);
+                FeedbackUi.TextPrimary, 72f, 34f, 574f, 26f);
 
             // 定位（脉冲高亮该问题在场景中的空间标注）
             string id = record.id;
             FeedbackUi.AddPlacedButton(row, "FOCUS", FeedbackUi.ButtonActive,
-                () => OnFocusClicked(id), 18, 688f, 15f, 48f, 32f);
+                () => OnFocusClicked(id), 18, 646f, 15f, 64f, 32f);
         }
 
         // ------------------------------------------------------------------
