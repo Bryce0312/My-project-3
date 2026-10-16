@@ -26,9 +26,10 @@ namespace LivingRoom30.Editor
         private const string XRControllerRightModelName = "XR Controller Right.prefab";
         private const string ReviewHudName = "S05_ReviewHud";
         private const string XrUiEventSystemName = "S06_XR_UIEventSystem";
-        private const float ReviewHudCanvasScale = 0.0005f;
-        private const float ReviewHudEditHeadHeight = 1.60f;
-        private const float ReviewHudMovementSpeed = 12f;
+        // Smaller than the old head-anchored HUD on purpose: raised to the wrist the panel sits
+        // ~0.45 m from the eyes instead of ~0.69 m, so this keeps the same apparent size while
+        // bringing the physical panel down from 26 cm to about 18 cm.
+        private const float ReviewHudCanvasScale = 0.00035f;
         private const float ReviewHudTimeAnchorMaxX = 0.44f;
         private const float ReviewHudPauseAnchorMinX = 0.46f;
         private const float ReviewHudPauseAnchorMaxX = 0.72f;
@@ -40,8 +41,9 @@ namespace LivingRoom30.Editor
         private const float TutorialPanelMovementSpeed = 12f;
         private const float TutorialPanelEditHeadHeight = 1.60f;
 
-        // Offset in head-local space: lower right of the view, ~0.69 m away.
-        private static readonly Vector3 ReviewHudViewOffset = new Vector3(0.22f, -0.14f, 0.60f);
+        // Controller-local: behind and slightly above the grip, which the measured model extents
+        // leave clear (the shell reaches back to z = -9.1 cm and up to y = +3.9 cm).
+        private static readonly Vector3 ReviewHudWristOffset = new Vector3(0f, 0.06f, -0.11f);
         private static readonly Vector2 ReviewHudCanvasSize = new Vector2(520f, 140f);
         private static readonly Color ReviewHudPanelColor = new Color(0.06f, 0.07f, 0.09f, 0.55f);
         private static readonly Color ReviewHudButtonColor = new Color(0.16f, 0.18f, 0.22f);
@@ -531,11 +533,11 @@ namespace LivingRoom30.Editor
             camera.nearClipPlane = 0.05f;
             camera.farClipPlane = 60f;
 
-            int uiLayer = LayerMask.NameToLayer("UI");
-            if (uiLayer >= 0)
-            {
-                camera.cullingMask = ~(1 << uiLayer);
-            }
+            // The preview camera keeps its default culling mask (everything). It is also used as the
+            // desktop camera by the spatial measurement tools, which must see UI layer content, so
+            // the UI layer must not be excluded here. RenderSceneNewPreview does not rely on that
+            // exclusion either; if a clean preview image is ever wanted again, hide the UI objects
+            // inside that method instead of shaping this camera's mask.
             AudioListener previewListener = cameraObject.AddComponent<AudioListener>();
             previewListener.enabled = false;
 
@@ -589,12 +591,12 @@ namespace LivingRoom30.Editor
             }
 
             Camera headCamera = ResolveHeadCamera(xrRig);
-            Button helpButton = BuildReviewHud(parent, xrRig, headCamera);
+            Button helpButton = BuildReviewHud(xrRig, headCamera);
             BuildTutorialPanel(parent, xrRig, headCamera, helpButton);
             BuildXrUiEventSystem(parent, headCamera);
         }
 
-        private static Button BuildReviewHud(Transform parent, GameObject xrRig, Camera headCamera)
+        private static Button BuildReviewHud(GameObject xrRig, Camera headCamera)
         {
             Font font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             if (font == null)
@@ -602,14 +604,19 @@ namespace LivingRoom30.Editor
                 throw new MissingReferenceException("The built-in LegacyRuntime font is unavailable; the review HUD label would not render.");
             }
 
+            ActionBasedController leftController = FindController(xrRig, "Left");
+            if (leftController == null)
+            {
+                throw new MissingReferenceException("The review rig exposes no left controller to mount the review HUD on.");
+            }
+
             GameObject hud = new GameObject(ReviewHudName, typeof(RectTransform));
-            hud.transform.SetParent(parent, false);
+            // Parented to the controller rather than the scene: the panel then follows the wrist on
+            // its own, so only the orientation needs driving.
+            hud.transform.SetParent(leftController.transform, false);
             hud.GetComponent<RectTransform>().sizeDelta = ReviewHudCanvasSize;
             hud.transform.localScale = Vector3.one * ReviewHudCanvasScale;
-            hud.transform.position = xrRig.transform.position +
-                                     Vector3.up * ReviewHudEditHeadHeight +
-                                     xrRig.transform.rotation * ReviewHudViewOffset;
-            hud.transform.rotation = xrRig.transform.rotation;
+            hud.transform.localPosition = ReviewHudWristOffset;
 
             Canvas canvas = hud.AddComponent<Canvas>();
             canvas.renderMode = RenderMode.WorldSpace;
@@ -621,10 +628,7 @@ namespace LivingRoom30.Editor
             // Without this the controller ray never reaches the canvas graphics.
             hud.AddComponent<TrackedDeviceGraphicRaycaster>();
 
-            HudLazyFollow follow = hud.AddComponent<HudLazyFollow>();
-            follow.target = headCamera.transform;
-            follow.targetOffset = ReviewHudViewOffset;
-            follow.movementSpeed = ReviewHudMovementSpeed;
+            hud.AddComponent<WristPanelFacing>().Configure(headCamera.transform);
 
             GameObject panel = new GameObject("Panel_Background", typeof(RectTransform));
             panel.transform.SetParent(hud.transform, false);
