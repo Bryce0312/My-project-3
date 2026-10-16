@@ -52,6 +52,7 @@
 //}
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
+using UnityEngine.XR.Interaction.Toolkit.UI;
 
 public class AnnotationSpawner : MonoBehaviour
 {
@@ -112,6 +113,19 @@ public class AnnotationSpawner : MonoBehaviour
         ui.transform.Rotate(0, 180, 0); // 修正UI正反面
 
         currentActiveUI = ui; // 记录当前UI
+
+        // 预制体是资产，无法引用场景里的相机，所以相机与 raycaster 只能在这里补。
+        // 缺了 TrackedDeviceGraphicRaycaster，手柄射线就点不到面板上的任何按钮
+        // （问题类型与关闭键都是死键）；缺了 worldCamera，raycaster 会回落到 Camera.main。
+        Canvas annotationCanvas = ui.GetComponent<Canvas>();
+        if (annotationCanvas != null)
+        {
+            annotationCanvas.worldCamera = cam.GetComponent<Camera>();
+            if (ui.GetComponent<TrackedDeviceGraphicRaycaster>() == null)
+            {
+                ui.AddComponent<TrackedDeviceGraphicRaycaster>();
+            }
+        }
 
         AnnotationUI uiScript = ui.GetComponent<AnnotationUI>();
         if (uiScript != null)

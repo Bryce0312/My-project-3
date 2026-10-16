@@ -384,10 +384,24 @@ namespace LivingRoom30.Measurement
 
         private void OnToggleProximity()
         {
-            proximityEnabled = !proximityEnabled;
+            SetProximityEnabled(!proximityEnabled);
+        }
+
+        /// <summary>
+        /// 供外部（手腕面板上的 GAPS 按钮）开关净空显示。
+        ///
+        /// 必须走这里,不能只写 <see cref="proximityEnabled"/> 字段:真正生效的是下面那行
+        /// <c>proximity.enabled</c>,它只在 Awake 里被赋值过一次,之后没有任何地方监听字段变化。
+        /// </summary>
+        public void SetProximityEnabled(bool on)
+        {
+            proximityEnabled = on;
             if (proximity != null) proximity.enabled = proximityEnabled;
             ui?.SetProximityActive(proximityEnabled);
         }
+
+        /// <summary>供外部按钮刷新自己的显示状态。</summary>
+        public bool ProximityEnabled => proximityEnabled;
 
         private void OnModeSelected(MeasureMode m) => SetMode(m);
         private void OnClear()
