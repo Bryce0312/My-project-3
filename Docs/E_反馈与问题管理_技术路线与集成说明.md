@@ -37,6 +37,9 @@
 | F10 | 包版本：XRI **2.6.4**、Input System **1.14.0**、OpenXR 1.14.3、TMP 3.0.7，且 **TMP Essential Resources 已导入** | TMP 可用（D 的面板依赖它）；但 TMP 默认字体 `LiberationSans SDF` **不含中文字形** |
 | F11 | `primaryButton` / `secondaryButton` 在全仓库无任何绑定与使用 | 理论上可用于快捷键，但**XR Device Simulator 下 `InputDevices` 不可靠**，因此 E 不把关键交互压在按键上，只用射线可点的世界空间按钮 |
 | F12 | 项目「无头显」路径 = **XR Device Simulator**（`XRDeviceSimulatorGate` 在 3 秒内没等到 XR 设备就启用模拟器）；`SpatialMeasureManager` 把模拟器计入 XR 模式 | 头显与模拟器下 E 的行为一致；`forceDesktop` 纯鼠标模式连 C 自己的面板都点不到，E 不为它单独做一套 UI |
+| F13 | **C 的读数面板读数栏实际不可用**：`SpatialMeasureManager.Awake` 里 `ui.showSidePanel = false`，而 `MeasureUIPanel.Build()` 在创建 `readout` 之前就 `return`（源码第 47 行 vs 第 81 行）→ `readout` 恒为 null，`SetReadout` 是空操作。测量数值实际只以 `MeasurementVisualizer` 的 3D `TextMesh` 标签（`"0.72 m"`）呈现 | E 的测量软桥接必须以**标签池**为主来源（§5.2 来源 A），不能只盯 `readout` |
+| F14 | `TutorialController` 的 Annotate 步骤判定条件是 `AnnotationSpawner.currentActiveUI != null`（面板出现即推进） | 与 E 的接管无冲突：E 不改 `AnnotationSpawner`，也不依赖教程状态 |
+| F15 | 世界空间画布的"正面"口径由项目既有代码定义：`WristPanelFacing` 与 `HudLazyFollow` 都用 `LookRotation(面板位置 − 观察者位置)` | E 自建的画布必须沿用同一式；**叠加 `Rotate(0,180,0)` 会渲染成镜像文字**（D 的 `LookAt(cam)`+`Rotate(0,180,0)` 只是等价写法） |
 
 ---
 
@@ -136,7 +139,7 @@
 | `AnnotationBinding.cs` | 单个标注面板的接管：隐藏 D 的分类按钮、注入 5 分类 2 行 + 3 档严重程度、接线 Submit、读描述、提交后交回 D 的 `CloseUI` |
 | `IssueListHud.cs` | 右腕常驻 `ISSUES (n)` 入口（含状态行）+ 头显前方汇总面板（标题、严重程度摘要、每页 6 条、逐条 FOCUS 定位、分页、导出、关闭） |
 | `FeedbackService.cs` | 总控与对外 API：运行时自举、`SubmitAnnotation`、`OfferMeasurement/Text`、汇总开关、导出、清空、`IssueCreated/Updated` 事件、测量软轮询 |
-| `MeasurementBridge.cs` | 与 C（测量）的可选软桥接：反射读取 `MeasureUIPanel.readout` 并解析为 `MeasurementSnapshot`，C 未合并时静默降级 |
+| `MeasurementBridge.cs` | 与 C（测量）的可选软桥接：优先扫 `MeasurementVisualizer` 的 3D 标签池（当前版本上唯一有效的来源，F13），退化到 `MeasureUIPanel.readout`；反射失败即静默降级 |
 | `Editor/FeedbackSetup.cs` | 集成自检（逐项校验 D 标注链路、XR UI 输入链路、E 依赖项、自举约定）→ `Tools/xr-review/feedback-integration-report.txt`；导出目录、导出会话、汇总导出数据 |
 
 ---
@@ -159,9 +162,17 @@ E 通过两个**已存在**的接口接入，不需要 D 做任何事：
 
 三种方式任选，可共存：
 
-1. **软桥接（默认开启，零改动）**：E 每 2 秒反射读取 `MeasureUIPanel.readout`，读数**变化**即暂存为"待附加测量"，下一次提交自动附到反馈上。C 未合并或字段改名时静默降级。
+1. **软桥接（默认开启，零改动）**：E 每 2 秒读取测量模块当前结果，结果**变化**即暂存为"待附加测量"，下一次提交自动附到反馈上。反射失败（C 未合并 / 结构变更）时静默降级。
+   读取来源按可靠性排序：
+   - **来源 A（当前版本上真正有效）**：`MeasurementSystem/Visualizer` 的 `MeasurementVisualizer.labelPool` —— 即场景中那些 `"0.72 m"` 的 3D 标签。
+     实测依据：`SpatialMeasureManager.Awake` 执行了 `ui.showSidePanel = false`，而 `MeasureUIPanel.Build()` 在创建 `readout` 之前就 `return` 了，所以 **`readout` 恒为 null**，测量数值实际只以 3D 标签呈现。
+   - **来源 B（兼容后续改动）**：`MeasureUIPanel.readout` —— 若日后有人启用侧边面板即可用，且自带"两点距离 / 表面间隙"这类语义前缀。
+   - **判别规则**：只接受"标签池中**恰好 1 个** active 且形如 `<数字> m` 的标签"。两点/两物体距离只产生 1 个；而家具尺寸模式会一次画出 12 条包围盒棱线（12 个数值标签），因此不会被误当成"量了一段距离"。带 `路径` 后缀的路线总长标签也被排除。
 2. **轻量契约**：`FeedbackService.Instance.OfferMeasurementText("表面间隙：0.72 m")`。
 3. **显式类型契约**：`OfferMeasurement(new MeasurementSnapshot(label, meters, from, to))`。
+
+> 说明：方式 1 是"零改动即可用"的便利路径；方式 2/3 是最干净的长期方案 ——
+> 在 C 的 `ShowPointToPoint` / `ShowObjectToObject` 末尾各加一行即可完全绕开反射。
 
 ### 5.3 E 与 B（移动）／A（场景）
 
@@ -205,8 +216,11 @@ var all = FeedbackService.Instance.Store.All;   // 只读列表
 | R8 | 3D 标签中文缺字 | 场景内乱码 | 3D 标签只用 ASCII（`ISSUE #01 / Circulation`）；中文只出现在 E 自建的 UGUI 与世界空间面板 |
 | R9 | D 面板的 TMP 默认字体不含中文 | 注入按钮若用中文会缺字 | 注入到 D 面板的按钮一律用 ASCII（`SPACE` / `LOW` …）；中文只在 E 自建界面出现 |
 | R10 | 汇总入口挂右手柄，若场景 rig 被替换 | 入口不生成 | `FindControllerTransform("Right")` 失败时给告警并**继续**运行：入库、空间标注、导出、`IssueCreated` 均不受影响，只是少一个入口 |
-| R11 | 测量软桥接依赖 C 的私有字段名 `readout` | 桥接失效 | 反射失败即静默降级（只是不再自动附加测量），不影响任何其它功能；可改用 §5.2 方式 3 |
-| R12 | 无 Unity 环境，改动未经编译验证 | 可能编译错误 | 已做逐 API 核查（含 XRI 2.6.4 的 `XRUIInputModule` / `TrackedDeviceGraphicRaycaster` / `XRRayInteractor.enableUIInteraction` / `XRSimpleInteractable.selectEntered`）、类型名冲突检查与括号平衡检查；**首次在 Unity 内打开时必须确认零编译错误** |
+| R11 | 测量软桥接依赖 C 的私有字段名与标签池结构 | 桥接失效 | 三级来源 + 反射失败即静默降级（只是不再自动附加测量）；可改用 §5.2 方式 1/2 |
+| R12 | 无 Unity 环境，改动未经编译验证 | 可能编译错误 | 已做逐 API 核查（含 XRI 2.6.4 的 `XRUIInputModule` / `TrackedDeviceGraphicRaycaster` / `XRRayInteractor.enableUIInteraction` / `XRSimpleInteractable.selectEntered`）、类型名冲突检查、括号平衡检查与 UI 元素越界核对；**首次在 Unity 内打开时必须确认零编译错误** |
+| R13 | 世界空间画布朝向写反会渲染成**镜像文字** | 汇总面板完全不可读 | 项目既有 `WristPanelFacing` 与 `HudLazyFollow` 都用 `LookRotation(面板位置 − 观察者位置)`；E 统一沿用该式，**不得**再叠加 `Rotate(0,180,0)`（D 的 `LookAt(cam)` + `Rotate(0,180,0)` 只是等价写法，单独叠加会翻反） |
+| R14 | 汇总面板生成点贴墙时会糊在脸上 | 无法阅读 | 生成距离下限 0.6 m，并在障碍物前留出 0.2 m；遮挡射线排除 `PlayerBody` |
+| R15 | 每帧 `FindObjectOfType` 解析头显相机 | 无谓开销 | 腕部 HUD 的相机复检节流到 0.5 秒；标注面板轮询 0.25 秒、交互对象重扫 3 秒 |
 
 ---
 
@@ -237,10 +251,13 @@ var all = FeedbackService.Instance.Store.All;   // 只读列表
 - 头显内仅能用 D 自带的 **A–Z 虚拟键盘**输入描述，无法输入中文；中文描述可在桌面端补录（数据层已完整支持）。
 - `forceDesktop`（纯鼠标）模式下 UI 不可交互，这是项目 `XRUIInputModule` 的既有设定，非本模块引入。
 - 反馈数据存于本机 `persistentDataPath`，未做多会话合并与云端同步。
+- 测量自动附加依赖反射读取 C 的 3D 标签池（F13）：若 C 在标注**之后**又量了一次别的距离，暂存的测量会被新读数覆盖 —— 语义上"附加最近一次测量"，不做历史选择。
 - 本机无 Unity，改动未经编译验证（见 R12）。
 
 **V1+ 可扩展方向**
 - 反馈状态流转（已解决 / 待确认）：`IssueRecord` 加 `status` 字段即可，汇总行已预留交互按钮位。
+- 测量与反馈显式对接：在 C 的 `ShowPointToPoint` / `ShowObjectToObject` 末尾各加一行
+  `FeedbackService.Instance?.OfferMeasurement(...)`，即可彻底去掉反射依赖（§5.2 方式 2/3）。
 - 标注点选回看：给 Marker 加一个仅对特定层开放的碰撞体，即可实现"点标注打开详情"。
 - 耳机内中文输入：接入系统输入法或改用 TMP 的中文动态字体资源。
 - 汇总面板跟随视线（项目已有 `HudLazyFollow` 组件可直接复用）。

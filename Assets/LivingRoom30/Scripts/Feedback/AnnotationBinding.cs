@@ -322,6 +322,9 @@ namespace LivingRoom30.Feedback
 
             Button button = FeedbackUi.AddButton(row, label, FeedbackUi.ButtonNormal, onClick, fontSize);
             FeedbackUi.Place(button.GetComponent<RectTransform>(), x, 0f, cellWidth, height);
+            // D 的画布与其控件都在 UI 层，E 注入的按钮保持同一口径，避免日后有人给
+            // TrackedDeviceGraphicRaycaster 开启 3D 遮挡检查时出现层不一致的问题。
+            FeedbackUi.SetLayerRecursively(button.gameObject, FeedbackUi.UiLayerName);
             return button;
         }
 

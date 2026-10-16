@@ -35,9 +35,15 @@ namespace LivingRoom30.Feedback
         private const float PanelHeight = 600f;
         private const float PanelScale = 0.0014f;
         private const float PanelSpawnDistance = 1.15f;
+        /// <summary>障碍物前留出的余量（米）。</summary>
+        private const float PanelObstacleGap = 0.2f;
+        /// <summary>面板与眼睛的最小距离（米）：贴墙时防止面板糊在脸上。</summary>
+        private const float MinPanelDistance = 0.6f;
         private const float RowHeight = 62f;
         private const float RowSpacing = 4f;
         private const int PageSize = 6;
+        /// <summary>头显相机的复检间隔（秒）。</summary>
+        private const float CameraPollInterval = 0.5f;
 
         private FeedbackService service;
         private Camera headCamera;
@@ -56,6 +62,7 @@ namespace LivingRoom30.Feedback
         private Button prevButton;
         private Button nextButton;
         private int page;
+        private float cameraPollTimer;
 
         public bool IsOpen { get { return listCanvas != null; } }
 
@@ -115,22 +122,37 @@ namespace LivingRoom30.Feedback
 
         private void Update()
         {
-            // XR ↔ 桌面切换后头显相机可能变化，这里跟随刷新（腕部与汇总面板都需要正确的 worldCamera）
-            Camera resolved = FeedbackUi.ResolveHeadCamera();
-            if (resolved != null && resolved != headCamera)
+            // XR ↔ 桌面切换后头显相机可能变化，这里带节流地跟随刷新
+            // （腕部与汇总面板都需要正确的 worldCamera）。
+            // 不每帧解析：ResolveHeadCamera 内部会 FindObjectOfType，在几千个物体的场景里没必要每帧做。
+            cameraPollTimer -= Time.deltaTime;
+            if (cameraPollTimer <= 0f)
             {
-                headCamera = resolved;
-                if (wristCanvas != null) wristCanvas.GetComponent<Canvas>().worldCamera = headCamera;
-                var facing = wristCanvas != null ? wristCanvas.GetComponent<WristPanelFacing>() : null;
-                if (facing != null) facing.Configure(headCamera.transform);
-                if (listCanvas != null) listCanvas.GetComponent<Canvas>().worldCamera = headCamera;
+                cameraPollTimer = CameraPollInterval;
+                Camera resolved = FeedbackUi.ResolveHeadCamera();
+                if (resolved != null && resolved != headCamera)
+                {
+                    headCamera = resolved;
+                    if (wristCanvas != null) wristCanvas.GetComponent<Canvas>().worldCamera = headCamera;
+                    var facing = wristCanvas != null ? wristCanvas.GetComponent<WristPanelFacing>() : null;
+                    if (facing != null) facing.Configure(headCamera.transform);
+                    if (listCanvas != null) listCanvas.GetComponent<Canvas>().worldCamera = headCamera;
+                }
             }
 
             if (statusTimer > 0f)
             {
                 statusTimer -= Time.deltaTime;
-                if (statusTimer <= 0f && statusText != null) statusText.text = IdleStatus();
+                if (statusTimer <= 0f) ApplyIdleStatus();
             }
+        }
+
+        /// <summary>恢复腕部状态行的空闲文案与配色。</summary>
+        private void ApplyIdleStatus()
+        {
+            if (statusText == null) return;
+            statusText.text = IdleStatus();
+            statusText.color = FeedbackUi.DimText;
         }
 
         // ------------------------------------------------------------------
@@ -145,8 +167,7 @@ namespace LivingRoom30.Feedback
             if (entryButton != null)
                 FeedbackUi.SetButtonLabel(entryButton, "ISSUES (" + count + ")");
 
-            if (statusTimer <= 0f && statusText != null)
-                statusText.text = IdleStatus();
+            if (statusTimer <= 0f) ApplyIdleStatus();
 
             if (listCanvas != null)
             {
@@ -181,25 +202,42 @@ namespace LivingRoom30.Feedback
                 return;
             }
 
-            Vector3 spawnPosition = headCamera.transform.position + headCamera.transform.forward * PanelSpawnDistance;
+            Transform head = headCamera.transform;
+            Vector3 forward = head.forward;
+            float distance = PanelSpawnDistance;
 
-            // 与 D 的 AnnotationSpawner 同款射线避让：前方有障碍时把面板拉到障碍物之前，避免穿模
+            // 与 D 的 AnnotationSpawner 同款射线避让：前方有障碍时把面板拉到障碍物之前，避免穿模。
+            // 额外两点加固：(1) 排除玩家自身层，避免把面板贴到自己的胶囊上；
+            // (2) 设下限距离——否则贴墙时障碍物距离很小，面板会糊在脸上无法阅读。
+            int mask = BuildOcclusionMask();
             RaycastHit hit;
-            if (Physics.Raycast(headCamera.transform.position, headCamera.transform.forward,
-                    out hit, PanelSpawnDistance, ~0, QueryTriggerInteraction.Ignore))
+            if (Physics.Raycast(head.position, forward, out hit, PanelSpawnDistance, mask, QueryTriggerInteraction.Ignore))
             {
-                spawnPosition = hit.point - headCamera.transform.forward * 0.2f;
+                distance = Mathf.Clamp(hit.distance - PanelObstacleGap, MinPanelDistance, PanelSpawnDistance);
             }
+
+            Vector3 spawnPosition = head.position + forward * distance;
 
             listCanvas = FeedbackUi.CreateWorldSpaceCanvas("Feedback_IssueList", transform,
                 new Vector2(PanelWidth, PanelHeight), PanelScale, headCamera);
             listCanvas.position = spawnPosition;
-            listCanvas.rotation = Quaternion.LookRotation(spawnPosition - headCamera.transform.position, Vector3.up);
-            listCanvas.Rotate(0f, 180f, 0f);   // 与 D 的面板一致：修正正反面
+
+            // 朝上/朝下的修正只需 up = world up。
+            // 注意：**不要**额外 Rotate(0,180,0)。本项目已有的 S05_ReviewHud（WristPanelFacing）
+            // 与 HudLazyFollow 都用 LookRotation(面板位置 − 观察者位置) 让世界空间画布正面朝向观察者；
+            // 再翻转 180° 会把整块面板渲染成镜像文字。
+            listCanvas.rotation = Quaternion.LookRotation(spawnPosition - head.position, Vector3.up);
 
             BuildPanelContent();
             page = 0;
             RebuildList();
+        }
+
+        /// <summary>面板避让用的遮挡层：排除玩家自身，避免面板被自己的胶囊顶到脸上。</summary>
+        private static int BuildOcclusionMask()
+        {
+            int playerBody = LayerMask.NameToLayer("PlayerBody");
+            return playerBody >= 0 ? ~(1 << playerBody) : ~0;
         }
 
         public void ClosePanel()
@@ -289,6 +327,8 @@ namespace LivingRoom30.Feedback
                 FeedbackUi.AddPlacedText(listRowsRoot, "No issues recorded yet.\n" +
                     "Point at an object, press the grip, then pick a type and submit.",
                     20, TextAnchor.MiddleCenter, FeedbackUi.DimText, 20f, 100f, PanelWidth - 40f, 200f);
+                // 空态同样是逐次新建的节点，需要统一层后再返回
+                FeedbackUi.SetLayerRecursively(listCanvas.gameObject, FeedbackUi.UiLayerName);
                 return;
             }
 

@@ -48,6 +48,7 @@ namespace LivingRoom30.Feedback
         public static readonly Color MeasurementText = new Color(0.55f, 0.85f, 0.95f);
 
         private static Font cachedFont;
+        private static bool fontChecked;
 
         /// <summary>内置字体（Unity 2022.2+ 已移除 Arial.ttf，改用 LegacyRuntime.ttf）。</summary>
         public static Font DefaultFont
@@ -56,6 +57,14 @@ namespace LivingRoom30.Feedback
             {
                 if (cachedFont == null)
                     cachedFont = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+
+                if (!fontChecked)
+                {
+                    fontChecked = true;
+                    if (cachedFont == null)
+                        Debug.LogError("[反馈] 内置字体 LegacyRuntime.ttf 不可用，E 自建的界面将无法显示文字。" +
+                                       "请检查 Unity 版本（需 2022.2+）与项目资源完整性。");
+                }
                 return cachedFont;
             }
         }
