@@ -222,11 +222,20 @@ namespace LivingRoom30.Feedback
                 new Vector2(PanelWidth, PanelHeight), PanelScale, headCamera);
             listCanvas.position = spawnPosition;
 
-            // 朝上/朝下的修正只需 up = world up。
-            // 注意：**不要**额外 Rotate(0,180,0)。本项目已有的 S05_ReviewHud（WristPanelFacing）
-            // 与 HudLazyFollow 都用 LookRotation(面板位置 − 观察者位置) 让世界空间画布正面朝向观察者；
+            // 朝向：与 S05_ReviewHud（WristPanelFacing）同口径 —— forward 背对观察者。
+            // 注意：**不要**额外 Rotate(0,180,0)。本项目已有的 S05_ReviewHud 与 HudLazyFollow
+            // 都用 LookRotation(面板位置 − 观察者位置) 让世界空间画布正面朝向观察者；
             // 再翻转 180° 会把整块面板渲染成镜像文字。
-            listCanvas.rotation = Quaternion.LookRotation(spawnPosition - head.position, Vector3.up);
+            // 极端情况防护：面板沿视线方向生成，若用户近乎垂直俯视/仰视（视线 ∥ up），
+            // LookRotation 会报 "Look rotation viewing vector is zero" 并返回无效旋转，
+            // 此时退化为水平朝向，保证面板仍正确可读。
+            Vector3 facing = spawnPosition - head.position;
+            if (Mathf.Abs(facing.y) > 0.999f * facing.magnitude)
+            {
+                facing = new Vector3(head.forward.x, 0f, head.forward.z);
+                if (facing.sqrMagnitude < 1e-6f) facing = Vector3.back;
+            }
+            listCanvas.rotation = Quaternion.LookRotation(facing, Vector3.up);
 
             BuildPanelContent();
             page = 0;
