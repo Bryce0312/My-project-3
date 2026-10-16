@@ -56,6 +56,8 @@ namespace LivingRoom30.Measurement
         private bool desktopWalkMode = true;   // 是否处于行走模式（仅桌面模式可能为 true）；Play 后默认直接进入行走模式
         private bool useXrNow;                 // ConfigureInput 最近一次判定的输入模式
         private CharacterController rigCc;     // rig 的 CharacterController（桌面行走时必须禁用，防胶囊互卡）
+        private ActionBasedContinuousMoveProvider rigMoveProvider;   // 必须与 rigCc 同步开关，见 SetRigLocomotionEnabled
+        private ActionBasedSnapTurnProvider rigTurnProvider;
 
         [Header("标签恒定屏幕尺寸")]
         public float labelScreenFraction = 0.02f;
@@ -103,6 +105,8 @@ namespace LivingRoom30.Measurement
             // 否则其胶囊（-2.7,0,-2.42）与行走体初始落点几乎重叠，第一次 Move 会被卡住/弹飞。
             var rigPlayer = GameObject.Find("S03_XR_ReviewRig/XR_Player");
             rigCc = rigPlayer != null ? rigPlayer.GetComponent<CharacterController>() : FindObjectOfType<CharacterController>();
+            rigMoveProvider = rigPlayer != null ? rigPlayer.GetComponent<ActionBasedContinuousMoveProvider>() : null;
+            rigTurnProvider = rigPlayer != null ? rigPlayer.GetComponent<ActionBasedSnapTurnProvider>() : null;
 
             // 相机：XR rig 主相机 与 专用桌面预览相机（S02_PreviewCamera）解耦，
             // 避免桌面模式下轨道相机与 rig 的位姿驱动组件争抢同一相机导致“啥也看不到”。
@@ -290,6 +294,7 @@ namespace LivingRoom30.Measurement
                 desktopWalkMode = false;
                 if (desktopWalk != null) desktopWalk.enabled = false;
                 if (rigCc != null) rigCc.enabled = true;
+                SetRigLocomotionEnabled(true);
                 SetXrRayActive(true);
                 ui?.SetWalkModeActive(false);
                 Debug.Log($"[SpatialMeasureManager] 模式=XR：启用 rig 相机（TrackedPoseDriver 跟随头转），xrCam.enabled={xrCam?.enabled}, desktopCam.enabled={desktopCam?.enabled}");
@@ -306,6 +311,7 @@ namespace LivingRoom30.Measurement
                 // 桌面模式：禁用 rig 胶囊（与行走体落点重叠），排除自身层防自胶囊挡射线，
                 // 关闭 XR 射线交互器（无 XR 设备时只会刷 NRE），并恢复用户上次的行走/轨道选择
                 if (rigCc != null) rigCc.enabled = false;
+                SetRigLocomotionEnabled(false);
                 SetXrRayActive(false);
                 int bodyLayer = LayerMask.NameToLayer("PlayerBody");
                 mouseProvider.layerMask = bodyLayer >= 0 ? ~(1 << bodyLayer) : -1;
@@ -326,6 +332,19 @@ namespace LivingRoom30.Measurement
         }
 
         /// <summary>切换桌面「行走/轨道」模式；切换时相机位姿无缝衔接（原地出发/原地回轨道）。</summary>
+        /// <summary>
+        /// 与 rig 的 CharacterController 同进同出。
+        ///
+        /// 只禁用 CharacterController 是不够的：XRI 的 ContinuousMoveProviderBase 在 origin 上
+        /// 找不到启用的 CharacterController 时会退化成 transform.position += motion 的裸位移，
+        /// 完全不做碰撞检测——表现为用设备模拟器推摇杆时直接穿墙。两者必须一起开关。
+        /// </summary>
+        private void SetRigLocomotionEnabled(bool on)
+        {
+            if (rigMoveProvider != null) rigMoveProvider.enabled = on;
+            if (rigTurnProvider != null) rigTurnProvider.enabled = on;
+        }
+
         private void SetDesktopWalk(bool on)
         {
             if (desktopWalk == null || desktopOrbit == null || desktopCam == null) return;
