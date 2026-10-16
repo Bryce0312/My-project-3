@@ -1,0 +1,369 @@
+{
+  "points": {
+    "spawn": [
+      -2.7,
+      -2.42
+    ],
+    "entry": [
+      -2.45,
+      -1.55
+    ],
+    "westTurn": [
+      -3.1,
+      -1.35
+    ],
+    "westPass": [
+      -3.1,
+      1.25
+    ],
+    "sofaSide": [
+      -1.05,
+      0
+    ],
+    "tvView": [
+      -0.95,
+      1.3
+    ],
+    "displayView": [
+      -2.85,
+      1.35
+    ],
+    "cabinetView": [
+      1.65,
+      1.4
+    ],
+    "cabinetCorner": [
+      2.45,
+      1.15
+    ],
+    "seatApproach": [
+      -0.95,
+      -0.06
+    ]
+  },
+  "blockers": 98,
+  "segments": [
+    {
+      "task": "entry",
+      "from": "spawn",
+      "to": "entry",
+      "nearest": [
+        {
+          "path": "A07_Door_Entry/A07a_DoorPanel",
+          "centerClearance": 0.322,
+          "capsuleClearance": 0.102
+        },
+        {
+          "path": "A04_Wall_South/A04b_Wall_South_Right",
+          "centerClearance": 0.552,
+          "capsuleClearance": 0.332
+        },
+        {
+          "path": "A04_Wall_South/A04a_Wall_South_Left",
+          "centerClearance": 0.628,
+          "capsuleClearance": 0.408
+        }
+      ],
+      "collisions": []
+    },
+    {
+      "task": "sofa side",
+      "from": "entry",
+      "to": "westTurn",
+      "nearest": [
+        {
+          "path": "A06_Wall_West/A06a_Wall_West_South",
+          "centerClearance": 0.5,
+          "capsuleClearance": 0.28
+        },
+        {
+          "path": "A07_Door_Entry/A07a_DoorPanel",
+          "centerClearance": 0.515,
+          "capsuleClearance": 0.295
+        },
+        {
+          "path": "D00_Decoration/D04_Curtain_Left",
+          "centerClearance": 0.708,
+          "capsuleClearance": 0.488
+        }
+      ],
+      "collisions": []
+    },
+    {
+      "task": "sofa side",
+      "from": "westTurn",
+      "to": "westPass",
+      "nearest": [
+        {
+          "path": "F02_Armchair_Left/Back",
+          "centerClearance": 0.341,
+          "capsuleClearance": 0.121
+        },
+        {
+          "path": "F02_Armchair_Left/Frame",
+          "centerClearance": 0.36,
+          "capsuleClearance": 0.14
+        },
+        {
+          "path": "F02_Armchair_Left/Arm_Left",
+          "centerClearance": 0.369,
+          "capsuleClearance": 0.149
+        }
+      ],
+      "collisions": []
+    },
+    {
+      "task": "sofa side",
+      "from": "westPass",
+      "to": "tvView",
+      "nearest": [
+        {
+          "path": "D00_Decoration/D02_FloorLamp",
+          "centerClearance": 0.455,
+          "capsuleClearance": 0.235
+        },
+        {
+          "path": "A09_Window_Main/A09b_Frame_Bottom",
+          "centerClearance": 0.455,
+          "capsuleClearance": 0.235
+        },
+        {
+          "path": "F02_Armchair_Left/Frame",
+          "centerClearance": 0.459,
+          "capsuleClearance": 0.239
+        }
+      ],
+      "collisions": []
+    },
+    {
+      "task": "sofa side",
+      "from": "tvView",
+      "to": "sofaSide",
+      "nearest": [
+        {
+          "path": "F01_Sofa_ThreeSeat/Arm_Left",
+          "centerClearance": 0.37,
+          "capsuleClearance": 0.15
+        },
+        {
+          "path": "F01_Sofa_ThreeSeat/Frame",
+          "centerClearance": 0.37,
+          "capsuleClearance": 0.15
+        },
+        {
+          "path": "F01_Sofa_ThreeSeat/Seat_Cushion_01",
+          "centerClearance": 0.391,
+          "capsuleClearance": 0.171
+        }
+      ],
+      "collisions": []
+    },
+    {
+      "task": "tv",
+      "from": "sofaSide",
+      "to": "tvView",
+      "nearest": [
+        {
+          "path": "F01_Sofa_ThreeSeat/Arm_Left",
+          "centerClearance": 0.37,
+          "capsuleClearance": 0.15
+        },
+        {
+          "path": "F01_Sofa_ThreeSeat/Frame",
+          "centerClearance": 0.37,
+          "capsuleClearance": 0.15
+        },
+        {
+          "path": "F01_Sofa_ThreeSeat/Seat_Cushion_01",
+          "centerClearance": 0.391,
+          "capsuleClearance": 0.171
+        }
+      ],
+      "collisions": []
+    },
+    {
+      "task": "left cabinet",
+      "from": "tvView",
+      "to": "displayView",
+      "nearest": [
+        {
+          "path": "D00_Decoration/D02_FloorLamp",
+          "centerClearance": 0.418,
+          "capsuleClearance": 0.198
+        },
+        {
+          "path": "D00_Decoration/D10_Books_Set",
+          "centerClearance": 0.45,
+          "capsuleClearance": 0.23
+        },
+        {
+          "path": "F02_Armchair_Left/Frame",
+          "centerClearance": 0.53,
+          "capsuleClearance": 0.31
+        }
+      ],
+      "collisions": []
+    },
+    {
+      "task": "left cabinet",
+      "from": "displayView",
+      "to": "tvView",
+      "nearest": [
+        {
+          "path": "D00_Decoration/D02_FloorLamp",
+          "centerClearance": 0.418,
+          "capsuleClearance": 0.198
+        },
+        {
+          "path": "D00_Decoration/D10_Books_Set",
+          "centerClearance": 0.45,
+          "capsuleClearance": 0.23
+        },
+        {
+          "path": "F02_Armchair_Left/Frame",
+          "centerClearance": 0.53,
+          "capsuleClearance": 0.31
+        }
+      ],
+      "collisions": []
+    },
+    {
+      "task": "right cabinet",
+      "from": "tvView",
+      "to": "cabinetView",
+      "nearest": [
+        {
+          "path": "D00_Decoration/D02_FloorLamp",
+          "centerClearance": 0.492,
+          "capsuleClearance": 0.272
+        },
+        {
+          "path": "F04_CoffeeTable/TableTop",
+          "centerClearance": 0.635,
+          "capsuleClearance": 0.415
+        },
+        {
+          "path": "F04_CoffeeTable/Leg_03",
+          "centerClearance": 0.705,
+          "capsuleClearance": 0.485
+        }
+      ],
+      "collisions": []
+    },
+    {
+      "task": "right cabinet",
+      "from": "cabinetView",
+      "to": "cabinetCorner",
+      "nearest": [
+        {
+          "path": "F03_Armchair_Right/Frame",
+          "centerClearance": 0.348,
+          "capsuleClearance": 0.128
+        },
+        {
+          "path": "D00_Decoration/D07_Plant_Small",
+          "centerClearance": 0.35,
+          "capsuleClearance": 0.13
+        },
+        {
+          "path": "F03_Armchair_Right/Arm_Right",
+          "centerClearance": 0.364,
+          "capsuleClearance": 0.144
+        }
+      ],
+      "collisions": []
+    },
+    {
+      "task": "right cabinet",
+      "from": "cabinetCorner",
+      "to": "cabinetView",
+      "nearest": [
+        {
+          "path": "F03_Armchair_Right/Frame",
+          "centerClearance": 0.348,
+          "capsuleClearance": 0.128
+        },
+        {
+          "path": "D00_Decoration/D07_Plant_Small",
+          "centerClearance": 0.35,
+          "capsuleClearance": 0.13
+        },
+        {
+          "path": "F03_Armchair_Right/Arm_Right",
+          "centerClearance": 0.364,
+          "capsuleClearance": 0.144
+        }
+      ],
+      "collisions": []
+    },
+    {
+      "task": "seat return",
+      "from": "cabinetView",
+      "to": "tvView",
+      "nearest": [
+        {
+          "path": "D00_Decoration/D02_FloorLamp",
+          "centerClearance": 0.492,
+          "capsuleClearance": 0.272
+        },
+        {
+          "path": "F04_CoffeeTable/TableTop",
+          "centerClearance": 0.635,
+          "capsuleClearance": 0.415
+        },
+        {
+          "path": "F04_CoffeeTable/Leg_03",
+          "centerClearance": 0.705,
+          "capsuleClearance": 0.485
+        }
+      ],
+      "collisions": []
+    },
+    {
+      "task": "seat return",
+      "from": "tvView",
+      "to": "sofaSide",
+      "nearest": [
+        {
+          "path": "F01_Sofa_ThreeSeat/Arm_Left",
+          "centerClearance": 0.37,
+          "capsuleClearance": 0.15
+        },
+        {
+          "path": "F01_Sofa_ThreeSeat/Frame",
+          "centerClearance": 0.37,
+          "capsuleClearance": 0.15
+        },
+        {
+          "path": "F01_Sofa_ThreeSeat/Seat_Cushion_01",
+          "centerClearance": 0.391,
+          "capsuleClearance": 0.171
+        }
+      ],
+      "collisions": []
+    },
+    {
+      "task": "seat return",
+      "from": "sofaSide",
+      "to": "seatApproach",
+      "nearest": [
+        {
+          "path": "F01_Sofa_ThreeSeat/Frame",
+          "centerClearance": 0.31,
+          "capsuleClearance": 0.09
+        },
+        {
+          "path": "F01_Sofa_ThreeSeat/Arm_Left",
+          "centerClearance": 0.311,
+          "capsuleClearance": 0.091
+        },
+        {
+          "path": "F01_Sofa_ThreeSeat/Seat_Cushion_01",
+          "centerClearance": 0.33,
+          "capsuleClearance": 0.11
+        }
+      ],
+      "collisions": []
+    }
+  ]
+}

@@ -1,4 +1,7 @@
 using System;
+using System.Collections.Generic;
+using LivingRoom30;
+using LivingRoom30.Review;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -12,11 +15,37 @@ public class AnnotationUI : MonoBehaviour
 
     private GameObject targetObject;
     private HoverDwellHighlighter targetHighlighter;
-    private string selectedCategory = "未选择";
+    private string selectedCategory;
     private IssueMarkerVirtualKeyboard virtualKeyboard;
+    private readonly List<CategoryButton> categoryButtons = new List<CategoryButton>();
+    private Button submitButton, keepEditingButton;
+    private TextMeshProUGUI messageText;
+    private GameObject messagePanel;
+    private Action onFinishSubmitted;
+    private bool initialized, submitting, closing;
+
+    private sealed class CategoryButton
+    {
+        public Button Button;
+        public TextMeshProUGUI Label;
+        public string Category;
+        public FontStyles OriginalStyle;
+    }
+
+    public bool IsFinishing => onFinishSubmitted != null;
+    public bool IsClosing => closing;
+    public string SelectedCategory => selectedCategory;
+    public string LastError { get; private set; }
 
     private void Start()
     {
+        EnsureInitialized();
+    }
+
+    private void EnsureInitialized()
+    {
+        if (initialized) return;
+        initialized = true;
         Transform fieldTransform = transform.Find("DescriptionDisplay");
         if (descriptionInput == null && fieldTransform != null)
         {
@@ -48,16 +77,106 @@ public class AnnotationUI : MonoBehaviour
                 descriptionInput.text = string.Empty;
                 descriptionInput.contentType = TMP_InputField.ContentType.Standard;
                 descriptionInput.lineType = TMP_InputField.LineType.MultiLineNewline;
-                descriptionInput.characterLimit = 500;
-                descriptionInput.onSelect.AddListener(_ => ShowVirtualKeyboard());
+                descriptionInput.characterLimit = ReviewAnnotationStore.ReasonLimit;
                 fieldTransform.gameObject.SetActive(true);
             }
         }
 
         if (descriptionInput != null)
+        {
+            descriptionInput.characterLimit = ReviewAnnotationStore.ReasonLimit;
+            descriptionInput.onSelect.AddListener(_ => ShowVirtualKeyboard());
+            descriptionInput.onValueChanged.AddListener(_ => ClearError());
             virtualKeyboard = new IssueMarkerVirtualKeyboard(transform, descriptionInput);
+        }
         else
             Debug.LogError("Issue Marker is missing a usable DescriptionDisplay input.");
+
+        foreach (Button button in GetComponentsInChildren<Button>(true))
+        {
+            TextMeshProUGUI label = button.GetComponentInChildren<TextMeshProUGUI>(true);
+            string category = ReviewAnnotationStore.NormalizeCategory(label != null ? label.text : null);
+            if (category != null)
+            {
+                categoryButtons.Add(new CategoryButton { Button = button, Label = label,
+                    Category = category, OriginalStyle = label.fontStyle });
+                if (!HasPersistentListener(button, nameof(OnSelectCategory)))
+                    button.onClick.AddListener(() => OnSelectCategory(category));
+            }
+            else if (label == submitButtonText || (label != null
+                && string.Equals(label.text.Trim(), "Submit", StringComparison.OrdinalIgnoreCase)))
+                submitButton = button;
+        }
+        if (submitButton != null && !HasPersistentListener(submitButton, nameof(OnSubmit)))
+            submitButton.onClick.AddListener(OnSubmit);
+
+        // Keep the existing prefab and its serialized X event. The small extra strip makes
+        // save errors and the finish decision visible without replacing the current draft.
+        messagePanel = new GameObject("AnnotationStatus", typeof(RectTransform), typeof(Image));
+        messagePanel.transform.SetParent(transform, false);
+        RectTransform strip = messagePanel.GetComponent<RectTransform>();
+        strip.anchoredPosition = new Vector2(0f, -169f);
+        strip.sizeDelta = new Vector2(382f, 45f);
+        Image stripImage = messagePanel.GetComponent<Image>();
+        stripImage.color = new Color(.16f, .18f, .21f, .98f);
+        stripImage.raycastTarget = false;
+        messageText = CreateText(messagePanel.transform, "Message", Vector2.zero,
+            new Vector2(365f, 43f), 14f);
+        messagePanel.SetActive(false);
+
+        keepEditingButton = CreateButton("KeepEditing", new Vector2(98f, -121.74f),
+            new Vector2(178f, 29.47f), "KEEP EDITING", KeepEditing);
+        keepEditingButton.gameObject.SetActive(false);
+
+        TextMeshProUGUI targetText = CreateText(transform, "AnnotationTarget", new Vector2(0f, 90f),
+            new Vector2(350f, 20f), 14f);
+        FurnitureInfo info = targetObject != null ? targetObject.GetComponent<FurnitureInfo>() : null;
+        targetText.text = info != null && !string.IsNullOrWhiteSpace(info.EnglishName)
+            ? info.EnglishName : targetObject != null ? targetObject.name : "Object annotation";
+        RefreshSubmitLabel();
+    }
+
+    private bool HasPersistentListener(Button button, string method)
+    {
+        for (int i = 0; i < button.onClick.GetPersistentEventCount(); i++)
+            if (button.onClick.GetPersistentTarget(i) == this
+                && button.onClick.GetPersistentMethodName(i) == method)
+                return true;
+        return false;
+    }
+
+    private TextMeshProUGUI CreateText(Transform parent, string name, Vector2 position,
+        Vector2 size, float fontSize)
+    {
+        var go = new GameObject(name, typeof(RectTransform), typeof(TextMeshProUGUI));
+        go.transform.SetParent(parent, false);
+        RectTransform rect = go.GetComponent<RectTransform>();
+        rect.anchoredPosition = position;
+        rect.sizeDelta = size;
+        TextMeshProUGUI text = go.GetComponent<TextMeshProUGUI>();
+        text.font = titleText != null ? titleText.font : TMP_Settings.defaultFontAsset;
+        text.fontSize = fontSize;
+        text.color = Color.white;
+        text.alignment = TextAlignmentOptions.Center;
+        text.enableWordWrapping = true;
+        text.raycastTarget = false;
+        return text;
+    }
+
+    private Button CreateButton(string name, Vector2 position, Vector2 size, string label, Action action)
+    {
+        var go = new GameObject(name, typeof(RectTransform), typeof(Image), typeof(Button));
+        go.transform.SetParent(transform, false);
+        RectTransform rect = go.GetComponent<RectTransform>();
+        rect.anchoredPosition = position;
+        rect.sizeDelta = size;
+        Image image = go.GetComponent<Image>();
+        image.color = new Color(.23f, .25f, .28f, 1f);
+        Button button = go.GetComponent<Button>();
+        button.targetGraphic = image;
+        button.onClick.AddListener(() => action());
+        CreateText(go.transform, "Label", Vector2.zero, size - new Vector2(8f, 2f), 12f).text = label;
+        return button;
     }
 
     private void ShowVirtualKeyboard()
@@ -75,33 +194,127 @@ public class AnnotationUI : MonoBehaviour
 
     public void OnSelectCategory(string category)
     {
-        selectedCategory = category;
-        Debug.Log("Selected issue category: " + selectedCategory);
-
-        if (submitButtonText != null)
-            submitButtonText.text = "Submit (" + selectedCategory + ")";
+        EnsureInitialized();
+        selectedCategory = ReviewAnnotationStore.NormalizeCategory(category);
+        ClearError();
+        foreach (CategoryButton item in categoryButtons)
+            item.Label.fontStyle = item.Category == selectedCategory
+                ? item.OriginalStyle | FontStyles.Bold : item.OriginalStyle;
+        RefreshSubmitLabel();
     }
 
     public void OnSubmit()
     {
-        string description = descriptionInput != null ? descriptionInput.text : string.Empty;
-        string targetName = targetObject != null ? targetObject.name : "Unknown";
-        Debug.Log("Issue submitted. Target: " + targetName + ", category: " + selectedCategory + ", description: " + description);
+        TrySubmit();
+    }
+
+    public bool TrySubmit()
+    {
+        if (submitting || closing) return false;
+        EnsureInitialized();
+        virtualKeyboard?.Hide();
+        ReviewAnnotationStore store = ReviewAnnotationStore.Active;
+        string error;
+        if (store == null)
+        {
+            ShowError("The review is not ready to save. Your draft is still here.");
+            return false;
+        }
+        submitting = true;
+        bool success = store.TrySubmit(targetObject, selectedCategory,
+            descriptionInput != null ? descriptionInput.text : string.Empty, out error);
+        submitting = false;
+        if (!success)
+        {
+            ShowError(error);
+            return false;
+        }
+
+        Action finish = onFinishSubmitted;
         CloseUI();
+        finish?.Invoke();
+        return true;
+    }
+
+    public void RequestFinish(Action onSubmitted)
+    {
+        if (closing || onSubmitted == null) return;
+        EnsureInitialized();
+        onFinishSubmitted = onSubmitted;
+        keepEditingButton.gameObject.SetActive(true);
+        if (submitButton != null)
+        {
+            RectTransform rect = submitButton.GetComponent<RectTransform>();
+            rect.anchoredPosition = new Vector2(-98f, -121.74f);
+            rect.sizeDelta = new Vector2(178f, 29.47f);
+        }
+        virtualKeyboard?.Hide();
+        ClearError();
+        RefreshSubmitLabel();
+    }
+
+    public void KeepEditing()
+    {
+        onFinishSubmitted = null;
+        if (keepEditingButton != null) keepEditingButton.gameObject.SetActive(false);
+        if (submitButton != null)
+        {
+            RectTransform rect = submitButton.GetComponent<RectTransform>();
+            rect.anchoredPosition = new Vector2(-.2f, -121.74f);
+            rect.sizeDelta = new Vector2(91.27f, 29.47f);
+        }
+        ClearError();
+        RefreshSubmitLabel();
+    }
+
+    private void RefreshSubmitLabel()
+    {
+        if (submitButtonText != null) submitButtonText.text = IsFinishing ? "SAVE & END" : "Submit";
+    }
+
+    private void ShowError(string error)
+    {
+        LastError = string.IsNullOrEmpty(error) ? "Could not save. Your draft is still here." : error;
+        messageText.text = LastError;
+        messagePanel.SetActive(true);
+    }
+
+    private void ClearError()
+    {
+        LastError = null;
+        if (messageText == null) return;
+        messageText.text = IsFinishing ? "Save this draft to finish, or keep editing." : string.Empty;
+        messagePanel.SetActive(IsFinishing);
     }
 
     public void OnCancel()
     {
+        if (IsFinishing)
+        {
+            KeepEditing();
+            return;
+        }
         CloseUI();
     }
 
     public void CloseUI()
     {
+        if (closing) return;
+        closing = true;
+        onFinishSubmitted = null;
         if (targetHighlighter != null)
             targetHighlighter.SetSelected(false);
         if (AnnotationSpawner.currentActiveUI == gameObject)
             AnnotationSpawner.currentActiveUI = null;
+        gameObject.SetActive(false);
         Destroy(gameObject);
+    }
+
+    private void OnDestroy()
+    {
+        if (AnnotationSpawner.currentActiveUI == gameObject)
+            AnnotationSpawner.currentActiveUI = null;
+        if (!closing && targetHighlighter != null) targetHighlighter.SetSelected(false);
     }
 }
 
@@ -120,7 +333,7 @@ internal sealed class IssueMarkerVirtualKeyboard
         keyboardRoot.anchorMin = new Vector2(0.5f, 0.5f);
         keyboardRoot.anchorMax = new Vector2(0.5f, 0.5f);
         keyboardRoot.pivot = new Vector2(0.5f, 0.5f);
-        keyboardRoot.anchoredPosition = new Vector2(0f, -170f);
+        keyboardRoot.anchoredPosition = new Vector2(0f, -264f);
         keyboardRoot.sizeDelta = new Vector2(360f, 136f);
 
         Image panel = keyboardObject.GetComponent<Image>();
@@ -143,7 +356,7 @@ internal sealed class IssueMarkerVirtualKeyboard
             keyboardObject.SetActive(true);
     }
 
-    private void Hide()
+    public void Hide()
     {
         keyboardObject.SetActive(false);
         if (EventSystem.current != null)

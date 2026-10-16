@@ -52,7 +52,9 @@ namespace LivingRoom30.Measurement
 
         private void OnSelectPerformed(InputAction.CallbackContext ctx)
         {
-            if (interactor == null) return;
+            // A near-hand grab temporarily owns this controller; disabled rays must not
+            // continue to produce raw physics measurements from the shared grip action.
+            if (interactor == null || !interactor.isActiveAndEnabled) return;
             Transform origin = interactor.rayOriginTransform;
             if (origin == null) return;
 

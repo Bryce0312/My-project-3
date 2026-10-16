@@ -58,6 +58,25 @@ namespace LivingRoom30.Measurement
         private CharacterController rigCc;     // rig 的 CharacterController（桌面行走时必须禁用，防胶囊互卡）
         private ActionBasedContinuousMoveProvider rigMoveProvider;   // 必须与 rigCc 同步开关，见 SetRigLocomotionEnabled
         private ActionBasedSnapTurnProvider rigTurnProvider;
+        private bool reviewLocomotionBlocked;
+
+        // The review seat blocks locomotion, never headset/controller tracking or UI rays.
+        public bool IsXrMode => useXrNow;
+        public Camera ActiveCamera => mainCam;
+        public Transform XrOriginTransform => rigCc != null ? rigCc.transform : null;
+
+        public void SetReviewLocomotionBlocked(bool blocked)
+        {
+            reviewLocomotionBlocked = blocked;
+            ApplyRigLocomotionState();
+        }
+
+        private void ApplyRigLocomotionState()
+        {
+            bool allow = useXrNow && !reviewLocomotionBlocked;
+            if (rigCc != null) rigCc.enabled = allow;
+            SetRigLocomotionEnabled(allow);
+        }
 
         [Header("标签恒定屏幕尺寸")]
         public float labelScreenFraction = 0.02f;
@@ -293,8 +312,7 @@ namespace LivingRoom30.Measurement
                 // 回到 XR：恢复 rig 的行走能力与射线交互器，桌面行走强制退出
                 desktopWalkMode = false;
                 if (desktopWalk != null) desktopWalk.enabled = false;
-                if (rigCc != null) rigCc.enabled = true;
-                SetRigLocomotionEnabled(true);
+                ApplyRigLocomotionState();
                 SetXrRayActive(true);
                 ui?.SetWalkModeActive(false);
                 Debug.Log($"[SpatialMeasureManager] 模式=XR：启用 rig 相机（TrackedPoseDriver 跟随头转），xrCam.enabled={xrCam?.enabled}, desktopCam.enabled={desktopCam?.enabled}");

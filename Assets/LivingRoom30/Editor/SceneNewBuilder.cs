@@ -1,3 +1,7 @@
+// One-time living-room authoring tool, archived after SceneNew became hand-maintained.
+// Define ENABLE_LEGACY_LIVING_ROOM_BUILDER only when deliberately restoring this tool.
+// Its rebuild entry points overwrite SceneNew and do not preserve later scene edits.
+#if UNITY_EDITOR && ENABLE_LEGACY_LIVING_ROOM_BUILDER
 using System.IO;
 using System.Linq;
 using LivingRoom30;
@@ -1047,3 +1051,4 @@ namespace LivingRoom30.Editor
         }
     }
 }
+#endif

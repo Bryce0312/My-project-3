@@ -178,6 +178,9 @@ namespace LivingRoom30
             gameObject.SetActive(true);
         }
 
+        // Lets the scene-authored review journey offer this controls tutorial on demand.
+        public void Dismiss() => Hide();
+
         private void Hide()
         {
             if (highlighter != null)
