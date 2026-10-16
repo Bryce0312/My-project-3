@@ -2,6 +2,54 @@
 
 本文件记录项目中值得关注的功能、资源和配置变更。
 
+## [0.5.0] - 2026-10-16 — E 反馈与问题管理（结构化反馈闭环）
+
+### 新增
+
+- 新增反馈与问题管理模块 `Assets/LivingRoom30/Scripts/Feedback/`（**E 部分**），完成
+  `标注面板 → 问题分类 → 严重程度 → 文字描述 → 提交 → 数据记录 → 空间标注 → 问题汇总 → 导出` 全流程。
+- 新增结构化问题模型：5 类问题（空间/布局/动线/可达性/尺寸）+ 3 档严重程度（轻微/中等/严重）
+  + 描述 + 世界坐标 + 目标家具标识 + 可选测量结果 + 创建时间。
+- 新增空间持久标注 `IssueMarker`：分类配色图钉 + `ISSUE #NN` Billboard 标签，提交后持续保留在空间中，
+  不被家具遮挡；标签保持恒定屏幕尺寸；无碰撞体以免被测量/选择射线误拾取。
+- 新增数据持久化与导出 `IssueStore`：会话 JSON（`session_*.json`）与问题 CSV（`issues_*.csv`），
+  输出到 `Application.persistentDataPath/xr-review/`，UTF-8 BOM 保证表格软件中文不乱码；提交后自动保存。
+- 新增问题汇总 `IssueListHud`：右腕常驻 `ISSUES (n)` 世界空间入口（含状态行）+ 头显前方世界空间汇总面板
+  （严重程度摘要、每页 6 条分页列表、逐条 FOCUS 定位高亮、导出、关闭）。
+- 新增编辑器工具 `Assets/LivingRoom30/Editor/FeedbackSetup.cs`（菜单 `LivingRoom30 ▸ 反馈`）：
+  集成自检并生成 `Tools/xr-review/feedback-integration-report.txt`、打开导出目录、导出当前会话、汇总已导出数据。
+- 新增技术路线与集成说明文档 `Docs/E_反馈与问题管理_技术路线与集成说明.md`。
+
+### 集成（接入 D 的标注链路与 C 的测量）
+
+- 新增 `AnnotationBridge` / `AnnotationBinding`，在**运行期**接管 D 已合并的标注面板
+  （`Assets/XR interaction/`）：订阅场景中已有的 `XRSimpleInteractable.selectEntered`
+  捕获目标对象与空间锚点；隐藏 D 那三个未接线的分类按钮，注入 5 类问题分类（两行）与
+  3 档严重程度（一行）；接线 Submit 按钮并读取 D 的公开字段 `descriptionInput`；
+  提交后调用 D 的 `CloseUI()` 复用其高亮复位逻辑。**不修改 D 的任何文件与预制体。**
+- 新增 `MeasurementBridge` 软桥接：反射读取测量模块读数面板并解析为测量快照，
+  供反馈自动附加；C 未合并或字段改名时静默降级。同时提供
+  `OfferMeasurement(...)` / `OfferMeasurementText(...)` 显式契约。
+- 运行时自举生成 `FeedbackSystem`，**零场景序列化依赖**；场景现由人工维护
+  （`SceneNewBuilder` 只做缺失告警），E 不参与场景生成，避免与 D 的场景改动冲突。
+
+### 修复
+
+- 修复 D 的标注面板中**问题分类按钮与 Submit 按钮未绑定任何事件**、`AnnotationUI.OnSubmit`
+  仅打印日志导致"面板能弹出、能关闭，但既不能选分类也不能提交、提交后无任何记录"的问题。
+- 补齐 D 面板缺失的**严重程度**维度（PROJECT_BRIEF 核心设计评审能力 4 要求）。
+
+### 说明
+
+- E 的自建界面全部为**世界空间画布**：本项目 `S06_XR_UIEventSystem` 的 `XRUIInputModule`
+  刻意关闭了鼠标输入（避免与 XR Device Simulator 抢输入），屏幕空间画布在头显与模拟器下都无法被射线点击。
+- E 自建界面使用内置 `LegacyRuntime.ttf` + UGUI `Text`（可显示中文）；
+  注入到 D 面板的按钮改用 ASCII 标签，因为 TMP 默认字体不含中文字形。
+- 问题汇总入口挂**右手柄**腕部（沿用 `S05_ReviewHud` 相同的偏移、缩放与朝向修正方案），
+  由左手柄射线点击，避免与左手腕上的 `S05_ReviewHud` 重叠。
+- 已知限制：头显内仅能用 D 自带的 A–Z 虚拟键盘输入描述；`forceDesktop` 纯鼠标模式下 UI 不可交互
+  （项目既有设定）；反馈数据存于本机，未做云端同步。
+
 ## [0.4.0] - 2026-10-11
 
 ### 新增
