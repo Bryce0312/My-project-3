@@ -70,17 +70,23 @@ namespace LivingRoom30.Editor
 
         static SceneNewBuilder()
         {
-            EditorApplication.delayCall += BuildAutomaticallyIfNeeded;
+            // The builder no longer regenerates the scene on its own. SceneNew.unity is not purely
+            // generated any more: other tools bake objects and components into it, so an automatic
+            // rebuild would discard all of that silently and without any prompt.
+            EditorApplication.delayCall += WarnIfSceneMissing;
         }
 
-        public static void BuildAutomaticallyIfNeeded()
+        public static void WarnIfSceneMissing()
         {
             if (EditorApplication.isPlayingOrWillChangePlaymode || EditorApplication.isCompiling || File.Exists(ScenePath))
             {
                 return;
             }
 
-            BuildSceneNew();
+            Debug.LogWarning(
+                ScenePath + " is missing, and the builder no longer recreates it automatically. " +
+                "Regenerating it discards everything that was not produced by this script, so do it " +
+                "deliberately instead, through Tools/SceneNew/Rebuild 30sqm Living Room.");
         }
 
         [MenuItem("Tools/SceneNew/Rebuild 30sqm Living Room")]
@@ -88,8 +94,14 @@ namespace LivingRoom30.Editor
         {
             if (File.Exists(ScenePath) && !EditorUtility.DisplayDialog(
                     "Rebuild SceneNew",
-                    "Replace the generated SceneNew living room? Existing project scenes will not be changed.",
-                    "Rebuild",
+                    "Regenerate " + ScenePath + " from code?\n\n" +
+                    "SceneNew is no longer maintained by this builder alone. Anything that was not produced " +
+                    "by SceneNewBuilder is discarded, including:\n" +
+                    "   - components added by hand or by other tools\n" +
+                    "     (annotation, hover highlight, proximity display)\n" +
+                    "   - objects and colliders placed in the editor\n\n" +
+                    "Other scenes are unaffected. There is no undo for this.",
+                    "Rebuild and discard",
                     "Cancel"))
             {
                 return;
@@ -100,6 +112,8 @@ namespace LivingRoom30.Editor
 
         public static void RebuildSceneNewBatch()
         {
+            // Batch entry point: there is no dialog here, so state the consequence in the log.
+            Debug.LogWarning("Rebuilding " + ScenePath + " from code. Anything not produced by SceneNewBuilder is being discarded.");
             BuildSceneNew();
         }
 
