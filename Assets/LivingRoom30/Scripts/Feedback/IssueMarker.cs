@@ -14,23 +14,45 @@ namespace LivingRoom30.Feedback
     /// - **不附加任何 Collider**：C（测量）与 D（选择）都通过 Physics.Raycast 拾取世界，
     ///   若 Marker 带碰撞体将被误拾取。V1 的点选定位由「问题汇总列表 → 高亮」承担。
     /// - 所有材质运行时按 Unlit 创建，避免依赖导入的材质资源。
+    /// - 朝向与缩放逻辑直接写在本类中，**不另开嵌套的 MonoBehaviour**：
+    ///   Unity 的脚本注册以「文件名 = 外层类名」为单位，嵌套 MonoBehaviour 无法在 Inspector 中挂载，
+    ///   不同版本下 `AddComponent` 也可能报 "script class cannot be found"。
+    ///   这里只有十行逻辑，内联进来即可完全规避该风险（本项目其它脚本也都是"一个 MonoBehaviour 一个文件"）。
+    ///
+    /// 朝向口径：项目既有的 <c>BillboardLabel</c>（测量标签）与 <c>WristPanelFacing</c> / <c>HudLazyFollow</c>
+    /// （世界空间画布）都采用「物体 forward 背对观察者」，
+    /// 因此这里用 `LookRotation(自身位置 − 相机位置)`；反向会让文字变成镜像。
     /// </summary>
     [DisallowMultipleComponent]
     public sealed class IssueMarker : MonoBehaviour
     {
+        // ---- 几何 ----
         private const float StemHeight = 0.55f;
         private const float HeadHeight = 0.62f;
         private const float LabelHeight = 0.86f;
+        private const float HeadScale = 0.15f;
+        private const float HeadScaleHighlighted = 0.24f;
+
+        // ---- 标签恒定屏幕尺寸 ----
+        /// <summary>文字行高占屏幕高度的比例。</summary>
+        private const float LabelScreenFraction = 0.016f;
+        private const float LabelMinScale = 0.35f;
+        private const float LabelMaxScale = 4.0f;
+        /// <summary>localScale = 1 时的文字 em 高（米）≈ characterSize(0.05) × fontSize(64) × 0.1。</summary>
+        private const float LabelBaseWorldHeight = 0.32f;
+        /// <summary>距离变化小于该比例时跳过重算（死区防抖）。</summary>
+        private const float LabelScaleDeadZone = 0.01f;
 
         private Transform head;
         private TextMesh label;
-        private BillboardFacing facing;
+        private Camera facingCamera;
 
         private Material headMaterial;
         private Material labelMaterial;
         private Color baseColor;
         private bool highlighted;
         private float highlightTimer;
+        private float lastLabelDistance = -1f;
 
         /// <summary>对应的记录 ID（与 IssueRecord.id 一致）。</summary>
         public string IssueId { get; private set; }
@@ -57,6 +79,7 @@ namespace LivingRoom30.Feedback
             IssueId = issueId;
             Anchor = worldPoint;
             baseColor = IssueCatalog.CategoryColor(category);
+            this.facingCamera = facingCamera;
 
             // 图钉颜色材质（Unlit：不受室内光照影响，暗处也清晰可辨）
             headMaterial = new Material(Shader.Find("Unlit/Color") ?? Shader.Find("Standard"));
@@ -72,20 +95,21 @@ namespace LivingRoom30.Feedback
             stem.GetComponent<MeshRenderer>().sharedMaterial = headMaterial;
 
             // 球形图钉（编号用文字表达，避免在球面上生成贴图）
-            GameObject headGo = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            headGo.name = "Head";
-            StripCollider(headGo);
-            headGo.transform.SetParent(transform, false);
-            headGo.transform.localPosition = new Vector3(0f, HeadHeight, 0f);
-            headGo.transform.localScale = Vector3.one * 0.15f;
-            headGo.GetComponent<MeshRenderer>().sharedMaterial = headMaterial;
-            head = headGo.transform;
+            GameObject headObject = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            headObject.name = "Head";
+            StripCollider(headObject);
+            headObject.transform.SetParent(transform, false);
+            headObject.transform.localPosition = new Vector3(0f, HeadHeight, 0f);
+            headObject.transform.localScale = Vector3.one * HeadScale;
+            headObject.GetComponent<MeshRenderer>().sharedMaterial = headMaterial;
+            head = headObject.transform;
 
             // Billboard 标签
-            var labelGo = new GameObject("Label");
-            labelGo.transform.SetParent(transform, false);
-            labelGo.transform.localPosition = new Vector3(0f, LabelHeight, 0f);
-            label = labelGo.AddComponent<TextMesh>();
+            var labelObject = new GameObject("Label");
+            labelObject.transform.SetParent(transform, false);
+            labelObject.transform.localPosition = new Vector3(0f, LabelHeight, 0f);
+
+            label = labelObject.AddComponent<TextMesh>();
             Font font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             if (font != null) label.font = font;
             label.text = labelText;
@@ -96,7 +120,7 @@ namespace LivingRoom30.Feedback
             label.fontStyle = FontStyle.Bold;
             label.color = baseColor;
 
-            var labelRenderer = labelGo.GetComponent<MeshRenderer>();
+            var labelRenderer = labelObject.GetComponent<MeshRenderer>();
             if (labelRenderer != null)
             {
                 if (font != null && font.material != null)
@@ -110,8 +134,7 @@ namespace LivingRoom30.Feedback
                 labelRenderer.sortingOrder = 20;
             }
 
-            facing = labelGo.AddComponent<BillboardFacing>();
-            facing.SetCamera(facingCamera != null ? facingCamera.transform : null);
+            RefreshLabelTransform();
         }
 
         /// <summary>更新标签文本（例如分类被修改后）。</summary>
@@ -120,7 +143,7 @@ namespace LivingRoom30.Feedback
             if (label != null) label.text = text;
         }
 
-        /// <summary>切换分类配色（记录被修改时不会发生，保留接口以便后续 V1+ 支持改分类）。</summary>
+        /// <summary>切换分类配色。</summary>
         public void SetCategory(IssueCategory category)
         {
             baseColor = IssueCatalog.CategoryColor(category);
@@ -135,10 +158,13 @@ namespace LivingRoom30.Feedback
             highlightTimer = Mathf.Max(0.2f, seconds);
         }
 
-        /// <summary>相机切换（XR ↔ 桌面）时由 Manager 统一注入。</summary>
-        public void SetFacingCamera(Camera cam)
+        /// <summary>相机切换（XR ↔ 桌面）时由 IssueMarkerManager 统一注入。</summary>
+        public void SetFacingCamera(Camera camera)
         {
-            if (facing != null) facing.SetCamera(cam != null ? cam.transform : null);
+            if (camera == null) return;
+            facingCamera = camera;
+            lastLabelDistance = -1f;
+            RefreshLabelTransform();
         }
 
         private void Update()
@@ -149,21 +175,59 @@ namespace LivingRoom30.Feedback
             if (highlightTimer <= 0f)
             {
                 highlighted = false;
-                if (head != null) head.localScale = Vector3.one * 0.15f;
+                if (head != null) head.localScale = Vector3.one * HeadScale;
                 if (headMaterial != null) headMaterial.color = baseColor;
                 return;
             }
 
-            // 呼吸式脉冲：图钉尺寸 1.0~1.6 倍，颜色向白色偏移
+            // 呼吸式脉冲：图钉尺寸与颜色同时变化，远处也能注意到
             float t = 0.5f + 0.5f * Mathf.Sin(Time.time * 8f);
-            float scale = Mathf.Lerp(0.15f, 0.24f, t);
-            if (head != null) head.localScale = Vector3.one * scale;
+            if (head != null) head.localScale = Vector3.one * Mathf.Lerp(HeadScale, HeadScaleHighlighted, t);
             if (headMaterial != null) headMaterial.color = Color.Lerp(baseColor, Color.white, t * 0.6f);
         }
 
-        private static void StripCollider(GameObject go)
+        /// <summary>
+        /// 标签朝向与恒定屏幕尺寸。放在 LateUpdate：确保相机本帧位姿已确定后再对齐，
+        /// 避免与相机驱动组件（XRHeadPoseFollower / DesktopOrbitCamera）争抢同一帧的先后顺序。
+        /// </summary>
+        private void LateUpdate()
         {
-            var collider = go.GetComponent<Collider>();
+            RefreshLabelTransform();
+        }
+
+        private void RefreshLabelTransform()
+        {
+            if (label == null) return;
+
+            Camera camera = facingCamera != null ? facingCamera : Camera.main;
+            if (camera == null) return;
+
+            Transform cameraTransform = camera.transform;
+            Vector3 labelPosition = label.transform.position;
+
+            // 朝向：只在水平面上对齐，避免文字随俯仰倾斜；forward 背对观察者
+            Vector3 direction = labelPosition - cameraTransform.position;
+            direction.y = 0f;
+            if (direction.sqrMagnitude > 1e-6f)
+                label.transform.rotation = Quaternion.LookRotation(direction.normalized, Vector3.up);
+
+            // 恒定屏幕尺寸：按距离补偿缩放，保证近处不过大、远处仍可读
+            float distance = Vector3.Distance(cameraTransform.position, labelPosition);
+            if (lastLabelDistance > 0f &&
+                Mathf.Abs(distance - lastLabelDistance) < lastLabelDistance * LabelScaleDeadZone)
+                return;
+            lastLabelDistance = distance;
+
+            float halfFov = camera.fieldOfView * 0.5f * Mathf.Deg2Rad;
+            float metersPerDistance = LabelScreenFraction * 2f * Mathf.Tan(halfFov);
+            float scale = Mathf.Clamp(metersPerDistance * distance / LabelBaseWorldHeight,
+                LabelMinScale, LabelMaxScale);
+            label.transform.localScale = Vector3.one * scale;
+        }
+
+        private static void StripCollider(GameObject target)
+        {
+            var collider = target.GetComponent<Collider>();
             if (collider != null) Destroy(collider);
         }
 
@@ -171,59 +235,6 @@ namespace LivingRoom30.Feedback
         {
             if (headMaterial != null) Destroy(headMaterial);
             if (labelMaterial != null) Destroy(labelMaterial);
-        }
-
-        /// <summary>
-        /// 轻量 Billboard：始终正对相机，并按距离补偿缩放以维持「恒定屏幕尺寸」。
-        /// 与测量模块的 BillboardLabel 同源思路，但刻意独立实现，避免 E 与 C 之间产生编译期耦合。
-        /// </summary>
-        public sealed class BillboardFacing : MonoBehaviour
-        {
-            [SerializeField] private Transform cameraTransform;
-            [SerializeField] private bool constantScreenSize = true;
-            [SerializeField] private float screenFraction = 0.016f;
-            [SerializeField] private float minScale = 0.35f;
-            [SerializeField] private float maxScale = 4.0f;
-            [SerializeField] private float baseWorldHeight = 0.32f;
-
-            private Camera cam;
-            private float lastDistance = -1f;
-
-            public void SetCamera(Transform t)
-            {
-                cameraTransform = t;
-                cam = t != null ? t.GetComponent<Camera>() : null;
-                lastDistance = -1f;
-            }
-
-            private void LateUpdate()
-            {
-                Transform camT = cameraTransform;
-                if (camT == null)
-                {
-                    Camera main = Camera.main;
-                    if (main == null) return;
-                    cam = main;
-                    camT = main.transform;
-                }
-
-                // 正对相机（保持文字水平）：只在水平方向朝向相机，避免文字上下颠倒
-                Vector3 dir = camT.position - transform.position;
-                dir.y = 0f;
-                if (dir.sqrMagnitude > 1e-6f)
-                    transform.rotation = Quaternion.LookRotation(-dir.normalized, Vector3.up);
-
-                if (!constantScreenSize) return;
-
-                float dist = Vector3.Distance(camT.position, transform.position);
-                if (lastDistance > 0f && Mathf.Abs(dist - lastDistance) < lastDistance * 0.01f) return;
-                lastDistance = dist;
-
-                float halfFov = (cam != null ? cam.fieldOfView : 60f) * 0.5f * Mathf.Deg2Rad;
-                float k = screenFraction * 2f * Mathf.Tan(halfFov);
-                float s = Mathf.Clamp(k * dist / Mathf.Max(0.001f, baseWorldHeight), minScale, maxScale);
-                transform.localScale = Vector3.one * s;
-            }
         }
     }
 }
