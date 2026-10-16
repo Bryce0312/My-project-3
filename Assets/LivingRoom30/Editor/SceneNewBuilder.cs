@@ -533,11 +533,11 @@ namespace LivingRoom30.Editor
             camera.nearClipPlane = 0.05f;
             camera.farClipPlane = 60f;
 
-            int uiLayer = LayerMask.NameToLayer("UI");
-            if (uiLayer >= 0)
-            {
-                camera.cullingMask = ~(1 << uiLayer);
-            }
+            // The preview camera keeps its default culling mask (everything). It is also used as the
+            // desktop camera by the spatial measurement tools, which must see UI layer content, so
+            // the UI layer must not be excluded here. RenderSceneNewPreview does not rely on that
+            // exclusion either; if a clean preview image is ever wanted again, hide the UI objects
+            // inside that method instead of shaping this camera's mask.
             AudioListener previewListener = cameraObject.AddComponent<AudioListener>();
             previewListener.enabled = false;
 
