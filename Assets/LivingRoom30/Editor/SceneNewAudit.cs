@@ -221,6 +221,12 @@ namespace LivingRoom30.Editor
                     failures.Add("Review HUD button label is not set to best fit, so PAUSE / RESUME would wrap onto two lines.");
                 }
 
+                HudGapsButton gapsHandler = hud.GetComponentInChildren<HudGapsButton>(true);
+                if (gapsHandler == null || gapsHandler.Label == null)
+                {
+                    failures.Add("Review HUD has no GAPS button wired to its label, so the clearance readout could not be toggled in VR - it has no other entry point.");
+                }
+
                 if (stopwatch != null && stopwatch.Label != null && stopwatch.Label.horizontalOverflow != HorizontalWrapMode.Overflow)
                 {
                     failures.Add("Review HUD time label is allowed to wrap; a session past one hour would break onto two lines.");

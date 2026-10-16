@@ -30,10 +30,17 @@ namespace LivingRoom30.Editor
         // ~0.45 m from the eyes instead of ~0.69 m, so this keeps the same apparent size while
         // bringing the physical panel down from 26 cm to about 18 cm.
         private const float ReviewHudCanvasScale = 0.00035f;
-        private const float ReviewHudTimeAnchorMaxX = 0.44f;
-        private const float ReviewHudPauseAnchorMinX = 0.46f;
-        private const float ReviewHudPauseAnchorMaxX = 0.72f;
-        private const float ReviewHudHelpAnchorMinX = 0.74f;
+        // Two rows: the timer across the top, three buttons along the bottom. A single row had no
+        // horizontal room left once the clearance toggle was added.
+        private const float ReviewHudTimeMinY = 0.42f;
+        private const float ReviewHudButtonRowMinY = 0.06f;
+        private const float ReviewHudButtonRowMaxY = 0.38f;
+        private const float ReviewHudPauseMinX = 0.02f;
+        private const float ReviewHudPauseMaxX = 0.33f;
+        private const float ReviewHudHelpMinX = 0.35f;
+        private const float ReviewHudHelpMaxX = 0.66f;
+        private const float ReviewHudGapsMinX = 0.68f;
+        private const float ReviewHudGapsMaxX = 0.98f;
         private const string TutorialPanelName = "S07_TutorialPanel";
         private const float BeaconSize = 0.02f;
         private const float BeaconEditHeight = 1.0f;
@@ -44,7 +51,7 @@ namespace LivingRoom30.Editor
         // Controller-local: behind and slightly above the grip, which the measured model extents
         // leave clear (the shell reaches back to z = -9.1 cm and up to y = +3.9 cm).
         private static readonly Vector3 ReviewHudWristOffset = new Vector3(0f, 0.06f, -0.11f);
-        private static readonly Vector2 ReviewHudCanvasSize = new Vector2(520f, 140f);
+        private static readonly Vector2 ReviewHudCanvasSize = new Vector2(520f, 230f);
         private static readonly Color ReviewHudPanelColor = new Color(0.06f, 0.07f, 0.09f, 0.55f);
         private static readonly Color ReviewHudButtonColor = new Color(0.16f, 0.18f, 0.22f);
         private static readonly Color ReviewHudButtonHighlightedColor = new Color(0.30f, 0.34f, 0.42f);
@@ -641,7 +648,7 @@ namespace LivingRoom30.Editor
             GameObject labelObject = new GameObject("Label_Time", typeof(RectTransform));
             labelObject.transform.SetParent(hud.transform, false);
             AnchorTo(labelObject.GetComponent<RectTransform>(),
-                Vector2.zero, new Vector2(ReviewHudTimeAnchorMaxX, 1f), new Vector2(16f, 10f));
+                new Vector2(0f, ReviewHudTimeMinY), Vector2.one, new Vector2(16f, 10f));
 
             Text label = labelObject.AddComponent<Text>();
             label.font = font;
@@ -656,12 +663,17 @@ namespace LivingRoom30.Editor
             stopwatch.Configure(label);
 
             Button pauseButton = BuildHudButton(hud.transform, font, "Button_Pause",
-                new Vector2(ReviewHudPauseAnchorMinX, 0f), new Vector2(ReviewHudPauseAnchorMaxX, 1f), "PAUSE");
+                new Vector2(ReviewHudPauseMinX, ReviewHudButtonRowMinY), new Vector2(ReviewHudPauseMaxX, ReviewHudButtonRowMaxY), "PAUSE");
             HudPauseButton pauseHandler = pauseButton.gameObject.AddComponent<HudPauseButton>();
             pauseHandler.Configure(stopwatch, pauseButton.GetComponentInChildren<Text>());
 
             Button helpButton = BuildHudButton(hud.transform, font, "Button_Help",
-                new Vector2(ReviewHudHelpAnchorMinX, 0f), Vector2.one, "HELP");
+                new Vector2(ReviewHudHelpMinX, ReviewHudButtonRowMinY), new Vector2(ReviewHudHelpMaxX, ReviewHudButtonRowMaxY), "HELP");
+
+            Button gapsButton = BuildHudButton(hud.transform, font, "Button_Gaps",
+                new Vector2(ReviewHudGapsMinX, ReviewHudButtonRowMinY), new Vector2(ReviewHudGapsMaxX, ReviewHudButtonRowMaxY), "GAPS ON");
+            HudGapsButton gapsHandler = gapsButton.gameObject.AddComponent<HudGapsButton>();
+            gapsHandler.Configure(gapsButton.GetComponentInChildren<Text>());
 
             SetLayerRecursively(hud, "UI");
             return helpButton;
