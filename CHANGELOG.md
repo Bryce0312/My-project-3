@@ -27,9 +27,12 @@
   捕获目标对象与空间锚点；隐藏 D 那三个未接线的分类按钮，注入 5 类问题分类（两行）与
   3 档严重程度（一行）；接线 Submit 按钮并读取 D 的公开字段 `descriptionInput`；
   提交后调用 D 的 `CloseUI()` 复用其高亮复位逻辑。**不修改 D 的任何文件与预制体。**
-- 新增 `MeasurementBridge` 软桥接：反射读取测量模块读数面板并解析为测量快照，
-  供反馈自动附加；C 未合并或字段改名时静默降级。同时提供
-  `OfferMeasurement(...)` / `OfferMeasurementText(...)` 显式契约。
+- 新增 `MeasurementBridge` 软桥接：优先扫描 `MeasurementVisualizer` 的 3D 标签池
+  （当前 main 版本上真正承载测量读数的地方——`SpatialMeasureManager` 关闭了侧边读数面板，
+  `MeasureUIPanel.readout` 恒为 null），以「恰好 1 个 `<数字> m` 数值标签」判定为一次距离测量，
+  避免把家具尺寸线框的 12 个标签误当距离；解析为测量快照供反馈自动附加，
+  C 未合并或结构变更时静默降级。同时提供 `OfferMeasurement(...)` / `OfferMeasurementText(...)`
+  显式契约（推荐 C 侧长期接入方式）。
 - 运行时自举生成 `FeedbackSystem`，**零场景序列化依赖**；场景现由人工维护
   （`SceneNewBuilder` 只做缺失告警），E 不参与场景生成，避免与 D 的场景改动冲突。
 
