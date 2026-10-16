@@ -168,7 +168,16 @@ E 通过两个**已存在**的接口接入，不需要 D 做任何事：
 无需任何改动。E 不写场景、不接管移动输入、不修改任何既有组件。
 E 的射线拾取（锚点计算）使用 `Physics.Raycast` 且只认目标自身子层级，不会误判。
 
-### 5.4 未来 Designer Dashboard
+### 5.4 参数调整（运行时自举组件的可配置性）
+
+`FeedbackSystem` 默认在 Play 时自举，因此它的 Inspector 参数无法在运行前调整。若需要调参：
+
+> 在场景里手动新建一个空 GameObject、命名为 `FeedbackSystem` 并挂上 `FeedbackService` 组件，
+> 即可在 Inspector 上调整 `manageCategoryRow`（是否接管分类区）、`logBridgeActivity`（桥接日志）、
+> `pullMeasurementFromModule`（是否软读取测量读数）。自举检测到场景实例后会直接跳过，
+> 不会创建第二个实例。自检报告会把这种情形列为**有意预留的调参入口**，而不是异常。
+
+### 5.5 未来 Designer Dashboard
 
 ```csharp
 FeedbackService.Instance.IssueCreated += record => { /* 实时上报 */ };

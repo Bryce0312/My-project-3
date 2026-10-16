@@ -370,8 +370,10 @@ namespace LivingRoom30.Feedback.Editor
 
             GameObject baked = GameObject.Find(RuntimeBootstrapName);
             builder.AppendLine(baked == null
-                ? "  [通过] 场景中未保存 " + RuntimeBootstrapName + "（符合运行时自举约定）"
-                : "  [警告] 场景中存在 " + RuntimeBootstrapName + " 对象 → 会与自举实例冲突，请删除");
+                ? "  [信息] 场景中未保存 " + RuntimeBootstrapName + "（默认行为：Play 时运行时自举）"
+                : "  [信息] 场景中已保存 " + RuntimeBootstrapName + "：将使用该场景实例，自举不会再创建第二个。\n"
+                  + "         这是**有意预留**的调参入口——在此实例的 Inspector 上可调整 manageCategoryRow、"
+                  + "logBridgeActivity、pullMeasurementFromModule。");
             builder.AppendLine("  导出目录：" + IssueStore.DefaultExportDirectory);
         }
 
