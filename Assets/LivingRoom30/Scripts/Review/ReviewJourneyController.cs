@@ -75,7 +75,7 @@ namespace LivingRoom30.Review
         private SessionRecord record;
         private string recordPath, saveMessage = string.Empty, transientMessage = string.Empty;
         private float transientUntil;
-        private bool panelPositioned;
+        private bool panelPositioned, panelFollowingRightWrist;
         private Transform seatEye, exitFloor, remoteHome;
         private Canvas[] canvases;
         private ActionBasedController leftController, rightController;
@@ -451,18 +451,24 @@ namespace LivingRoom30.Review
             Vector3 forward = Vector3.ProjectOnPlane(head.forward, Vector3.up).normalized;
             if (forward.sqrMagnitude < .1f) forward = Vector3.forward;
             Vector3 right = Vector3.Cross(Vector3.up, forward);
-            Vector3 desired = head.position + forward * 1.25f + right * .52f - Vector3.up * .45f;
+            Vector3 desired;
+            bool followWrist = TryGetRightWristCardPosition(head, forward, out desired);
+            if (!followWrist)
+                desired = head.position + forward * .85f - Vector3.up * .32f;
             float panelScale;
             desired = SafeVisualPosition(head.position, desired, .16f, .15f, out panelScale);
             float currentScale;
             SafeVisualPosition(head.position, panel.transform.position, .16f, .15f, out currentScale);
-            if (!panelPositioned || Vector3.Distance(panel.transform.position, desired) > .15f || panelScale < .999f || currentScale < .999f)
+            if (followWrist != panelFollowingRightWrist) panelPositioned = false;
+            if (followWrist || !panelPositioned || Vector3.Distance(panel.transform.position, desired) > .15f || panelScale < .999f || currentScale < .999f)
             {
                 bool snap = !panelPositioned || panelScale < .999f || currentScale < .999f;
-                panel.transform.position = snap ? desired : Vector3.Lerp(panel.transform.position, desired, Time.unscaledDeltaTime * 7f);
+                float follow = 1f - Mathf.Exp(-(followWrist ? 18f : 7f) * Time.unscaledDeltaTime);
+                panel.transform.position = snap ? desired : Vector3.Lerp(panel.transform.position, desired, follow);
                 panelPositioned = true;
             }
-            panel.transform.localScale = Vector3.one * (.00115f * panelScale);
+            panelFollowingRightWrist = followWrist;
+            panel.transform.localScale = Vector3.one * ((followWrist ? .00085f : .00115f) * panelScale);
             Face(panel.transform, head);
             Face(targetCanvas.transform, head);
             Face(seatCanvas.transform, head);
@@ -471,6 +477,32 @@ namespace LivingRoom30.Review
                 head.position + forward * 1.05f - right * .43f - Vector3.up * .43f, .12f, .12f, out utilityScale);
             utilityCanvas.transform.localScale = Vector3.one * (.0014f * utilityScale);
             Face(utilityCanvas.transform, head);
+        }
+
+        private bool TryGetRightWristCardPosition(Transform head, Vector3 forward, out Vector3 position)
+        {
+            position = Vector3.zero;
+            if (!manager.IsXrMode || rightController == null || !rightController.isActiveAndEnabled)
+                return false;
+            var state = rightController.currentControllerState;
+            if (!state.isTracked || (state.inputTrackingState & UnityEngine.XR.InputTrackingState.Position) == 0)
+                return false;
+            Vector3 hand = rightController.transform.position;
+            // Keep the guide reachable when the right hand is behind the reviewer.
+            if (Vector3.Dot(hand - head.position, forward) < -.15f) return false;
+
+            // Use the rig's upright frame: turning the wrist or looking aside must not swing
+            // the card around the hand. Keep the canvas under ReviewJourney, not the controller.
+            Transform origin = manager.XrOriginTransform;
+            Vector3 wristForward = origin != null
+                ? Vector3.ProjectOnPlane(origin.forward, Vector3.up).normalized : forward;
+            if (wristForward.sqrMagnitude < .1f) wristForward = forward;
+            Vector3 wristRight = Vector3.Cross(Vector3.up, wristForward);
+            position = hand + wristForward * .35f + Vector3.up * .19f + wristRight * .15f;
+            Vector3 fromHead = position - head.position;
+            if (fromHead.sqrMagnitude < .55f * .55f)
+                position = head.position + (fromHead.sqrMagnitude > .001f ? fromHead.normalized : forward) * .55f;
+            return true;
         }
 
         private Vector3 SafeVisualPosition(Vector3 head, Vector3 desired, float radius, float margin, out float scale)
