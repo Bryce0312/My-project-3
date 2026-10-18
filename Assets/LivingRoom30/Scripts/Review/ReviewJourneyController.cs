@@ -9,8 +9,8 @@ using UnityEngine.XR.Interaction.Toolkit;
 namespace LivingRoom30.Review
 {
     /// <summary>
-    /// A scene-authored review journey. Only this component's children are created at runtime;
-    /// no room generator, scene replacement, input-asset change or global bootstrap is involved.
+    /// Manages the authored review sequence, session records and runtime review UI.
+    /// Runtime review objects are parented under this component's scene root.
     /// </summary>
     [DefaultExecutionOrder(200)]
     [DisallowMultipleComponent]

@@ -44,7 +44,7 @@ namespace LivingRoom30.Measurement
             canvasGO.AddComponent<CanvasScaler>().uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
             canvasGO.AddComponent<GraphicRaycaster>();
 
-            if (!showSidePanel) return; // 用户要求：隐藏侧边面板，仅保留顶部提示横幅能力
+            if (!showSidePanel) return; // 仅创建 Canvas 基础设施，不构建面板与读数控件
 
             var panel = new GameObject("Panel", typeof(Image)).GetComponent<RectTransform>();
             panel.SetParent(canvas.transform);

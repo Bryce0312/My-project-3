@@ -5,42 +5,20 @@ using UnityEngine.Serialization;
 namespace LivingRoom30
 {
     /// <summary>
-    /// Additive, read-only furniture dimension display with a camera/character proximity trigger.
+    /// Displays furniture dimensions and mesh outlines when the viewer is nearby.
+    /// FurnitureInfo identifies furniture; renderer bounds (or collider bounds as a fallback)
+    /// provide dimension estimates and label positions. Camera.main supplies the viewing camera,
+    /// with an optional separate distance reference.
     ///
-    /// Behaviour:
-    ///  - Lazily uses <see cref="Camera.main"/> (or an optional explicit reference point) purely to
-    ///    measure "how close is the viewer" and to billboard the labels, so it works for both the XR
-    ///    headset camera and the desktop review camera.
-    ///  - Caches every <see cref="FurnitureInfo"/> in the scene and derives dimensions purely from the
-    ///    object's Renderer/Collider world-space bounds (it never reads or writes FurnitureInfo fields,
-    ///    and never touches selection / measurement / teleport / feedback systems).
-    ///  - TRIGGER (proximity distance from the viewer): for each piece we measure the distance from the
-    ///    viewer (camera / character reference) to the piece's world AABB and show the border + dimension
-    ///    label only while that distance is within <see cref="m_TriggerDistance"/>. Moving away hides it
-    ///    again. A separate, slightly larger <see cref="m_ReleaseDistance"/> provides hysteresis so the
-    ///    border does not flicker on/off right at the threshold.
-    ///  - Distance can be measured in the horizontal plane (XZ, ignoring height -- the most intuitive
-    ///    "walk over to it" metric) or as the true 3D distance to the nearest point of the AABB.
-    ///  - RENDER (contour-following outline): the border is an inverted-hull outline (back-face normal
-    ///    extrusion, see Shaders/OutlineInvertedHull.shader) generated from the furniture's REAL mesh
-    ///    geometry. Curved surfaces yield curved outlines, polygons yield polygonal outlines -- it hugs
-    ///    the modeling contour tightly, with NO gap and NO rectangular / AABB approximation.
-    ///  - MULTIPLE pieces can be visible at once (e.g. the sofa + table you just walked up to); each
-    ///    gets its own billboarded label (name + W x H x D in metres) and its own edge-hugging outline.
+    /// Separate entry and release distances provide hysteresis. Proximity can use horizontal XZ
+    /// distance or full 3D distance to the world AABB; several nearby items can display together.
+    /// Outlines use mesh-based inverted-hull extrusion (Shaders/OutlineInvertedHull.shader),
+    /// while dimension estimates use bounds. Outline thickness controls the visible expansion.
     ///
-    /// The trigger and the render share the same per-furniture world bounds (the trigger uses the
-    /// viewer-to-bounds distance; the label uses bounds size + top placement), while the contour traces
-    /// the actual mesh -- so dimensions appear exactly when you are near, and the border always sits
-    /// flush against the furniture edge.
-    ///
-    /// Text height formula (metres) = characterSize x fontSize x 0.1, matching the convention
-    /// documented in Measurement/BillboardLabel.cs.
-    ///
-    /// This component is fully self-contained: label and outline GameObjects are created at runtime and
-    /// parented under the furniture's own renderers (outline) or live at the scene root (labels), so no
-    /// prefab or scene file is edited. It also auto-installs itself on scene load. Old component
-    /// instances saved with outdated values are auto-migrated in <see cref="OnEnable"/> via
-    /// <see cref="m_ConfigVersion"/>.
+    /// Labels and outlines are created at runtime. Text height follows
+    /// characterSize x fontSize x 0.1, as in Measurement/BillboardLabel.cs.
+    /// The component installs on scene load and migrates older serialized settings in
+    /// OnEnable using the configuration version.
     /// </summary>
     [AddComponentMenu("LivingRoom30/Furniture Proximity Display")]
     [DisallowMultipleComponent]

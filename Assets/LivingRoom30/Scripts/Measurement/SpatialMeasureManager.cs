@@ -10,16 +10,15 @@ namespace LivingRoom30.Measurement
     /// <summary>测量工具模式。</summary>
     public enum MeasureMode
     {
-        Dimensions = 0,    // 家具尺寸（黄色包围盒线框已按需求移除，尺寸由读数与邻近标签承担）
+        Dimensions = 0,    // 家具尺寸读数；邻近标签与轮廓由 FurnitureProximityDisplay 提供
         PointToPoint = 1, // 两点距离
         ObjectToObject = 2 // 两物体距离
     }
 
     /// <summary>
     /// 空间测量总控：管理工具模式状态机、XR/桌面双模式输入切换，并串联可视化/UI/路径模块。
-    /// 说明：自举入口 Bootstrap 默认启用，Play 后自动生成 MeasurementSystem（侧边 UI + 3D 标签 + 邻近测距）。
-    /// 如需停用（恢复场景原样、仅保留项目原本的 XR Device Simulator 界面），
-    /// 把 Bootstrap 上那行 RuntimeInitializeOnLoadMethod 特性注释掉即可。
+    /// Bootstrap 在场景加载后创建 MeasurementSystem，初始化测量可视化、输入和邻近测距。
+    /// 默认不构建侧边测量面板；间距显示由腕部 GAPS 按钮控制。
     /// </summary>
     [DefaultExecutionOrder(-100)]
     public class SpatialMeasureManager : MonoBehaviour
@@ -112,7 +111,7 @@ namespace LivingRoom30.Measurement
             var uiGO = new GameObject("UIPanel");
             uiGO.transform.SetParent(transform);
             ui = uiGO.AddComponent<MeasureUIPanel>();
-            ui.showSidePanel = false; // 用户要求：不显示侧边测量面板（顶部提示横幅保留）
+            ui.showSidePanel = false; // 当前界面使用腕部入口，不构建侧边测量面板
             ui.Build();
 
             ui.OnModeSelected += OnModeSelected;
@@ -489,8 +488,8 @@ namespace LivingRoom30.Measurement
 
             visualizer.Clear();
             var b = GeometryUtils.GetWorldAABB(root);
-            // 黄色包围盒线框（DrawBox）已按需求移除：家具尺寸信息仍由下方 UI 读数与
-            // FurnitureProximityDisplay 的邻近尺寸标签/贴合轮廓继续展示。
+            // 不绘制尺寸包围盒；读数仅在面板启用时显示，邻近标签与轮廓由
+            // FurnitureProximityDisplay 独立提供。
             var size = GeometryUtils.GetObjectAlignedSize(root);
             string name = root.GetComponent<FurnitureInfo>()?.EnglishName ?? root.name;
             ui.SetReadout($"家具：{name}\n长 {size.x:F2}  宽 {size.z:F2}  高 {size.y:F2} (m)\n整体 {b.size.x:F2}×{b.size.y:F2}×{b.size.z:F2} (m)");
