@@ -5,7 +5,7 @@ namespace LivingRoom30.Measurement
     /// <summary>
     /// 轻量轨道相机：用于“无头显桌面模式”下查看场景并瞄准鼠标射线。
     /// 右键拖拽旋转、中键拖拽平移目标、滚轮缩放。仅在桌面模式（SpatialMeasureManager 配置时）启用，
-    /// XR 模式下由 TrackedPoseDriver 接管相机，本组件保持禁用。
+    /// XR 模式下相机由 XRHeadPoseFollower（真实头显）或 TrackedPoseDriver（模拟器）接管，本组件保持禁用。
     /// </summary>
     public class DesktopOrbitCamera : MonoBehaviour
     {

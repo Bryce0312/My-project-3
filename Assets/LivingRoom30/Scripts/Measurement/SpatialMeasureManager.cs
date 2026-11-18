@@ -38,6 +38,7 @@ namespace LivingRoom30.Measurement
         private Camera mainCam;
         private Camera desktopCam;
         private Camera xrCam;
+        private XRHeadPoseFollower headPoseFollower;
         private bool forceDesktop;
         private bool xrActive;
         private bool simulatorActive;
@@ -129,9 +130,13 @@ namespace LivingRoom30.Measurement
             // 相机：XR rig 主相机 与 专用桌面预览相机（S02_PreviewCamera）解耦，
             // 避免桌面模式下轨道相机与 rig 的位姿驱动组件争抢同一相机导致“啥也看不到”。
             xrCam = Camera.main; // 此刻 S02 仍禁用 -> 取到 rig 主相机
+            // Camera.main 可能先解析到其它带 MainCamera 标签的预览相机；以 XROrigin 授权的相机为准。
+            var xrOrigin = FindObjectOfType<Unity.XR.CoreUtils.XROrigin>();
+            if (xrOrigin != null && xrOrigin.Camera != null) xrCam = xrOrigin.Camera;
             desktopCam = GameObject.Find("S02_PreviewCamera")?.GetComponent<Camera>();
 
-            // 头部追踪由现有 XR rig / TrackedPoseDriver 管理；测量工具只读取相机。
+            // 头部追踪：真实 XR 模式由 XRHeadPoseFollower 接管（见 EnsureHeadPoseFollower）；
+            // 桌面/模拟器模式交回 TrackedPoseDriver。测量工具只读取相机。
 
             // 桌面轨道相机挂在专用预览相机上
             if (desktopCam != null)
@@ -283,6 +288,22 @@ namespace LivingRoom30.Measurement
             return false;
         }
 
+        /// <summary>
+        /// A head device can exist before it is tracked (Link/OpenXR still starting).
+        /// Used only to make the mode label honest about why XR is not active yet.
+        /// </summary>
+        private static bool HeadDevicePresent()
+        {
+            try
+            {
+                return UnityEngine.XR.InputDevices.GetDeviceAtXRNode(UnityEngine.XR.XRNode.Head).isValid;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         /// <summary>桌面模式下的全局热键：F 切换 行走/轨道。</summary>
         private void HandleHotkeys()
         {
@@ -305,6 +326,9 @@ namespace LivingRoom30.Measurement
                 if (desktopOrbit) desktopOrbit.enabled = false;
                 if (xrCam) xrCam.enabled = true;
                 if (desktopCam) desktopCam.enabled = false;
+                // Real headset: drive the camera from the legacy InputDevices head pose.
+                // Simulator-only sessions keep the simulator's own camera driving untouched.
+                EnsureHeadPoseFollower(xrActive);
                 mainCam = xrCam;
                 proximity?.SetObserver(xrCam);
 
@@ -314,7 +338,7 @@ namespace LivingRoom30.Measurement
                 ApplyRigLocomotionState();
                 SetXrRayActive(true);
                 ui?.SetWalkModeActive(false);
-                Debug.Log($"[SpatialMeasureManager] 模式=XR：启用 rig 相机（TrackedPoseDriver 跟随头转），xrCam.enabled={xrCam?.enabled}, desktopCam.enabled={desktopCam?.enabled}");
+                Debug.Log($"[SpatialMeasureManager] 模式=XR：启用 rig 相机（XRHeadPoseFollower 读取头显姿态跟随头转；xrActive={xrActive}, simulator={simulatorActive}），xrCam.enabled={xrCam?.enabled}, desktopCam.enabled={desktopCam?.enabled}");
             }
             else
             {
@@ -323,6 +347,8 @@ namespace LivingRoom30.Measurement
                 if (desktopCam) desktopCam.enabled = true;
                 mainCam = desktopCam ?? xrCam;
                 if (xrCam) xrCam.enabled = mainCam == xrCam;
+                // Hand the XR camera back to the desktop/simulator path.
+                EnsureHeadPoseFollower(false);
                 proximity?.SetObserver(mainCam);
 
                 // 桌面模式：禁用 rig 胶囊（与行走体落点重叠），排除自身层防自胶囊挡射线，
@@ -342,10 +368,34 @@ namespace LivingRoom30.Measurement
             proxViz?.SetFacingCamera(mainCam);
 
             string label = forceDesktop ? "输入: 桌面"
-                : (xrActive ? "输入: XR" : simulatorActive ? "输入: XR 模拟器" : "输入: 桌面(无头显)");
+                : (xrActive ? "输入: XR"
+                : simulatorActive ? "输入: XR 模拟器"
+                : HeadDevicePresent() ? "输入: 桌面(头显未就绪)" : "输入: 桌面(无头显)");
             if (!useXrNow) label += desktopWalkMode ? " / 行走" : " / 轨道";
             ui?.SetInputModeLabel(label);
             ui?.SetProximityActive(proximityEnabled);
+        }
+
+        /// <summary>
+        /// Quest Link 下 TrackedPoseDriver 的 &lt;XRHMD&gt; 单例动作不更新，相机不会跟随转头。
+        /// 真实 XR 模式下运行时挂上 XRHeadPoseFollower 接管相机；桌面/模拟器模式禁用它并
+        /// 恢复被它停掉的 TrackedPoseDriver，保证两种模式都能驱动相机。
+        /// </summary>
+        private void EnsureHeadPoseFollower(bool on)
+        {
+            if (xrCam == null) return;
+            if (headPoseFollower == null)
+                headPoseFollower = xrCam.GetComponent<XRHeadPoseFollower>();
+            if (on)
+            {
+                if (headPoseFollower == null)
+                    headPoseFollower = xrCam.gameObject.AddComponent<XRHeadPoseFollower>();
+                headPoseFollower.enabled = true;
+            }
+            else if (headPoseFollower != null)
+            {
+                headPoseFollower.enabled = false;
+            }
         }
 
         /// <summary>切换桌面「行走/轨道」模式；切换时相机位姿无缝衔接（原地出发/原地回轨道）。</summary>

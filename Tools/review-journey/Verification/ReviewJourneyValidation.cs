@@ -122,6 +122,7 @@ public static class ReviewJourneyValidation
                 Require(journey.Seat != null && journey.Remote != null, "Seat and remote explicitly initialized by the scene component");
                 Require(journey.GetComponentsInChildren<Collider>(true).Length == 1, "Guide visuals and UI have no physical colliders");
                 Require(journey.Remote.IsAtHome && !journey.Remote.IsHeld, "Remote starts at its tabletop home");
+                ValidateCueVisuals();
                 ValidateRoutes();
                 journey.SessionDirectoryOverride = Path.Combine(output, "Sessions");
                 PlaceHead(new Vector3(-2.70f,1.6f,-2.42f),new Vector3(-2.45f,0,-1.55f));
@@ -317,6 +318,49 @@ public static class ReviewJourneyValidation
                 Require(GuideVisible() && journey.CurrentStage == "Intro", "Recovered HUD GUIDE still opens its original review stage");
                 journey.BeginReview();
                 PlaceHead(new Vector3(-2.70f,1.6f,-2.42f),new Vector3(-2.45f,0,-1.55f));
+                waitUntil = EditorApplication.timeSinceStartup + .4;
+                phase = 106;
+            }
+            else if (phase == 106)
+            {
+                // New target cues: hidden while walking, reset on stage change, safe at the bound.
+                Require(!CuesVisible(), "Halo and guide stay hidden before arrival at the footprint circle");
+                Require(TargetRaycastersDisabled(), "Target canvas raycasters stay disabled across route redraw");
+
+                var stageType = typeof(ReviewJourneyController).GetNestedType("Stage", BindingFlags.NonPublic);
+                if (stageType == null) throw new Exception("Private Stage enum is unavailable for reflection");
+                object entryStage = Enum.Parse(stageType, "Entry");
+
+                Set(journey, "arrivedFlashUntil", 12f);
+                Set(journey, "targetConfirmationUntil", 12f);
+                Call(journey, "SetStage", entryStage);
+                Require((float)Field(journey, "arrivedFlashUntil") == 0f &&
+                    (float)Field(journey, "targetConfirmationUntil") == 0f,
+                    "SetStage clears arrival flash and confirmation timers");
+                Require(BeaconChildCount() == 5, "SetStage leaves exactly five halo line objects");
+
+                Vector3[] cueTargets = (Vector3[])Field(journey, "lookTargets");
+                int savedLooked = (int)Field(journey, "lookedCount");
+                bool savedArrived = (bool)Field(journey, "arrived");
+
+                // confirming uses index lookedCount - 1: exercise it at the upper bound.
+                Set(journey, "lookedCount", cueTargets.Length);
+                Set(journey, "arrived", true);
+                Set(journey, "targetConfirmationUntil", Time.unscaledTime + 1f);
+                Call(journey, "UpdateLookTarget", head);
+                Require(((Canvas)Field(journey, "targetCanvas")).gameObject.activeSelf,
+                    "Last-target Check confirmation renders without an index overflow");
+
+                // Normal observation activates both cues on the shared visual path.
+                Set(journey, "targetConfirmationUntil", 0f);
+                Set(journey, "lookedCount", 0);
+                Call(journey, "UpdateLookTarget", head);
+                Require(CuesVisible(), "Arrived observation activates the halo and the gaze guide");
+
+                Set(journey, "lookedCount", savedLooked);
+                Set(journey, "arrived", savedArrived);
+                Set(journey, "lookSeconds", 0f);
+                Call(journey, "HideRoute");
                 waitUntil = EditorApplication.timeSinceStartup + .4;
                 phase = 10;
             }
@@ -668,8 +712,13 @@ public static class ReviewJourneyValidation
                 Require(!JsonUtility.FromJson<ReviewJourneyController.SessionRecord>(File.ReadAllText(journey.LastSavedPath)).routeCompleted,
                     "Resuming completed results persists the reopened route state");
                 journey.RequestFinish();
+                int beaconChildrenBeforeReplay = BeaconChildCount();
                 Click(journey.Summary.Canvas.transform.Find("Summary_Replay").GetComponent<Button>());
                 Require(journey.CurrentStage == "Entry", "Replay resets journey progress");
+                Require(BeaconChildCount() == beaconChildrenBeforeReplay && BeaconChildCount() == 5,
+                    "Replay does not rebuild or accumulate halo/guide line objects");
+                Require(journey.GetComponentsInChildren<Collider>(true).Length == 1,
+                    "Replay keeps the single physical collider with no visual-side colliders");
                 Require(journey.Seat.TrySit(), "Seat remains independently usable on replay");
                 waitUntil = EditorApplication.timeSinceStartup + .6;
                 phase = 8;
@@ -718,6 +767,36 @@ public static class ReviewJourneyValidation
             {
                 Require(GuideVisible() && journey.CurrentStage == "Entry" && VisibleArrowCount() > 0,
                     "HUD GUIDE restores the current walking route and arrows");
+                Require(!CuesVisible(), "Reopened walking guide keeps halo and guide hidden before arrival");
+                // A note editor can own focus while the wrist GUIDE button is still pressed.
+                Click((Button)Field(journey, "pauseButton"));
+                waitUntil = EditorApplication.timeSinceStartup + .2;
+                phase = 85;
+            }
+            else if (phase == 85)
+            {
+                Require(!GuideVisible() && RouteHidden(), "Guide is closed before the note-open GUIDE click");
+                AnnotationSpawner.currentActiveUI = new GameObject("Validation_NoteUI");
+                Click(hudGuideButton);
+                waitUntil = EditorApplication.timeSinceStartup + .2;
+                phase = 86;
+            }
+            else if (phase == 86)
+            {
+                Require(AnnotationSpawner.currentActiveUI != null && !GuideVisible(),
+                    "GUIDE click during an open note keeps the note and the card hidden");
+                Require(RouteHidden() && !CuesVisible(),
+                    "Open note keeps route and target cues hidden without discarding the note");
+                UnityEngine.Object.Destroy(AnnotationSpawner.currentActiveUI);
+                AnnotationSpawner.currentActiveUI = null;
+                waitUntil = EditorApplication.timeSinceStartup + 1.2;
+                phase = 87;
+            }
+            else if (phase == 87)
+            {
+                Require(GuideVisible() && VisibleArrowCount() > 0,
+                    "Closing the note restores the GUIDE card and the walking route");
+                Require(!CuesVisible(), "Restored walking route keeps halo and guide hidden before arrival");
                 phase = 1;
             }
             else if (phase == 80)
@@ -903,6 +982,37 @@ public static class ReviewJourneyValidation
     }
     static bool RouteHidden() => !((GameObject)Field(journey, "floorVisuals")).activeInHierarchy &&
         !((Canvas)Field(journey, "targetCanvas")).gameObject.activeInHierarchy && VisibleArrowCount() == 0;
+    static GameObject BeaconObject() => (GameObject)Field(journey, "targetBeacon");
+    static GameObject GuideObject() => (GameObject)Field(journey, "targetGuideObject");
+    static int BeaconChildCount()
+    {
+        var beacon = BeaconObject();
+        return beacon == null ? -1 : beacon.transform.childCount;
+    }
+    static bool CuesVisible()
+    {
+        var beacon = BeaconObject();
+        var guide = GuideObject();
+        return beacon != null && beacon.activeSelf && guide != null && guide.activeSelf;
+    }
+    static bool TargetRaycastersDisabled()
+    {
+        var canvas = (Canvas)Field(journey, "targetCanvas");
+        foreach (var raycaster in canvas.GetComponents<UnityEngine.EventSystems.BaseRaycaster>())
+            if (raycaster.enabled) return false;
+        return true;
+    }
+    static void ValidateCueVisuals()
+    {
+        var beacon = BeaconObject();
+        var guide = GuideObject();
+        Require(beacon != null && guide != null, "Target halo and gaze guide are built once at startup");
+        Require(beacon.transform.childCount == 5, "Halo keeps exactly one ring and four tick lines");
+        Require(guide.GetComponent<LineRenderer>() != null, "Gaze guide uses one world-space LineRenderer");
+        Require(journey.GetComponentsInChildren<Collider>(true).Length == 1,
+            "New halo and guide visuals add no physical colliders");
+        Require(TargetRaycastersDisabled(), "Target icon canvas keeps every raycaster disabled");
+    }
     static void Click(Button button)
     {
         if (button == null || !button.gameObject.activeInHierarchy || !button.interactable)

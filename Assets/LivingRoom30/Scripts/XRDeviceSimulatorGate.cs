@@ -20,7 +20,7 @@ namespace LivingRoom30
     [RequireComponent(typeof(XRDeviceSimulator))]
     public sealed class XRDeviceSimulatorGate : MonoBehaviour
     {
-        private const float XrStartupTimeout = 3f;
+        private const float XrStartupTimeout = 6f;
         private const float DesktopEyeHeight = 1.6f;
 
         [SerializeField] private XROrigin xrOrigin;
@@ -45,20 +45,46 @@ namespace LivingRoom30
         private IEnumerator Start()
         {
             float deadline = Time.unscaledTime + XrStartupTimeout;
-            while (!XrIsRunning() && Time.unscaledTime < deadline)
+            // A connected headset can take longer than the old 3 s to start its display
+            // subsystem. Treat a present Head device as "headset connected" so a slow
+            // OpenXR/Link bring-up never lets the mouse simulator steal the HMD.
+            while (!XrIsRunning() && !HeadDevicePresent() && Time.unscaledTime < deadline)
             {
                 yield return null;
             }
 
-            if (XrIsRunning())
+            if (XrIsRunning() || HeadDevicePresent())
             {
-                Debug.Log("XR device is running (" + XRSettings.loadedDeviceName + "), so the XR device simulator stays off and head tracking comes from the headset.");
+                Debug.Log("A headset is present (" + XRSettings.loadedDeviceName + "), so the XR device simulator stays off and head tracking comes from the headset.");
                 yield break;
             }
 
-            Debug.Log("No XR device after " + XrStartupTimeout + "s, so the XR device simulator is enabled for mouse control.");
+            Debug.Log("No XR device or headset after " + XrStartupTimeout + "s, so the XR device simulator is enabled for mouse control.");
             simulator.enabled = true;
             RaiseDesktopView();
+        }
+
+        private void Update()
+        {
+            // If the simulator was already enabled before the headset came up, release it
+            // immediately. The simulator strips other XRHMD devices from the Input System,
+            // which is exactly the symptom of a headset that suddenly stops tracking.
+            if (simulator != null && simulator.enabled && (XrIsRunning() || HeadDevicePresent()))
+            {
+                simulator.enabled = false;
+                Debug.Log("A headset appeared after the simulator started; simulator disabled so head tracking comes from the headset.");
+            }
+        }
+
+        /// <summary>
+        /// True once the XR runtime reports a tracked Head device. A merely present but
+        /// untracked device must not keep the desktop simulator off forever.
+        /// </summary>
+        private static bool HeadDevicePresent()
+        {
+            var head = InputDevices.GetDeviceAtXRNode(XRNode.Head);
+            return head.isValid &&
+                head.TryGetFeatureValue(CommonUsages.isTracked, out bool tracked) && tracked;
         }
 
         /// <summary>

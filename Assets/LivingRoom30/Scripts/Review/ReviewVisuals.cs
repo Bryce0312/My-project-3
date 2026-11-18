@@ -109,7 +109,7 @@ namespace LivingRoom30.Review
     // Shape carries the meaning; none of these icons changes colour to indicate task state.
     public sealed class ReviewIconGraphic : MaskableGraphic
     {
-        public enum Kind { Walk, Eye, Chair, Hand, Return, Check, Microphone, Stop, Cancel }
+        public enum Kind { Walk, Eye, Chair, Hand, Return, Check, Microphone, Stop, Cancel, Arrow }
         public Kind Symbol;
 
         protected override void OnPopulateMesh(VertexHelper vh)
@@ -161,6 +161,12 @@ namespace LivingRoom30.Review
                 case Kind.Cancel:
                     Stroke(vh, -.28f, -.28f, .28f, .28f);
                     Stroke(vh, -.28f, .28f, .28f, -.28f);
+                    break;
+                case Kind.Arrow:
+                    // Points up (+Y); callers rotate it around Z to show a bearing.
+                    Stroke(vh, 0f, -.40f, 0f, .18f);
+                    Stroke(vh, 0f, .42f, -.28f, .08f);
+                    Stroke(vh, 0f, .42f, .28f, .08f);
                     break;
                 default:
                     Stroke(vh, -.4f, .02f, -.1f, -.28f); Stroke(vh, -.1f, -.28f, .4f, .35f);

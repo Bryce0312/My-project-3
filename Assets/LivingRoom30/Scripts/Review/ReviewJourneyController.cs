@@ -63,6 +63,13 @@ namespace LivingRoom30.Review
         private string[] targetNames = Array.Empty<string>();
         private Material lineMaterial;
         private GameObject floorVisuals, circle;
+        private LineRenderer standRing;
+        private GameObject targetBeacon, targetGuideObject;
+        private LineRenderer[] beaconLines;
+        private LineRenderer targetGuideLine;
+        private GameObject guideArrowHead;
+        private LineRenderer[] guideArrowLines;
+        private ReviewIconGraphic bearingArrow;
         private Canvas panel, targetCanvas, seatCanvas, utilityCanvas;
         private Text title, instruction, progress, utilityMessage;
         private Image panelBack;
@@ -75,6 +82,10 @@ namespace LivingRoom30.Review
         private SessionRecord record;
         private string recordPath, saveMessage = string.Empty, transientMessage = string.Empty;
         private float transientUntil;
+        private float targetAlignment;
+        private float targetConfirmationUntil, arrivedFlashUntil;
+        private ReviewIconGraphic.Kind targetConfirmationSymbol = ReviewIconGraphic.Kind.Eye;
+        private string observeInstructionBase = string.Empty;
         private bool panelPositioned, panelFollowingRightWrist;
         private Transform seatEye, exitFloor, remoteHome;
         private Canvas[] canvases;
@@ -82,6 +93,8 @@ namespace LivingRoom30.Review
         private string currentHint;
         private bool ownsControlHint;
         private static readonly Vector3 Tv = new Vector3(0f, .995f, 2.414f);
+        private const float TargetConfirmSeconds = .55f;
+        private const float ArrivedFlashSeconds = .6f;
 
         public string CurrentStage => summaryMode ? "Complete" : stage.ToString();
         public bool IsReady => ready;
@@ -111,6 +124,7 @@ namespace LivingRoom30.Review
             lineMaterial = new Material(Shader.Find("Sprites/Default")) { name = "ReviewGuide_Ink" };
             BuildFloorVisuals();
             BuildPanel();
+            BuildTargetCues();
             BuildSeatAndRemote();
             canvases = new[] { panel, targetCanvas, seatCanvas, utilityCanvas };
             ready = true;
@@ -181,10 +195,14 @@ namespace LivingRoom30.Review
         {
             panel = ReviewVisuals.Canvas(transform, "ReviewTaskCard", new Vector2(610, 205), .00115f);
             panelBack = ReviewVisuals.Image(panel.transform, "Back", Vector2.zero, new Vector2(610, 205), ReviewVisuals.Back);
-            mainIcon = ReviewVisuals.Icon(panel.transform, new Vector2(-260, 35), 60, ReviewIconGraphic.Kind.Walk);
+            mainIcon = ReviewVisuals.Icon(panel.transform, new Vector2(-260, 45), 58, ReviewIconGraphic.Kind.Walk);
             title = ReviewVisuals.Text(panel.transform, "Title", new Vector2(25, 70), new Vector2(505, 31), "", 25);
             instruction = ReviewVisuals.Text(panel.transform, "Action", new Vector2(25, 28), new Vector2(505, 56), "", 20);
             progress = ReviewVisuals.Text(panel.transform, "Progress", new Vector2(25, -14), new Vector2(505, 26), "", 16);
+            // Live bearing arrow: rotates toward the current look target so the card itself
+            // answers "which way do I turn?" when the target sits in open space.
+            bearingArrow = ReviewVisuals.Icon(panel.transform, new Vector2(-260, -6), 36, ReviewIconGraphic.Kind.Arrow);
+            bearingArrow.gameObject.SetActive(false);
             startButton = ReviewVisuals.Button(panel.transform, "Start", new Vector2(-190, -65), new Vector2(178, 42), "START REVIEW", BeginReview);
             freeButton = ReviewVisuals.Button(panel.transform, "Explore", new Vector2(0, -65), new Vector2(178, 42), "FREE EXPLORE", PauseGuidance);
             controlsButton = ReviewVisuals.Button(panel.transform, "Controls", new Vector2(190, -65), new Vector2(178, 42), "CONTROLS", ShowControls);
@@ -198,11 +216,66 @@ namespace LivingRoom30.Review
                     new Vector2(-190 + i * 190, -65), new Vector2(178, 42), labels[i], () => Answer(labels[answer]));
             }
             targetCanvas = ReviewVisuals.Canvas(transform, "CurrentLookTarget", new Vector2(85, 85), .0013f);
-            ReviewVisuals.Image(targetCanvas.transform, "Back", Vector2.zero, new Vector2(85, 85), ReviewVisuals.Back);
+            // Keep the marker light: a smaller translucent plate reads as a reticle, not a big label.
+            ReviewVisuals.Image(targetCanvas.transform, "Back", Vector2.zero, new Vector2(68, 68),
+                new Color(0.07f, 0.08f, 0.09f, .55f));
             targetIcon = ReviewVisuals.Icon(targetCanvas.transform, Vector2.zero, 65, ReviewIconGraphic.Kind.Eye);
             // A target beacon is visual only and cannot intercept controller UI or physics picks.
             foreach (var raycaster in targetCanvas.GetComponents<UnityEngine.EventSystems.BaseRaycaster>())
                 raycaster.enabled = false;
+        }
+
+        /// <summary>
+        /// Builds a camera-facing halo at the look target and a thin gaze guide line.
+        /// Both are visual-only LineRenderers: no colliders, no raycast targets, no shadow casting.
+        /// </summary>
+        private void BuildTargetCues()
+        {
+            targetBeacon = new GameObject("LookTarget_Halo");
+            targetBeacon.transform.SetParent(transform, false);
+
+            const int segments = 40;
+            var ring = new Vector3[segments];
+            for (int i = 0; i < segments; i++)
+            {
+                float angle = i * Mathf.PI * 2f / segments;
+                ring[i] = new Vector3(Mathf.Cos(angle) * .10f, Mathf.Sin(angle) * .10f, 0f);
+            }
+            var lines = new List<LineRenderer>(5);
+            lines.Add(ReviewVisuals.Line(targetBeacon.transform, "Halo", lineMaterial, ring, .012f, ReviewVisuals.Ink, true));
+            for (int tick = 0; tick < 4; tick++)
+            {
+                float angle = tick * Mathf.PI * .5f;
+                var direction = new Vector3(Mathf.Cos(angle), Mathf.Sin(angle), 0f);
+                lines.Add(ReviewVisuals.Line(targetBeacon.transform, "Tick" + tick, lineMaterial,
+                    new[] { direction * .12f, direction * .16f }, .012f, ReviewVisuals.Ink));
+            }
+            beaconLines = lines.ToArray();
+            targetBeacon.SetActive(false);
+
+            targetGuideObject = new GameObject("LookTarget_Guide");
+            targetGuideObject.transform.SetParent(transform, false);
+            targetGuideLine = targetGuideObject.AddComponent<LineRenderer>();
+            targetGuideLine.sharedMaterial = lineMaterial;
+            targetGuideLine.useWorldSpace = true;
+            targetGuideLine.positionCount = 2;
+            targetGuideLine.startWidth = .014f;
+            targetGuideLine.endWidth = .022f;
+            targetGuideLine.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            targetGuideLine.receiveShadows = false;
+
+            // A V-shaped arrow head at the target end turns the guide line into an explicit
+            // "look here" pointer instead of a thin line that reads as decoration.
+            guideArrowHead = new GameObject("GuideArrowHead");
+            guideArrowHead.transform.SetParent(targetGuideObject.transform, false);
+            guideArrowLines = new[]
+            {
+                ReviewVisuals.Line(guideArrowHead.transform, "Left", lineMaterial,
+                    new[] { Vector3.zero, new Vector3(-.05f, 0f, -.09f) }, .018f, ReviewVisuals.Ink),
+                ReviewVisuals.Line(guideArrowHead.transform, "Right", lineMaterial,
+                    new[] { Vector3.zero, new Vector3(.05f, 0f, -.09f) }, .018f, ReviewVisuals.Ink),
+            };
+            targetGuideObject.SetActive(false);
         }
 
         private void BuildFloorVisuals()
@@ -218,8 +291,8 @@ namespace LivingRoom30.Review
                 points[i] = new Vector3(Mathf.Cos(angle) * .27f, 0, Mathf.Sin(angle) * .27f);
             }
             ReviewVisuals.Line(circle.transform, "RingShadow", lineMaterial, points, .045f, Color.black, true);
-            var ring = ReviewVisuals.Line(circle.transform, "Ring", lineMaterial, points, .022f, ReviewVisuals.Ink, true);
-            ring.transform.localPosition = Vector3.up * .003f;
+            standRing = ReviewVisuals.Line(circle.transform, "Ring", lineMaterial, points, .022f, ReviewVisuals.Ink, true);
+            standRing.transform.localPosition = Vector3.up * .003f;
             for (int foot = -1; foot <= 1; foot += 2)
                 ReviewVisuals.Line(circle.transform, "Footprint", lineMaterial,
                     new[] { new Vector3(foot * .07f, .005f, -.08f), new Vector3(foot * .07f, .005f, .08f) }, .045f, ReviewVisuals.Ink);
@@ -270,6 +343,8 @@ namespace LivingRoom30.Review
             guided = false;
             arrivalSeconds = lookSeconds = 0f;
             arrived = false;
+            targetAlignment = 0f;
+            targetConfirmationUntil = arrivedFlashUntil = 0f;
             transientUntil = 0f;
             panel.gameObject.SetActive(false);
             HideRoute();
@@ -305,15 +380,59 @@ namespace LivingRoom30.Review
                     remoteReturned = false;
                 }
             }
-            RefreshCard();
+            // Restore the live guidance state on the same frame, without waiting for Update.
+            // Re-entry must show the real progress (lookedCount is preserved).
+            // Drop any in-flight confirmation/flash so switching back never replays an old Check icon.
+            targetConfirmationUntil = 0f;
+            arrivedFlashUntil = 0f;
+            targetAlignment = 0f;
+            ReevaluateArrival();
+            RefreshCard(); // Refresh with the corrected arrived flag and preserved lookedCount.
+            RedrawGuidance();
             panel.gameObject.SetActive(AnnotationSpawner.currentActiveUI == null);
         }
-        private void ShowControls() { CloseSummary(); ReleaseControlHint(); controls?.Show(); }
+        private void ShowControls()
+        {
+            // HELP overrides the guide card; discard pending confirmations before it is hidden.
+            targetConfirmationUntil = 0f;
+            arrivedFlashUntil = 0f;
+            targetAlignment = 0f;
+            CloseSummary(); ReleaseControlHint(); controls?.Show();
+        }
+
+        /// <summary>Re-checks the footprint circle using the current observer, instantly on re-entry.</summary>
+        private void ReevaluateArrival()
+        {
+            if (manager == null || manager.ActiveCamera == null) return;
+            int destination = Destination();
+            if (destination < 0) { arrived = false; arrivalSeconds = 0f; return; }
+            bool inside = FlatDistance(manager.ActiveCamera.transform.position, graph.Nodes[destination]) < .29f;
+            arrived = inside;
+            arrivalSeconds = inside ? .45f : 0f;
+            lookSeconds = 0f; // A switched-away gaze must not carry over into the resumed target.
+        }
+
+        /// <summary>Immediately redraws route and target cues so re-entry never shows a stale card.</summary>
+        private void RedrawGuidance()
+        {
+            if (!ready || manager == null || manager.ActiveCamera == null) return;
+            bool temporaryOverlay = (controls != null && controls.gameObject.activeInHierarchy) ||
+                AnnotationSpawner.currentActiveUI != null || summaryMode || seat.IsTransitioning;
+            if (temporaryOverlay) { HideRoute(); return; }
+            Camera observer = manager.ActiveCamera;
+            int destination = Destination();
+            if (destination >= 0) DrawRoute(observer.transform.position, destination);
+            else HideFloor();
+            routeTimer = .8f;
+            UpdateLookTarget(observer);
+        }
 
         private void SetStage(Stage next)
         {
             stage = next;
             arrived = false; arrivalSeconds = lookSeconds = 0f; lookedCount = 0; routeTimer = 0f;
+            targetAlignment = 0f;
+            targetConfirmationUntil = arrivedFlashUntil = 0f;
             lookTargets = Array.Empty<Vector3>(); targetNames = Array.Empty<string>();
             if (next == Stage.Remote)
             {
@@ -392,7 +511,7 @@ namespace LivingRoom30.Review
                 if (FlatDistance(observer.transform.position, graph.Nodes[destination]) < .29f)
                 {
                     arrivalSeconds += Time.unscaledDeltaTime;
-                    if (!arrived && arrivalSeconds >= .45f) { arrived = true; RefreshCard(); }
+                    if (!arrived && arrivalSeconds >= .45f) OnArrived();
                 }
                 else
                 {
@@ -404,29 +523,20 @@ namespace LivingRoom30.Review
             }
             else HideFloor();
 
-            bool canObserve = (arrived || stage == Stage.SeatedLook) && lookedCount < lookTargets.Length;
-            targetCanvas.gameObject.SetActive(canObserve);
-            if (canObserve)
-            {
-                targetIcon.Symbol = ReviewIconGraphic.Kind.Eye; targetIcon.SetVerticesDirty();
-                Vector3 target = lookTargets[lookedCount];
-                float unusedScale;
-                targetCanvas.transform.position = SafeVisualPosition(observer.transform.position,
-                    target + Vector3.up * .12f, .015f, .10f, out unusedScale);
-                Vector3 direction = (targetCanvas.transform.position - observer.transform.position).normalized;
-                if (Vector3.Dot(observer.transform.forward, direction) > .90f) lookSeconds += Time.unscaledDeltaTime;
-                else lookSeconds = 0f;
-                if (lookSeconds >= 1.2f) { lookedCount++; lookSeconds = 0; RefreshCard(); Pulse(); }
-            }
+            UpdateArrivalRingFlash();
+            UpdateLookTarget(observer);
             if (stage == Stage.Remote && seat.IsSeated)
             {
                 // The remote supplies its own hand/progress hint once the hand is in range.
                 targetCanvas.gameObject.SetActive(!remote.ReadyToGrab && !remote.IsHeld);
                 targetIcon.Symbol = remoteGrabSeen ? ReviewIconGraphic.Kind.Return : ReviewIconGraphic.Kind.Hand;
+                targetIcon.color = ReviewVisuals.Ink;
+                targetIcon.rectTransform.localScale = Vector3.one;
                 targetIcon.SetVerticesDirty();
                 float unusedScale;
                 targetCanvas.transform.position = SafeVisualPosition(observer.transform.position,
                     remoteHome.position + Vector3.up * .16f, .015f, .10f, out unusedScale);
+                HideTargetCues();
             }
             if (stage == Stage.Remote && remoteGrabSeen && remoteReturned)
             {
@@ -434,6 +544,218 @@ namespace LivingRoom30.Review
                 SetStage(Stage.Stand);
             }
             if (Time.unscaledTime < transientUntil) progress.text = transientMessage;
+        }
+
+        /// <summary>Fires once on the false->true arrival edge: haptic, icon/ring flash and a short caption.</summary>
+        private void OnArrived()
+        {
+            arrived = true;
+            arrivedFlashUntil = Time.unscaledTime + ArrivedFlashSeconds;
+            Pulse();
+            RefreshCard(); // Sets the observe-base instruction with the corrected arrived flag.
+            transientMessage = lookTargets.Length > 0
+                ? "Arrived — now observe the highlighted target."
+                : "Arrived — point at the icon to continue.";
+            transientUntil = Time.unscaledTime + 2.2f;
+            ApplyCardLayout(false); // Expand so the transient caption in progress is legible.
+            progress.text = transientMessage;
+        }
+
+        /// <summary>Keeps the stand-here ring flashing briefly after arrival (XR and desktop).</summary>
+        private void UpdateArrivalRingFlash()
+        {
+            if (standRing == null) return;
+            float left = arrivedFlashUntil - Time.unscaledTime;
+            float flash = left > 0f ? Mathf.Clamp01(left / ArrivedFlashSeconds) : 0f;
+            float width = .022f + .03f * flash * (.5f + .5f * Mathf.Sin(Time.unscaledTime * 24f));
+            if (!Mathf.Approximately(standRing.startWidth, width)) standRing.startWidth = standRing.endWidth = width;
+        }
+
+        /// <summary>
+        /// Draws the current look target: gaze-driven breathing emphasis, halo beacon,
+        /// gaze guide line and a temporary Check confirmation after each observation.
+        /// All animation uses unscaledTime so it still runs while the timeline is paused.
+        /// </summary>
+        private void UpdateLookTarget(Camera observer)
+        {
+            bool confirming = Time.unscaledTime < targetConfirmationUntil && lookedCount > 0;
+            bool canObserve = (arrived || stage == Stage.SeatedLook) && lookedCount < lookTargets.Length;
+            if (!canObserve && !confirming)
+            {
+                targetCanvas.gameObject.SetActive(false);
+                HideTargetCues();
+                if (bearingArrow != null) bearingArrow.gameObject.SetActive(false);
+                return;
+            }
+
+            int index = confirming ? lookedCount - 1 : lookedCount;
+            Vector3 target = lookTargets[index];
+            float unusedScale;
+            Vector3 position = SafeVisualPosition(observer.transform.position,
+                target + Vector3.up * .12f, .015f, .10f, out unusedScale);
+            targetCanvas.transform.position = position;
+            targetCanvas.gameObject.SetActive(true);
+
+            if (confirming)
+            {
+                // Desktop and XR both see a short Check before the next Eye target appears.
+                targetIcon.Symbol = targetConfirmationSymbol;
+                float remain = Mathf.Clamp01((targetConfirmationUntil - Time.unscaledTime) / TargetConfirmSeconds);
+                float pop = 1f + .38f * remain;
+                targetIcon.rectTransform.localScale = Vector3.one * pop;
+                Color confirmColor = ReviewVisuals.Ink;
+                confirmColor.a = 1f;
+                targetIcon.color = confirmColor;
+                targetIcon.SetVerticesDirty();
+                lookSeconds = 0f;
+                UpdateTargetCues(observer, target, 1f);
+                if (bearingArrow != null) bearingArrow.gameObject.SetActive(false);
+                return;
+            }
+
+            targetIcon.Symbol = ReviewIconGraphic.Kind.Eye;
+            Vector3 direction = (position - observer.transform.position).normalized;
+            float dot = Vector3.Dot(observer.transform.forward, direction);
+            float aligned = Mathf.InverseLerp(.70f, .90f, dot);
+            targetAlignment = Mathf.Lerp(targetAlignment, aligned, 1f - Mathf.Exp(-8f * Time.unscaledDeltaTime));
+
+            // Breathing emphasis: strong while searching, converging to a steady highlight on alignment.
+            float breath = .5f + .5f * Mathf.Sin(Time.unscaledTime * 6.3f);
+            float emphasis = 1f - targetAlignment;
+            Color ink = ReviewVisuals.Ink;
+            ink.a = Mathf.Lerp(1f, .42f + .58f * breath, emphasis);
+            float scale = 1f + .15f * emphasis * breath;
+            float arrivedLeft = arrivedFlashUntil - Time.unscaledTime;
+            if (arrivedLeft > 0f)
+            {
+                float flash = Mathf.Clamp01(arrivedLeft / ArrivedFlashSeconds);
+                scale += .5f * flash * (.5f + .5f * Mathf.Sin(Time.unscaledTime * 26f));
+                ink = Color.Lerp(ink, Color.white, flash * .8f);
+                ink.a = 1f;
+            }
+            targetIcon.color = ink;
+            targetIcon.rectTransform.localScale = Vector3.one * scale;
+            targetIcon.SetVerticesDirty();
+
+            UpdateTargetCues(observer, target, targetAlignment);
+            UpdateBearingArrow(observer, target);
+
+            // Heading word helps when a target floats in open space; only while not aligned.
+            string suffix = string.Empty;
+            if (Time.unscaledTime >= arrivedFlashUntil && targetAlignment < .80f)
+            {
+                string word = DirectionWord(observer.transform, target);
+                // Keep it short: the card has two text lines, the bearing arrow carries the detail.
+                if (word == "BEHIND") suffix = "  Turn around.";
+                else if (word == "AHEAD") suffix = "  Look ahead.";
+                else suffix = "  Turn " + word + ".";
+            }
+            if (!string.IsNullOrEmpty(observeInstructionBase))
+            {
+                string composed = observeInstructionBase + suffix;
+                if (instruction.text != composed) instruction.text = composed;
+            }
+
+            if (dot > .90f) lookSeconds += Time.unscaledDeltaTime;
+            else lookSeconds = 0f;
+            if (lookSeconds >= 1.2f)
+            {
+                lookedCount++;
+                lookSeconds = 0f;
+                // The "Arrived" caption must not overwrite RefreshCard's evaluation prompt.
+                transientUntil = 0f;
+                targetConfirmationSymbol = ReviewIconGraphic.Kind.Check;
+                targetConfirmationUntil = Time.unscaledTime + TargetConfirmSeconds;
+                RefreshCard();
+                Pulse();
+            }
+        }
+
+        /// <summary>Camera-facing ring and thin gaze line; both fade as the gaze aligns and on arrival.</summary>
+        private void UpdateTargetCues(Camera observer, Vector3 target, float alignment)
+        {
+            Vector3 halo = target + Vector3.up * .12f;
+            targetBeacon.transform.position = halo;
+            targetBeacon.transform.rotation = observer.transform.rotation; // billboard toward the viewer
+            float breath = .5f + .5f * Mathf.Sin(Time.unscaledTime * 6.3f);
+            float emphasis = 1f - alignment;
+            targetBeacon.transform.localScale = Vector3.one * (1f + .18f * emphasis * breath);
+            Color haloColor = ReviewVisuals.Ink;
+            haloColor.a = Mathf.Lerp(.32f, .95f, .25f + .75f * emphasis * breath);
+            foreach (var line in beaconLines) line.startColor = line.endColor = haloColor;
+            targetBeacon.SetActive(true);
+
+            Vector3 start = observer.transform.position + observer.transform.forward * .25f - Vector3.up * .18f;
+            targetGuideLine.SetPosition(0, start);
+            targetGuideLine.SetPosition(1, halo);
+            float fade = Mathf.Lerp(.20f, .70f, emphasis) * (arrived ? .55f : 1f);
+            Color lineColor = ReviewVisuals.Ink;
+            lineColor.a = fade * (.75f + .25f * breath);
+            targetGuideLine.startColor = targetGuideLine.endColor = lineColor;
+
+            Vector3 toward = halo - start;
+            if (guideArrowHead != null && toward.sqrMagnitude > .0001f)
+            {
+                guideArrowHead.transform.position = halo;
+                guideArrowHead.transform.rotation = Quaternion.LookRotation(toward.normalized, Vector3.up);
+            }
+            if (guideArrowLines != null)
+                foreach (var line in guideArrowLines) line.startColor = line.endColor = lineColor;
+
+            targetGuideObject.SetActive(true);
+        }
+
+        /// <summary>
+        /// Rotates the small arrow on the task card toward the current target. The card is
+        /// always in front of the reviewer, so this answers "which way do I turn?" even when
+        /// the target itself is outside the field of view.
+        /// </summary>
+        private void UpdateBearingArrow(Camera observer, Vector3 target)
+        {
+            if (bearingArrow == null) return;
+            Vector3 local = observer.transform.InverseTransformDirection(target - observer.transform.position);
+            float bearing;
+            if (local.z < 0f)
+                // Behind: point to the shorter turn instead of flipping unpredictably.
+                bearing = local.x >= 0f ? 90f : -90f;
+            else
+                bearing = Mathf.Atan2(local.x, local.y) * Mathf.Rad2Deg;
+
+            bearingArrow.rectTransform.localRotation = Quaternion.Euler(0f, 0f, -bearing);
+            Color arrowColor = ReviewVisuals.Ink;
+            arrowColor.a = Mathf.Lerp(1f, .55f, targetAlignment);
+            bearingArrow.color = arrowColor;
+            bearingArrow.SetVerticesDirty();
+            bearingArrow.gameObject.SetActive(true);
+        }
+
+        private void HideTargetCues()
+        {
+            if (targetBeacon != null) targetBeacon.SetActive(false);
+            if (targetGuideObject != null) targetGuideObject.SetActive(false);
+            if (bearingArrow != null) bearingArrow.gameObject.SetActive(false);
+        }
+
+        private static string DirectionWord(Transform head, Vector3 target)
+        {
+            // Judge the horizontal bearing first: a steep head pitch must not turn a
+            // target that is behind into UP/DOWN. Elevation is a separate override.
+            Vector3 offset = target - head.position;
+            Vector3 flat = Vector3.ProjectOnPlane(offset, Vector3.up);
+            Vector3 forward = Vector3.ProjectOnPlane(head.forward, Vector3.up);
+            if (forward.sqrMagnitude < .0001f) forward = Vector3.forward;
+            forward.Normalize();
+            Vector3 right = Vector3.Cross(Vector3.up, forward);
+            float ahead = Vector3.Dot(flat, forward);
+            float sideways = Vector3.Dot(flat, right);
+            string bearing = Mathf.Abs(sideways) > Mathf.Abs(ahead)
+                ? (sideways > 0f ? "RIGHT" : "LEFT")
+                : (ahead < 0f ? "BEHIND" : "AHEAD");
+            // Height only wins when it clearly dominates the horizontal distance.
+            float height = offset.y;
+            if (Mathf.Abs(height) > flat.magnitude * 1.2f && Mathf.Abs(height) > .15f)
+                return height > 0f ? "UP" : "DOWN";
+            return bearing;
         }
 
         private void LateUpdate()
@@ -588,11 +910,12 @@ namespace LivingRoom30.Review
             if (floorVisuals != null) floorVisuals.SetActive(false);
             foreach (var arrow in arrows) arrow.SetActive(false);
         }
-        private void HideRoute() { HideFloor(); if (targetCanvas != null) targetCanvas.gameObject.SetActive(false); }
+        private void HideRoute() { HideFloor(); if (targetCanvas != null) targetCanvas.gameObject.SetActive(false); HideTargetCues(); }
         private static float FlatDistance(Vector3 a, Vector3 b) { a.y = b.y = 0f; return Vector3.Distance(a, b); }
 
         private void RefreshCard()
         {
+            observeInstructionBase = string.Empty;
             ApplyCardLayout(false);
             foreach (var answer in answers) answer.gameObject.SetActive(false);
             startButton.gameObject.SetActive(stage == Stage.Intro && guided);
@@ -656,6 +979,7 @@ namespace LivingRoom30.Review
             if (lookedCount < lookTargets.Length)
             {
                 instruction.text = "Look toward the eye icon: " + targetNames[lookedCount] + ".";
+                observeInstructionBase = instruction.text;
                 progress.text = "Observe " + (lookedCount+1) + " / " + lookTargets.Length + ". Turn your head naturally.";
                 title.text += "  (" + (lookedCount+1) + "/" + lookTargets.Length + ")";
                 ApplyCardLayout(true);
