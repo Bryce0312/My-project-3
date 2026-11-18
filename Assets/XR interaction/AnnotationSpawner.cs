@@ -37,14 +37,8 @@ public class AnnotationSpawner : MonoBehaviour
         }
 
         Transform cam = camera.transform;
-        const float targetDistance = 1f;
-        Vector3 spawnPos = cam.position + cam.forward * targetDistance;
-        if (Physics.Raycast(cam.position, cam.forward, out RaycastHit hit, targetDistance,
-            ~0, QueryTriggerInteraction.Ignore))
-            spawnPos = cam.position + cam.forward * Mathf.Max(.35f, hit.distance - .2f);
-
         UnityEngine.Object instance = Instantiate((UnityEngine.Object)annotationUIPrefab,
-            spawnPos, Quaternion.LookRotation(cam.forward, cam.up));
+            cam.position, cam.rotation);
         GameObject ui = instance as GameObject;
         if (ui == null)
         {
@@ -72,6 +66,7 @@ public class AnnotationSpawner : MonoBehaviour
         if (highlighter == null) highlighter = GetComponent<HoverDwellHighlighter>();
         currentActiveUI = ui;
         uiScript.Setup(gameObject, highlighter);
+        uiScript.SetViewer(camera);
         if (highlighter != null) highlighter.SetSelected(true);
     }
 }

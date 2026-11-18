@@ -26,6 +26,12 @@ namespace LivingRoom30.Review
         public static ReviewAnnotationStore Active { get; private set; }
         public Func<ReviewAnnotationRecord, string> Submit { get; set; }
         public Func<bool> CanOpen { get; set; }
+        public Func<string, bool> ContainsTarget { get; set; }
+
+        public bool HasSavedNotes(GameObject target)
+        {
+            return target != null && ContainsTarget?.Invoke(TargetId(target, target.GetComponent<FurnitureInfo>())) == true;
+        }
 
         private void OnEnable() => Active = this;
 
@@ -57,8 +63,7 @@ namespace LivingRoom30.Review
             var annotation = new ReviewAnnotationRecord
             {
                 id = Guid.NewGuid().ToString("N"),
-                targetId = info != null && !string.IsNullOrWhiteSpace(info.FurnitureId)
-                    ? info.FurnitureId : HierarchyId(target.transform),
+                targetId = TargetId(target, info),
                 targetName = info != null && !string.IsNullOrWhiteSpace(info.EnglishName)
                     ? info.EnglishName : target.name,
                 category = normalizedCategory,
@@ -78,6 +83,12 @@ namespace LivingRoom30.Review
                 error = "Could not save the annotation. Your draft is still here; try again.";
                 return false;
             }
+        }
+
+        private static string TargetId(GameObject target, FurnitureInfo info)
+        {
+            return info != null && !string.IsNullOrWhiteSpace(info.FurnitureId)
+                ? info.FurnitureId : HierarchyId(target.transform);
         }
 
         private static string HierarchyId(Transform target)

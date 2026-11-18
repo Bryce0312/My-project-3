@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
+
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -202,7 +202,7 @@ namespace LivingRoom30.Review
         {
             groups.Clear();
             var byObject = new Dictionary<string, NoteGroup>(StringComparer.Ordinal);
-            for (int i = 0; i < notes.Count; i++)
+            for (int i = notes.Count - 1; i >= 0; i--)
             {
                 var note = notes[i];
                 string key = string.IsNullOrWhiteSpace(note.targetId) ? "name:" + note.targetName : note.targetId;
@@ -231,6 +231,9 @@ namespace LivingRoom30.Review
             detailRoot.gameObject.SetActive(detailOpen);
             MarkTab(pointsTab, ActiveTab == Tab.Points, "POINT REVIEWS (" + points.Count + ")");
             MarkTab(notesTab, ActiveTab == Tab.Notes, "OBJECT NOTES (" + notes.Count + ")");
+            if (notes.Count > 0)
+                notesTab.targetGraphic.color = ActiveTab == Tab.Notes
+                    ? new Color(.16f, .46f, .41f) : new Color(.12f, .33f, .30f);
             if (detailOpen)
             {
                 detailPage = Mathf.Clamp(detailPage, 0, Mathf.Max(0, detailPages.Count - 1));
@@ -267,7 +270,16 @@ namespace LivingRoom30.Review
                     {
                         var group = groups[index];
                         rowTitles[slot].text = group.title + "  (" + group.notes.Count + ")";
-                        rowBodies[slot].text = GroupTags(group) + "  |  Select to read reasons";
+                        var latest = group.notes[0];
+                        string reason = string.IsNullOrWhiteSpace(latest.reason) ? string.Empty
+                            : latest.reason.Replace('\r', ' ').Replace('\n', ' ').Trim();
+                        if (reason.Length > 76)
+                        {
+                            int cut = char.IsHighSurrogate(reason[75]) ? 75 : 76;
+                            reason = reason.Substring(0, cut) + "...";
+                        }
+                        rowBodies[slot].text = "[" + Category(latest.category) + "]"
+                            + (reason.Length > 0 ? "  " + reason : string.Empty);
                     }
                 }
                 pageText.text = (ActiveTab == Tab.Points ? "POINTS " : "OBJECTS ")
@@ -379,20 +391,6 @@ namespace LivingRoom30.Review
             if (detailOpen) detailPage = Mathf.Clamp(detailPage + delta, 0, PageCount - 1);
             else currentPage = Mathf.Clamp(currentPage + delta, 0, ListPageCount - 1);
             Render();
-        }
-
-        private static string GroupTags(NoteGroup group)
-        {
-            var distinct = new HashSet<string>(StringComparer.Ordinal);
-            var text = new StringBuilder();
-            for (int i = 0; i < group.notes.Count; i++)
-            {
-                string tag = Category(group.notes[i].category);
-                if (!distinct.Add(tag)) continue;
-                if (text.Length > 0) text.Append("  ");
-                text.Append('[').Append(tag).Append(']');
-            }
-            return text.ToString();
         }
 
         private static string ObjectTitle(ReviewAnnotationRecord note)

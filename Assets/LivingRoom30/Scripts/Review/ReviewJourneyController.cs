@@ -116,6 +116,7 @@ namespace LivingRoom30.Review
             ready = true;
             annotationStore = gameObject.AddComponent<ReviewAnnotationStore>();
             annotationStore.Submit = SaveAnnotation;
+            annotationStore.ContainsTarget = id => record != null && record.annotations.Exists(note => note.targetId == id);
             annotationStore.CanOpen = () => ready && isActiveAndEnabled && !summaryMode && !ending;
             summary = gameObject.AddComponent<ReviewSummaryPanel>();
             summary.Configure(CloseSummary, ResumeReview, Replay, TryStand);

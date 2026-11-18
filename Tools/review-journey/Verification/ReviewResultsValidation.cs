@@ -161,7 +161,9 @@ public static class ReviewResultsValidation
         CategoryClick(ui,"too cramped"); ui.descriptionInput.text = "The table is too close to the sofa.";
         Require(ui.SelectedCategory == "too cramped","The existing category button is wired to actual category selection");
         SubmitClick(ui);
-        Require(AnnotationSpawner.currentActiveUI == null && journey.Session.annotations.Count == 1,"The actual Submit button persists the first free-exploration note");
+        Require(journey.Session.annotations.Count == 1 && ui.transform.Find("SavedStatus").gameObject.activeSelf,
+            "Submit persists the first free-exploration note and shows the save confirmation");
+        DismissSavedNote(ui);
         originalSession = journey.LastSavedPath;
         journey.BeginReview();
         Require(journey.LastSavedPath == originalSession && journey.Session.annotations.Count == 1,"Starting the guided route keeps the pre-existing free-exploration note");
@@ -176,6 +178,7 @@ public static class ReviewResultsValidation
         Set(journey,"recordPath",validPath);
         Require(ui.TrySubmit(),"The preserved draft can be submitted after storage recovers");
         Require(journey.Session.annotations[1].pointId == "Entry","Notes submitted from a review point retain its point association");
+        DismissSavedNote(ui);
         string error;
         int added=0;
         foreach(var spawner in spawners)
@@ -203,6 +206,13 @@ public static class ReviewResultsValidation
         Require(!((Canvas)Field(journey,"panel")).gameObject.activeSelf && !((Canvas)Field(journey,"targetCanvas")).gameObject.activeSelf,
             "Results replace the original task card and target beacon");
         table.OnSelectEntered(null); Require(AnnotationSpawner.currentActiveUI == null,"Read-only results do not spawn a competing annotation editor");
+    }
+    static void DismissSavedNote(AnnotationUI ui)
+    {
+        var done = ui.transform.Find("SavedDone").GetComponent<Button>();
+        Require(done.gameObject.activeInHierarchy && done.interactable, "A saved note can be acknowledged");
+        done.onClick.Invoke();
+        Require(AnnotationSpawner.currentActiveUI == null, "Done returns to the review");
     }
     static void CategoryClick(AnnotationUI ui,string category)
     {
