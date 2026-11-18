@@ -37,6 +37,11 @@ public class AnnotationUI : MonoBehaviour
     private HoverDwellHighlighter targetHighlighter;
     private string selectedCategory, selectedReason;
     private IssueMarkerVirtualKeyboard virtualKeyboard;
+    private AnnotationVoiceInput voice;
+    private Button voiceButton;
+    private ReviewIconGraphic voiceIcon;
+    private string voiceMessage;
+    private bool voiceError;
     private readonly Dictionary<Button, string> categoryButtons = new Dictionary<Button, string>();
     private readonly Button[] reasonButtons = new Button[2];
     private Button submitButton, keepEditingButton, doneButton;
@@ -109,6 +114,13 @@ public class AnnotationUI : MonoBehaviour
         }
 
         BuildInput();
+        voice = gameObject.AddComponent<AnnotationVoiceInput>();
+        voice.Bind(ShowVoiceMessage, AppendDictatedText);
+        voiceButton = MakeButton("Dictation", new Vector2(148f, -64f),
+            new Vector2(52f, 44f), null, ToggleDictation);
+        voiceIcon = ReviewVisuals.Icon(voiceButton.transform, Vector2.zero, 27f, ReviewIconGraphic.Kind.Microphone);
+        voiceIcon.color = Ink;
+        StyleButton(voiceButton, Accent, 14f);
 
         messageText = MakeText("AnnotationStatus", new Vector2(0f, -99f), new Vector2(348f, 34f), 13f, Warning);
         keepEditingButton = MakeButton("KeepEditing", new Vector2(-90f, -133f),
@@ -199,17 +211,21 @@ public class AnnotationUI : MonoBehaviour
         var button = image.gameObject.AddComponent<Button>();
         button.targetGraphic = image;
         button.onClick.AddListener(() => action());
-        var label = MakeText("Label", Vector2.zero, Vector2.zero, 14f, Ink);
-        label.transform.SetParent(image.transform, false);
-        Stretch(label.rectTransform, new Vector2(4f, 2f));
-        label.text = title;
+        if (title != null)
+        {
+            var label = MakeText("Label", Vector2.zero, Vector2.zero, 14f, Ink);
+            label.transform.SetParent(image.transform, false);
+            Stretch(label.rectTransform, new Vector2(4f, 2f));
+            label.text = title;
+        }
         StyleButton(button, Control, 14f);
         return button;
     }
 
     private static void StyleButton(Button button, Color fill, float fontSize)
     {
-        StyleLabel(button.GetComponentInChildren<TextMeshProUGUI>(true), fontSize, Ink, TextAlignmentOptions.Center);
+        var label = button.GetComponentInChildren<TextMeshProUGUI>(true);
+        if (label != null) StyleLabel(label, fontSize, Ink, TextAlignmentOptions.Center);
         var image = (Image)button.targetGraphic;
         image.sprite = null;
         image.color = fill;
@@ -369,18 +385,77 @@ public class AnnotationUI : MonoBehaviour
         }
 
         descriptionInput.gameObject.SetActive(!saved);
-        Place((RectTransform)descriptionInput.transform, new Vector2(0f, keyboardOpen ? 36f : -64f),
-            new Vector2(348f, keyboardOpen ? 52f : 44f));
         if (descriptionInput.placeholder is TextMeshProUGUI placeholder)
-            placeholder.text = selectedReason == null ? "Enter a reason or choose a quick reason" : "Add a detail (optional)";
+            placeholder.text = selectedReason == null ? "Enter a reason" : "Add a detail (optional)";
 
-        messageText.gameObject.SetActive(showChoices && (IsFinishing || LastError != null));
         keepEditingButton.gameObject.SetActive(showChoices && IsFinishing);
         submitButton.gameObject.SetActive(showChoices);
         submitButtonText.text = IsFinishing ? "SAVE & END" : "Save note";
         savedStatus.gameObject.SetActive(saved);
         savedHint.gameObject.SetActive(saved);
         doneButton.gameObject.SetActive(saved);
+        RefreshVoiceUi();
+    }
+
+    private void ToggleDictation()
+    {
+        if (!voice.IsBusy)
+        {
+            virtualKeyboard.Hide();
+            ClearError();
+        }
+        voice.Toggle();
+    }
+
+    private void ShowVoiceMessage(string message, bool error = false)
+    {
+        voiceMessage = message;
+        voiceError = error;
+        RefreshVoiceUi();
+    }
+
+    private void RefreshVoiceUi()
+    {
+        bool available = AnnotationVoiceInput.IsSupported;
+        float y = keyboardOpen ? 36f : -64f;
+        float height = keyboardOpen ? 52f : 44f;
+        Place((RectTransform)descriptionInput.transform, new Vector2(available ? -31f : 0f, y),
+            new Vector2(available ? 286f : 348f, height));
+        Place((RectTransform)voiceButton.transform, new Vector2(148f, y), new Vector2(52f, height));
+        voiceButton.gameObject.SetActive(available && !saved);
+        var icon = voice.IsRecording ? ReviewIconGraphic.Kind.Stop
+            : voice.IsBusy ? ReviewIconGraphic.Kind.Cancel : ReviewIconGraphic.Kind.Microphone;
+        if (voiceIcon.Symbol != icon)
+        {
+            voiceIcon.Symbol = icon;
+            voiceIcon.SetVerticesDirty();
+        }
+        descriptionInput.interactable = !voice.IsBusy;
+        submitButton.interactable = !voice.IsBusy;
+        RefreshStatus();
+    }
+
+    private void AppendDictatedText(string text)
+    {
+        string draft = descriptionInput.text;
+        string separator = draft.Length > 0 && !char.IsWhiteSpace(draft[draft.Length - 1]) ? " " : string.Empty;
+        int presetLength = selectedReason == null ? 0 : selectedReason.Length + 1;
+        int space = ReviewAnnotationStore.ReasonLimit - presetLength - draft.Length - separator.Length;
+        if (space <= 0)
+        {
+            ShowVoiceMessage("The note is full. Shorten it and try again.", true);
+            return;
+        }
+
+        bool shortened = text.Length > space;
+        if (shortened)
+        {
+            if (char.IsHighSurrogate(text[space - 1])) space--;
+            text = text.Substring(0, space).TrimEnd();
+        }
+        if (text.Length > 0) descriptionInput.text = draft + separator + text;
+        descriptionInput.caretPosition = descriptionInput.text.Length;
+        ShowVoiceMessage(shortened ? "The note reached its length limit." : "Text added. Review it before saving.");
     }
 
     public void OnSubmit() => TrySubmit();
@@ -389,6 +464,7 @@ public class AnnotationUI : MonoBehaviour
     {
         if (submitting || closing || saved) return false;
         EnsureInitialized();
+        if (voice.IsBusy) return false;
         virtualKeyboard.Hide();
         string detail = descriptionInput.text.Trim();
         string reason = selectedReason == null ? detail : detail.Length == 0 ? selectedReason
@@ -448,23 +524,33 @@ public class AnnotationUI : MonoBehaviour
     private void ShowError(string error)
     {
         LastError = string.IsNullOrEmpty(error) ? "Could not save. Your draft is still here." : error;
-        messageText.text = LastError;
-        messageText.color = Warning;
-        messageText.gameObject.SetActive(true);
+        RefreshStatus();
     }
 
     private void ClearError()
     {
         LastError = null;
+        if (voice?.IsBusy != true)
+        {
+            voiceMessage = null;
+            voiceError = false;
+        }
+        RefreshStatus();
+    }
+
+    private void RefreshStatus()
+    {
         if (messageText == null) return;
-        messageText.text = IsFinishing ? "Save this draft to finish, or keep editing." : string.Empty;
-        messageText.color = Muted;
-        messageText.gameObject.SetActive(IsFinishing && !keyboardOpen && !saved);
+        string message = LastError ?? voiceMessage;
+        messageText.text = message ?? (IsFinishing ? "Save this draft to finish, or keep editing." : string.Empty);
+        messageText.color = LastError != null || voiceError ? Warning : Muted;
+        messageText.gameObject.SetActive(!keyboardOpen && !saved && (message != null || IsFinishing));
     }
 
     public void OnCancel()
     {
-        if (keyboardOpen) virtualKeyboard.Hide();
+        if (voice?.IsBusy == true) voice.Cancel();
+        else if (keyboardOpen) virtualKeyboard.Hide();
         else if (IsFinishing) KeepEditing();
         else CloseUI();
     }

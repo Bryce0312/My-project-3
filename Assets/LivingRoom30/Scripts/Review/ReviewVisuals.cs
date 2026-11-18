@@ -109,7 +109,7 @@ namespace LivingRoom30.Review
     // Shape carries the meaning; none of these icons changes colour to indicate task state.
     public sealed class ReviewIconGraphic : MaskableGraphic
     {
-        public enum Kind { Walk, Eye, Chair, Hand, Return, Check }
+        public enum Kind { Walk, Eye, Chair, Hand, Return, Check, Microphone, Stop, Cancel }
         public Kind Symbol;
 
         protected override void OnPopulateMesh(VertexHelper vh)
@@ -146,10 +146,52 @@ namespace LivingRoom30.Review
                     Stroke(vh, .28f, -.30f, -.14f, -.30f);
                     Stroke(vh, -.4f, .14f, -.15f, .38f); Stroke(vh, -.4f, .14f, -.15f, -.1f);
                     break;
+                case Kind.Microphone:
+                    HalfCircle(vh, .27f, .145f, true);
+                    HalfCircle(vh, .04f, .145f, false);
+                    Stroke(vh, -.145f, .04f, -.145f, .27f);
+                    Stroke(vh, .145f, .04f, .145f, .27f);
+                    HalfCircle(vh, .045f, .31f, false);
+                    Stroke(vh, 0f, -.265f, 0f, -.425f);
+                    Stroke(vh, -.18f, -.425f, .18f, -.425f);
+                    break;
+                case Kind.Stop:
+                    AddStopSquare(vh);
+                    break;
+                case Kind.Cancel:
+                    Stroke(vh, -.28f, -.28f, .28f, .28f);
+                    Stroke(vh, -.28f, .28f, .28f, -.28f);
+                    break;
                 default:
                     Stroke(vh, -.4f, .02f, -.1f, -.28f); Stroke(vh, -.1f, -.28f, .4f, .35f);
                     break;
             }
+        }
+
+        private void HalfCircle(VertexHelper vh, float centerY, float radius, bool upper)
+        {
+            const int segments = 8;
+            var previous = new Vector2(radius, centerY);
+            for (int i = 1; i <= segments; i++)
+            {
+                float angle = (upper ? 1f : -1f) * Mathf.PI * i / segments;
+                var next = new Vector2(radius * Mathf.Cos(angle), centerY + radius * Mathf.Sin(angle));
+                Stroke(vh, previous.x, previous.y, next.x, next.y);
+                previous = next;
+            }
+        }
+
+        private void AddStopSquare(VertexHelper vh)
+        {
+            var rect = rectTransform.rect;
+            float halfSide = Mathf.Min(rect.width, rect.height) * .25f;
+            Vector2 center = rect.center;
+            vh.AddVert(center + new Vector2(-halfSide, -halfSide), color, Vector2.zero);
+            vh.AddVert(center + new Vector2(-halfSide, halfSide), color, Vector2.zero);
+            vh.AddVert(center + new Vector2(halfSide, halfSide), color, Vector2.zero);
+            vh.AddVert(center + new Vector2(halfSide, -halfSide), color, Vector2.zero);
+            vh.AddTriangle(0, 1, 2);
+            vh.AddTriangle(0, 2, 3);
         }
 
         private void Stroke(VertexHelper vh, float ax, float ay, float bx, float by)
