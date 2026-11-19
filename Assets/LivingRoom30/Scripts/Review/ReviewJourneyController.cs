@@ -23,6 +23,7 @@ namespace LivingRoom30.Review
             public string task, targetIds, question, answer, utc;
             public Vector3 observerPosition;
             public Vector3[] targetPositions;
+            public bool cabinetDoorsOpen;
         }
         [Serializable] public sealed class ReviewAction
         {
@@ -43,6 +44,11 @@ namespace LivingRoom30.Review
         private TutorialController controls;
         private SeatViewController seat;
         private ReviewRemoteControl remote;
+        private ReviewCabinetDoors cabinet;
+        private Canvas cabinetCanvas;
+        private Button cabinetButton;
+        private Text cabinetStatus;
+        private bool cabinetOpenRequestedForTask, cabinetOpenedForTask, cabinetReviewAnswered, cabinetClosedAfterReview;
         private ReviewHudEntry hudEntry;
         private ReviewAnnotationStore annotationStore;
         private ReviewSummaryPanel summary;
@@ -100,6 +106,7 @@ namespace LivingRoom30.Review
         public bool IsReady => ready;
         public SeatViewController Seat => seat;
         public ReviewRemoteControl Remote => remote;
+        public ReviewCabinetDoors Cabinet => cabinet;
         public ReviewSummaryPanel Summary => summary;
         public SessionRecord Session => record;
         public bool IsSummaryMode => summaryMode;
@@ -126,7 +133,8 @@ namespace LivingRoom30.Review
             BuildPanel();
             BuildTargetCues();
             BuildSeatAndRemote();
-            canvases = new[] { panel, targetCanvas, seatCanvas, utilityCanvas };
+            BuildCabinet();
+            canvases = new[] { panel, targetCanvas, seatCanvas, utilityCanvas, cabinetCanvas };
             ready = true;
             annotationStore = gameObject.AddComponent<ReviewAnnotationStore>();
             annotationStore.Submit = SaveAnnotation;
@@ -145,6 +153,85 @@ namespace LivingRoom30.Review
             anchor.SetParent(transform, false);
             anchor.position = position;
             return anchor;
+        }
+
+        private void BuildCabinet()
+        {
+            GameObject target = GameObject.Find("F09_DisplayCabinet");
+            if (target != null)
+            {
+                cabinet = target.GetComponent<ReviewCabinetDoors>() ?? target.AddComponent<ReviewCabinetDoors>();
+                cabinet.Configure(target.transform);
+                cabinet.CanInteract = CanUseCabinet;
+                cabinet.StateChanged += OnCabinetStateChanged;
+                cabinet.ActionBlocked += OnCabinetBlocked;
+                foreach (var display in FindObjectsOfType<FurnitureProximityDisplay>()) display.RefreshFurniture();
+            }
+            cabinetCanvas = ReviewVisuals.Canvas(transform, "CabinetDoorAction", new Vector2(310, 115), .0015f);
+            ReviewVisuals.Image(cabinetCanvas.transform, "Back", Vector2.zero, new Vector2(310, 115), ReviewVisuals.Back);
+            cabinetButton = ReviewVisuals.Button(cabinetCanvas.transform, "CabinetToggle", new Vector2(0, 22),
+                new Vector2(290, 44), "OPEN CABINET", ToggleCabinet);
+            cabinetStatus = ReviewVisuals.Text(cabinetCanvas.transform, "Status", new Vector2(0, -30),
+                new Vector2(294, 46), "Grip still opens object notes.", 16, TextAnchor.MiddleCenter);
+            cabinetCanvas.gameObject.SetActive(false);
+        }
+
+        private bool CanUseCabinet()
+        {
+            return ready && isActiveAndEnabled && cabinet != null && cabinet.IsReady && !summaryMode && !ending
+                && manager != null && manager.ActiveCamera != null && seat != null && !seat.IsSeated
+                && !seat.IsTransitioning && !remote.IsHeld && AnnotationSpawner.currentActiveUI == null
+                && (controls == null || !controls.gameObject.activeInHierarchy)
+                && FlatDistance(manager.ActiveCamera.transform.position, cabinet.transform.position) < 1.8f;
+        }
+
+        private void ToggleCabinet()
+        {
+            if (!CanUseCabinet()) return;
+            bool opening = cabinet.IsClosed || (!cabinet.IsOpen && cabinet.OpenFraction <= .5f);
+            bool accepted = opening ? cabinet.TryOpen() : cabinet.TryClose();
+            if (accepted && opening && guided && stage == Stage.Display && arrived && !cabinetReviewAnswered)
+                cabinetOpenRequestedForTask = true;
+            if (!accepted) cabinetStatus.text = cabinet.LastMessage;
+            if (guided && stage == Stage.Display) RefreshCard();
+        }
+
+        private void OnCabinetStateChanged(bool open)
+        {
+            if (summaryMode || stage != Stage.Display) return;
+            if (open && cabinetOpenRequestedForTask && !cabinetReviewAnswered)
+            {
+                cabinetOpenedForTask = true;
+                RecordAction("display_cabinet_opened");
+            }
+            else if (!open && cabinetReviewAnswered)
+            {
+                cabinetClosedAfterReview = true;
+            }
+            RefreshCard();
+        }
+
+        private bool CabinetReadyForObservation => cabinet != null && cabinet.IsOpen
+            && cabinetOpenedForTask && !cabinetReviewAnswered;
+
+        private void OnCabinetBlocked(string message)
+        {
+            if (guided && stage == Stage.Display) RefreshCard();
+        }
+
+        private void UpdateCabinet(bool controlsOpen, bool noteOpen)
+        {
+            if (cabinet == null || !cabinet.IsReady) { cabinetCanvas.gameObject.SetActive(false); return; }
+            cabinet.SetInteractionAllowed(CanUseCabinet());
+            bool near = FlatDistance(manager.ActiveCamera.transform.position, cabinet.transform.position) < 1.8f;
+            cabinetCanvas.gameObject.SetActive(near && !summaryMode && !seat.IsSeated && !seat.IsTransitioning
+                && !controlsOpen && !noteOpen);
+            cabinetButton.interactable = CanUseCabinet() && !cabinet.IsMoving;
+            cabinetButton.GetComponentInChildren<Text>().text = cabinet.IsMoving ? "DOORS MOVING..."
+                : cabinet.IsClosed ? "OPEN CABINET" : cabinet.IsOpen ? "CLOSE CABINET"
+                : cabinet.OpenFraction > .5f ? "CLOSE CABINET" : "OPEN CABINET";
+            cabinetStatus.text = string.IsNullOrEmpty(cabinet.LastMessage)
+                ? "Step clear of the doors. Grip adds a note." : cabinet.LastMessage;
         }
 
         private void BuildSeatAndRemote()
@@ -315,6 +402,8 @@ namespace LivingRoom30.Review
             if (summaryMode) { ShowResults(); return; }
             if (seat.IsSeated || seat.IsTransitioning) { Message("Stand up before starting a new review."); return; }
             if (remote.IsHeld) { Message("Put down the remote first."); return; }
+            if (cabinet != null && !cabinet.IsClosed)
+            { Message("Close the cabinet doors before starting a new review."); return; }
             EnsureSession(); // Keep annotations submitted during initial free exploration.
             saveMessage = string.Empty;
             remote.ResetToHome();
@@ -331,6 +420,8 @@ namespace LivingRoom30.Review
             { Message("Stand up and put down the remote before starting a new review."); return; }
             if (AnnotationSpawner.currentActiveUI != null)
             { Message("Finish or cancel the open annotation first."); return; }
+            if (cabinet != null && !cabinet.IsClosed)
+            { Message("Close the cabinet doors before starting a new review."); return; }
             if (record != null && !SaveRecord()) return;
             CloseSummary();
             summary.ResetView();
@@ -439,6 +530,8 @@ namespace LivingRoom30.Review
                 remoteGrabSeen = remote.IsHeld;
                 remoteReturned = false;
             }
+            if (next == Stage.Display)
+                cabinetOpenRequestedForTask = cabinetOpenedForTask = cabinetReviewAnswered = cabinetClosedAfterReview = false;
             switch (next)
             {
                 case Stage.Entry: Targets(new[] { new Vector3(0, .7f, -.78f), Tv }, new[] { "sofa", "TV wall" }); break;
@@ -489,6 +582,7 @@ namespace LivingRoom30.Review
             Camera observer = manager.ActiveCamera;
             if (observer == null) return;
             remote.Viewer = observer.transform;
+            UpdateCabinet(controlsOpen, noteOpen);
 
             float seatDistance = FlatDistance(observer.transform.position, exitFloor.position);
             seatCanvas.gameObject.SetActive(!summaryMode && !seat.IsSeated && !seat.IsTransitioning && seatDistance < 1.05f && !controlsOpen && !noteOpen);
@@ -501,6 +595,9 @@ namespace LivingRoom30.Review
 
             bool canGuide = guided && !summaryMode && !controlsOpen && !noteOpen && !seat.IsTransitioning;
             if (!canGuide) { lookSeconds = 0f; arrivalSeconds = 0f; HideRoute(); return; }
+            if (stage == Stage.Display && cabinetReviewAnswered && cabinetClosedAfterReview
+                && cabinet != null && cabinet.IsClosed)
+            { RecordAction("display_cabinet_closed_after_review"); SetStage(Stage.Bookcase); return; }
             int destination = Destination();
             if (seat.IsSeated && stage != Stage.SeatedLook && stage != Stage.Remote && stage != Stage.Stand)
             {
@@ -578,6 +675,14 @@ namespace LivingRoom30.Review
         /// </summary>
         private void UpdateLookTarget(Camera observer)
         {
+            if (stage == Stage.Display && !CabinetReadyForObservation)
+            {
+                lookSeconds = 0f;
+                targetCanvas.gameObject.SetActive(false);
+                HideTargetCues();
+                if (bearingArrow != null) bearingArrow.gameObject.SetActive(false);
+                return;
+            }
             bool confirming = Time.unscaledTime < targetConfirmationUntil && lookedCount > 0;
             bool canObserve = (arrived || stage == Stage.SeatedLook) && lookedCount < lookTargets.Length;
             if (!canObserve && !confirming)
@@ -764,6 +869,14 @@ namespace LivingRoom30.Review
             Camera camera = manager.ActiveCamera;
             Transform head = camera.transform;
             foreach (var canvas in canvases) canvas.worldCamera = camera;
+            if (cabinetCanvas != null && cabinet != null && cabinetCanvas.gameObject.activeSelf)
+            {
+                float scale;
+                cabinetCanvas.transform.position = SafeVisualPosition(head.position,
+                    cabinet.transform.TransformPoint(new Vector3(0f, 1.78f, -.28f)), .045f, .08f, out scale);
+                Face(cabinetCanvas.transform, head);
+                cabinetCanvas.transform.localScale = Vector3.one * (.0015f * scale);
+            }
             if (summary.IsVisible)
             {
                 float summaryScale;
@@ -967,6 +1080,22 @@ namespace LivingRoom30.Review
                 ApplyCardLayout(true);
                 return;
             }
+            if (stage == Stage.Display && (cabinetReviewAnswered || !CabinetReadyForObservation))
+            {
+                instruction.text = cabinetReviewAnswered
+                    ? "Close the cabinet doors, then continue along the route."
+                    : !arrived ? "Follow the arrows to the cabinet standing circle."
+                    : "Click OPEN CABINET above the doors. Step clear of their swing.";
+                progress.text = cabinet == null || !cabinet.IsReady ? "Cabinet interaction is unavailable."
+                    : cabinet.IsMoving ? "Wait for the doors to stop."
+                    : cabinetReviewAnswered && cabinet.IsClosed && !cabinetClosedAfterReview
+                        ? "Reopen and close here to finish the guided action."
+                    : !cabinetOpenedForTask && cabinet.IsOpen
+                        ? "Close and reopen here to start the opening-space check."
+                    : "Trigger operates doors; Grip still adds an object note.";
+                ApplyCardLayout(false);
+                return;
+            }
             bool canObserve = arrived || stage == Stage.SeatedLook;
             if (!canObserve)
             {
@@ -1034,7 +1163,7 @@ namespace LivingRoom30.Review
             switch (stage)
             {
                 case Stage.Entry: return "Is the living area easy to understand from the entrance?";
-                case Stage.Display: return "Is the space in front of this storage convenient?";
+                case Stage.Display: return "With the doors open, is there room to access storage and pass?";
                 case Stage.Bookcase: return "Is access past the chair to the bookcase comfortable?";
                 case Stage.TvSide: return "Is the TV visible comfortably from this side angle?";
                 case Stage.Coffee: return "Are the table height and sofa clearance comfortable?";
@@ -1058,11 +1187,13 @@ namespace LivingRoom30.Review
         {
             if (!guided || record == null || lookedCount < lookTargets.Length || lookTargets.Length == 0) return;
             if (Destination() >= 0 && !arrived) return;
+            if (stage == Stage.Display && !CabinetReadyForObservation) return;
             Observation previous = record.observations.Find(item => item.task == stage.ToString());
             record.observations.RemoveAll(item => item.task == stage.ToString());
             var observation = new Observation { task = stage.ToString(), targetIds = TargetIds(),
                 question = StageQuestion(), answer = answer, utc = Utc(), observerPosition = manager.ActiveCamera.transform.position,
-                targetPositions = (Vector3[])lookTargets.Clone() };
+                targetPositions = (Vector3[])lookTargets.Clone(),
+                cabinetDoorsOpen = stage == Stage.Display && cabinet.IsOpen };
             record.observations.Add(observation);
             if (!SaveRecord())
             {
@@ -1071,6 +1202,13 @@ namespace LivingRoom30.Review
                 Message(saveMessage); return;
             }
             Pulse();
+            if (stage == Stage.Display)
+            {
+                cabinetReviewAnswered = true;
+                targetConfirmationUntil = 0f;
+                RefreshCard(); HideRoute();
+                return;
+            }
             SetStage(stage == Stage.SeatedLook ? Stage.Remote : stage + 1);
         }
 
@@ -1192,6 +1330,10 @@ namespace LivingRoom30.Review
             if (!ready || !isActiveAndEnabled || ending) return;
             if (summaryMode) { ShowResults(); return; }
             if (remote.IsHeld) { Message("Put down the remote before ending the review."); return; }
+            if (cabinet != null && cabinet.IsMoving)
+            { Message("Wait for the cabinet doors to stop before ending the review."); return; }
+            if (cabinet != null && !cabinet.IsClosed)
+            { Message("Close the cabinet doors before ending the review."); return; }
             if (seat.IsTransitioning) { Message("Wait for the seated view to finish changing."); return; }
             if (AnnotationSpawner.currentActiveUI != null)
             {
@@ -1283,7 +1425,7 @@ namespace LivingRoom30.Review
             string[] titles = { "Entrance overview", "Display cabinet", "Bookcase access", "TV side view", "Sofa & coffee table", "Seated view" };
             string[] questions = {
                 "Is the living area easy to understand from the entrance?",
-                "Is the space in front of this storage convenient?",
+                "With the doors open, is there room to access storage and pass?",
                 "Is access past the chair to the bookcase comfortable?",
                 "Is the TV visible comfortably from this side angle?",
                 "Are the table height and sofa clearance comfortable?",
@@ -1337,6 +1479,12 @@ namespace LivingRoom30.Review
             ReleaseControlHint();
             if (seat != null) seat.SeatedChanged -= OnSeatedChanged;
             if (remote != null) { remote.Grabbed -= OnRemoteGrabbed; remote.Returned -= OnRemoteReturned; }
+            if (cabinet != null)
+            {
+                cabinet.StateChanged -= OnCabinetStateChanged;
+                cabinet.ActionBlocked -= OnCabinetBlocked;
+                cabinet.CanInteract = null;
+            }
             if (lineMaterial != null) Destroy(lineMaterial);
         }
 
@@ -1350,10 +1498,12 @@ namespace LivingRoom30.Review
             seat.SeatedChanged -= OnSeatedChanged;
             remote.Grabbed -= OnRemoteGrabbed; remote.Returned -= OnRemoteReturned;
             seat.enabled = false; remote.enabled = false;
+            if (cabinet != null) { cabinet.SetInteractionAllowed(false); cabinet.enabled = false; }
             HideRoute();
             if (panel != null) panel.gameObject.SetActive(false);
             if (seatCanvas != null) seatCanvas.gameObject.SetActive(false);
             if (utilityCanvas != null) utilityCanvas.gameObject.SetActive(false);
+            if (cabinetCanvas != null) cabinetCanvas.gameObject.SetActive(false);
         }
 
         private void OnEnable()
@@ -1362,6 +1512,7 @@ namespace LivingRoom30.Review
             if (annotationStore != null) annotationStore.enabled = true;
             if (hudEntry != null) hudEntry.enabled = true;
             seat.enabled = true; remote.enabled = true;
+            if (cabinet != null) cabinet.enabled = true;
             seat.SeatedChanged += OnSeatedChanged;
             remote.Grabbed += OnRemoteGrabbed; remote.Returned += OnRemoteReturned;
             if (stage >= Stage.SeatedLook && stage <= Stage.Stand) SetStage(Stage.Sit);

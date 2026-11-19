@@ -709,6 +709,11 @@ namespace LivingRoom30
         /// </summary>
         private static Bounds? ComputeWorldBounds(Entry entry)
         {
+            if (entry.Info != null)
+            {
+                var doors = entry.Info.GetComponent<LivingRoom30.Review.ReviewCabinetDoors>();
+                if (doors != null && doors.IsReady) return doors.ClosedBounds;
+            }
             bool initialized = false;
             Bounds acc = default;
 

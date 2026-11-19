@@ -110,6 +110,10 @@ namespace LivingRoom30.Measurement
             if (obs == Vector3.zero) return;
 
             candidates.Clear();
+            // Static furniture remains cached; articulated doors update the occupied envelope.
+            for (int i = 0; i < furniture.Count; i++)
+                if (furniture[i] != null && furniture[i].GetComponent<LivingRoom30.Review.ReviewCabinetDoors>() != null)
+                    furnitureBounds[i] = GeometryUtils.GetOccupiedWorldAABB(furniture[i]);
 
             // 1) 家具与家具之间的过道/间隙
             for (int i = 0; i < furniture.Count; i++)

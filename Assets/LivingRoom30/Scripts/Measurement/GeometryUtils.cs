@@ -16,6 +16,8 @@ namespace LivingRoom30.Measurement
         public static Bounds GetWorldAABB(GameObject root)
         {
             if (root == null) return new Bounds(Vector3.zero, Vector3.zero);
+            var doors = root.GetComponent<LivingRoom30.Review.ReviewCabinetDoors>();
+            if (doors != null && doors.IsReady) return doors.ClosedBounds;
 
             var renderers = root.GetComponentsInChildren<MeshRenderer>(true);
             if (renderers.Length > 0)
@@ -36,6 +38,18 @@ namespace LivingRoom30.Measurement
             }
 
             return new Bounds(root.transform.position, Vector3.zero);
+        }
+
+        /// <summary>Space occupied now, including articulated doors, for clearance estimates.</summary>
+        public static Bounds GetOccupiedWorldAABB(GameObject root)
+        {
+            Bounds bounds = GetWorldAABB(root);
+            if (root == null) return bounds;
+            var doors = root.GetComponent<LivingRoom30.Review.ReviewCabinetDoors>();
+            if (doors == null || !doors.IsReady) return bounds;
+            foreach (var collider in root.GetComponentsInChildren<Collider>())
+                if (collider.enabled && !collider.isTrigger) bounds.Encapsulate(collider.bounds);
+            return bounds;
         }
 
         /// <summary>

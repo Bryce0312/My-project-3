@@ -366,6 +366,20 @@ public static class ReviewJourneyValidation
             }
             else if (phase == 1)
             {
+                if (journey.CurrentStage == "Display" && journey.Cabinet != null)
+                {
+                    PlaceHead(new ReviewRouteGraph().Nodes[6] + Vector3.up * 1.6f,
+                        new Vector3(-2.85f, .90f, 2.32f));
+                    bool reviewed = journey.Session.observations.Exists(item => item.task == "Display");
+                    if (journey.Cabinet.IsMoving) return;
+                    if (!reviewed && !journey.Cabinet.IsOpen && (bool)Field(journey, "arrived"))
+                    { Click((Button)Field(journey, "cabinetButton")); return; }
+                    if (reviewed)
+                    {
+                        if (!journey.Cabinet.IsClosed) Click((Button)Field(journey, "cabinetButton"));
+                        return;
+                    }
+                }
                 if (journey.CurrentStage == "Sit")
                 {
                     Vector3 exit = ((Transform)Field(journey, "exitFloor")).position;
