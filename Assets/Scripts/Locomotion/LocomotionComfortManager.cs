@@ -53,6 +53,12 @@ namespace LivingRoom30.Locomotion
             Aiming,
         }
 
+        /// <summary>Raised when the reviewer confirms a teleport. Consumed by the control tutorial.</summary>
+        public static event System.Action Teleported;
+
+        /// <summary>Raised when the reviewer cancels a teleport with the secondary button. Consumed by the control tutorial.</summary>
+        public static event System.Action TeleportCancelled;
+
         private ActionBasedContinuousMoveProvider moveProvider;
         private ActionBasedSnapTurnProvider turnProvider;
         private LocomotionSystem locomotionSystem;
@@ -224,9 +230,15 @@ namespace LivingRoom30.Locomotion
 
             if (teleportState == TeleportState.Aiming)
             {
-                if (teleportCancelAction != null && teleportCancelAction.WasPressedThisFrame())
+                if (!IsLocomotionAvailable())
+                {
+                    // The review blocked walking (e.g. seated view); drop the teleport arc too.
+                    EndTeleportAim();
+                }
+                else if (teleportCancelAction != null && teleportCancelAction.WasPressedThisFrame())
                 {
                     EndTeleportAim();
+                    TeleportCancelled?.Invoke();
                 }
                 else
                 {
@@ -239,6 +251,13 @@ namespace LivingRoom30.Locomotion
 
         private void OnTogglePressed()
         {
+            if (!IsLocomotionAvailable())
+            {
+                if (teleportState == TeleportState.Aiming)
+                    EndTeleportAim();
+                return;
+            }
+
             if (teleportState == TeleportState.Idle)
             {
                 BeginTeleportAim();
@@ -248,6 +267,17 @@ namespace LivingRoom30.Locomotion
                 ConfirmTeleport();
             }
             // Otherwise the toggle landed on an invalid target: stay in aim so the user can adjust.
+        }
+
+        /// <summary>
+        /// Teleport is locomotion, so it shares the same gate as walking. The review (and desktop
+        /// mode) blocks locomotion by disabling the continuous-move provider; when that happens the
+        /// reviewer must also be unable to teleport, otherwise they could move the rig away from the
+        /// seated or measured viewpoint and desync the seat or measurement state.
+        /// </summary>
+        private bool IsLocomotionAvailable()
+        {
+            return moveProvider != null && moveProvider.isActiveAndEnabled;
         }
 
         private void BeginTeleportAim()
@@ -299,6 +329,7 @@ namespace LivingRoom30.Locomotion
             }
 
             EndTeleportAim();
+            Teleported?.Invoke();
         }
 
         private void UpdateTeleportAim()
