@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using LivingRoom30.Locomotion;
 using LivingRoom30.Measurement;
 using UnityEngine;
 using UnityEngine.UI;
@@ -25,6 +26,8 @@ namespace LivingRoom30
         {
             Move,
             Turn,
+            Teleport,
+            CancelTeleport,
             ClickPractice,
             ApproachFurniture,
             Informational,
@@ -45,6 +48,8 @@ namespace LivingRoom30
         {
             new Step { Instruction = "Push the LEFT stick to walk", Goal = StepGoal.Move, PartName = "ThumbStick", Hand = HighlightTarget.Left },
             new Step { Instruction = "Push the RIGHT stick to turn", Goal = StepGoal.Turn, PartName = "ThumbStick", Hand = HighlightTarget.Right },
+            new Step { Instruction = "Press X to aim, then X to teleport", Goal = StepGoal.Teleport, PartName = "Button_B", Hand = HighlightTarget.Left, ShowBeacon = true },
+            new Step { Instruction = "Press X to aim, then press Y to cancel", Goal = StepGoal.CancelTeleport, PartName = "Button_A", Hand = HighlightTarget.Left, ShowBeacon = true },
             // The trigger faces away from the eyes, so it needs a visible marker to pull the gaze
             // down to the hand before the glow on the trigger itself means anything.
             new Step { Instruction = "Look at your controller and press the TRIGGER", Goal = StepGoal.ClickPractice, PartName = "Trigger", Hand = HighlightTarget.Both, ShowBeacon = true },
@@ -70,6 +75,8 @@ namespace LivingRoom30
         private HudLazyFollow panelFollow;
         private int stepIndex;
         private float stepEnteredAt;
+        private bool teleportPerformed;
+        private bool teleportCancelled;
 
         public Text StepLabel => stepLabel;
         public Button PracticeButton => practiceButton;
@@ -122,6 +129,24 @@ namespace LivingRoom30
         {
             stepIndex = 0;
             RefreshStep();
+            LocomotionComfortManager.Teleported += OnTeleported;
+            LocomotionComfortManager.TeleportCancelled += OnTeleportCancelled;
+        }
+
+        private void OnDisable()
+        {
+            LocomotionComfortManager.Teleported -= OnTeleported;
+            LocomotionComfortManager.TeleportCancelled -= OnTeleportCancelled;
+        }
+
+        private void OnTeleported()
+        {
+            teleportPerformed = true;
+        }
+
+        private void OnTeleportCancelled()
+        {
+            teleportCancelled = true;
         }
 
         private void Update()
@@ -141,6 +166,18 @@ namespace LivingRoom30
                     break;
                 case StepGoal.Turn:
                     if (Mathf.Abs(ReadTurn().x) > InputDeadzone)
+                    {
+                        AdvanceStep();
+                    }
+                    break;
+                case StepGoal.Teleport:
+                    if (teleportPerformed)
+                    {
+                        AdvanceStep();
+                    }
+                    break;
+                case StepGoal.CancelTeleport:
+                    if (teleportCancelled)
                     {
                         AdvanceStep();
                     }
@@ -219,6 +256,8 @@ namespace LivingRoom30
         {
             Step step = Steps[stepIndex];
             stepEnteredAt = Time.unscaledTime;
+            teleportPerformed = false;
+            teleportCancelled = false;
 
             if (stepLabel != null)
             {
