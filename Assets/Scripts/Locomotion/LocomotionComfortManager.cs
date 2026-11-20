@@ -20,8 +20,9 @@ namespace LivingRoom30.Locomotion
     ///      raise the teleport arc, aim by turning the wrist, press X again to teleport, or press
     ///      the left secondary button (Y on Quest) to cancel.
     ///
-    /// The teleport lands only on upward-facing "Environment" surfaces (the floor). Furniture and
-    /// walls are rejected, which is exactly the "floor only" rule agreed for this review room.
+    /// The teleport arc is blocked by furniture and walls, and it only lands on an upward-facing
+    /// "Environment" surface (the floor) where the reviewer's body also fits without overlapping an
+    /// obstacle. Together these guarantees prevent teleporting inside furniture or walls.
     /// </summary>
     [DisallowMultipleComponent]
     public sealed class LocomotionComfortManager : MonoBehaviour
@@ -34,6 +35,9 @@ namespace LivingRoom30.Locomotion
         private const float TeleportMaxSeconds = 1.2f;
         private const float TeleportSampleStep = 0.04f;
         private const float FloorNormalTolerance = 0.7f;
+        private const float ClearanceRadius = 0.25f;   // player body radius (0.22) + comfort buffer
+        private const float ClearanceHeight = 1.75f;
+        private const float ClearanceMargin = 0.03f;
 
         private const float VignetteEaseInSeconds = 0.2f;
         private const float VignetteEaseOutSeconds = 0.3f;
@@ -66,6 +70,8 @@ namespace LivingRoom30.Locomotion
 
         private TeleportState teleportState = TeleportState.Idle;
         private int teleportLayerMask = -1;
+        private int clearanceLayerMask = -1;
+        private int environmentLayer = -1;
         private bool hasValidTarget;
         private Vector3 validTarget;
 
@@ -94,7 +100,9 @@ namespace LivingRoom30.Locomotion
 
             ApplyComfortSettings();
 
-            teleportLayerMask = LayerMask.GetMask("Environment");
+            teleportLayerMask = LayerMask.GetMask("Environment", "Furniture", "Interactable");
+            clearanceLayerMask = teleportLayerMask;
+            environmentLayer = LayerMask.NameToLayer("Environment");
             lineMaterial = new Material(Shader.Find("Sprites/Default")) { name = "LocomotionComfort_Line" };
             CreateInputActions();
             CreateTeleportProvider();
@@ -327,10 +335,16 @@ namespace LivingRoom30.Locomotion
                     Physics.Raycast(previous, segment / distance, out RaycastHit hit, distance, teleportLayerMask, QueryTriggerInteraction.Ignore))
                 {
                     arcPoints.Add(hit.point);
-                    bool valid = Vector3.Dot(hit.normal, Vector3.up) > FloorNormalTolerance;
-                    if (valid)
-                        landing = hit.point;
-                    return valid;
+
+                    // A floor landing is only on the Environment layer with an upward normal.
+                    // Furniture, interactable objects, walls and the ceiling all stop the arc red.
+                    bool isFloor = hit.collider.gameObject.layer == environmentLayer &&
+                                   Vector3.Dot(hit.normal, Vector3.up) > FloorNormalTolerance;
+                    if (!isFloor)
+                        return false;
+
+                    landing = hit.point;
+                    return IsLandingClear(hit.point);
                 }
 
                 arcPoints.Add(current);
@@ -338,6 +352,18 @@ namespace LivingRoom30.Locomotion
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// Returns true when the reviewer's body (approximated by the rig CharacterController
+        /// capsule) fits at the given floor point without overlapping furniture, walls or other
+        /// obstacles. The capsule is raised slightly so the floor itself never counts as a blocker.
+        /// </summary>
+        private bool IsLandingClear(Vector3 floorPoint)
+        {
+            Vector3 bottom = floorPoint + Vector3.up * (ClearanceRadius + ClearanceMargin);
+            Vector3 top = floorPoint + Vector3.up * (ClearanceHeight - ClearanceRadius + ClearanceMargin);
+            return !Physics.CheckCapsule(bottom, top, ClearanceRadius, clearanceLayerMask, QueryTriggerInteraction.Ignore);
         }
 
         private void DrawArc()
