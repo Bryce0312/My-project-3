@@ -12,10 +12,10 @@ namespace LivingRoom30
     /// enables, and again whenever another HMD device is added later. With a headset connected that
     /// leaves the head camera reading a static simulated pose, so the view stops following the head.
     ///
-    /// XR initializes asynchronously, well after <c>Awake</c>, so the decision cannot be made there.
-    /// This keeps the simulator off until XR has had time to come up, then enables it only if no XR
-    /// device is running.
+    /// Keep the simulator off until XR has had time to start, and never let it remove real HMDs.
+    /// Run before XRDeviceSimulator (-29991), including when an older scene has it enabled.
     /// </summary>
+    [DefaultExecutionOrder(-31000)]
     [DisallowMultipleComponent]
     [RequireComponent(typeof(XRDeviceSimulator))]
     public sealed class XRDeviceSimulatorGate : MonoBehaviour
@@ -37,8 +37,9 @@ namespace LivingRoom30
         private void Awake()
         {
             simulator = GetComponent<XRDeviceSimulator>();
-            // Runs before this object's OnEnable phase, so the simulator never subscribes to device
-            // changes and therefore never removes a headset that appears later.
+            // Disabling it alone is insufficient: a late HMD can arrive while desktop simulation
+            // is active. Preserve that device so OpenXR can take over without another Play cycle.
+            simulator.removeOtherHMDDevices = false;
             simulator.enabled = false;
         }
 
@@ -66,9 +67,8 @@ namespace LivingRoom30
 
         private void Update()
         {
-            // If the simulator was already enabled before the headset came up, release it
-            // immediately. The simulator strips other XRHMD devices from the Input System,
-            // which is exactly the symptom of a headset that suddenly stops tracking.
+            // Run before the simulator's Update so it cannot write another simulated pose once
+            // real XR is ready. OnDisable removes only the simulator's own devices.
             if (simulator != null && simulator.enabled && (XrIsRunning() || HeadDevicePresent()))
             {
                 simulator.enabled = false;

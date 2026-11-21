@@ -238,7 +238,7 @@ namespace LivingRoom30
                 if (m_RefreshTimer >= m_AutoRefreshInterval)
                 {
                     m_RefreshTimer = 0f;
-                    RefreshFurniture();
+                    RefreshFurnitureIfChanged();
                 }
             }
 
@@ -294,11 +294,37 @@ namespace LivingRoom30
                 Entry entry = new Entry
                 {
                     Info = info,
-                    Renderers = info.GetComponentsInChildren<Renderer>(),
+                    Renderers = CollectGeometryRenderers(info),
                     Colliders = info.GetComponentsInChildren<Collider>(),
                 };
                 m_Entries.Add(entry);
             }
+        }
+
+        private void RefreshFurnitureIfChanged()
+        {
+            var current = FindObjectsOfType<FurnitureInfo>();
+            if (current.Length != m_Entries.Count) { RefreshFurniture(); return; }
+            foreach (var info in current)
+            {
+                bool known = false;
+                foreach (var entry in m_Entries)
+                    if (entry.Info == info) { known = true; break; }
+                if (!known) { RefreshFurniture(); return; }
+            }
+        }
+
+        private static Renderer[] CollectGeometryRenderers(FurnitureInfo info)
+        {
+            var result = new List<Renderer>();
+            foreach (var renderer in info.GetComponentsInChildren<Renderer>())
+            {
+                // Destroy is deferred: never cache generated outlines during a same-frame rescan.
+                if (renderer is LineRenderer || renderer.GetComponent<TextMesh>() != null ||
+                    renderer.name.StartsWith("FurnitureOutline_", System.StringComparison.Ordinal)) continue;
+                result.Add(renderer);
+            }
+            return result.ToArray();
         }
 
         /// <summary>
@@ -392,10 +418,13 @@ namespace LivingRoom30
             // Contour-following border: inverted-hull, flush against the real mesh edge.
             if (m_ShowOutline)
             {
-                OutlineSet set = GetOrBuildOutlineSet(entry);
-                if (set != null)
+                var exterior = CabinetExteriorOutline.GetOrCreate(entry.Info.gameObject);
+                if (exterior != null)
+                    exterior.SetProximity(true, m_OutlineColor, m_OutlineWidth);
+                else
                 {
-                    EnableOutlineSet(set);
+                    OutlineSet set = GetOrBuildOutlineSet(entry);
+                    if (set != null) EnableOutlineSet(set);
                 }
             }
             else
@@ -663,6 +692,12 @@ namespace LivingRoom30
                 return;
             }
 
+            if (entry.Info != null)
+            {
+                var exterior = entry.Info.GetComponent<CabinetExteriorOutline>();
+                if (exterior != null) exterior.SetProximity(false, m_OutlineColor, m_OutlineWidth);
+            }
+
             if (m_OutlineSets.TryGetValue(entry, out OutlineSet set))
             {
                 for (int i = 0; i < set.Outlines.Count; i++)
@@ -681,6 +716,12 @@ namespace LivingRoom30
         /// </summary>
         private void ClearOutlineSets()
         {
+            foreach (var entry in m_Entries)
+                if (entry.Info != null)
+                {
+                    var exterior = entry.Info.GetComponent<CabinetExteriorOutline>();
+                    if (exterior != null) exterior.SetProximity(false, m_OutlineColor, m_OutlineWidth);
+                }
             foreach (var kvp in m_OutlineSets)
             {
                 OutlineSet set = kvp.Value;
@@ -693,6 +734,7 @@ namespace LivingRoom30
                 {
                     if (set.Outlines[i] != null)
                     {
+                        set.Outlines[i].SetActive(false);
                         Destroy(set.Outlines[i]);
                     }
                 }

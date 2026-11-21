@@ -75,12 +75,21 @@ public class Outline : MonoBehaviour {
   private List<ListVector3> bakeValues = new List<ListVector3>();
 
   private Renderer[] renderers;
+  private LivingRoom30.CabinetExteriorOutline cabinetExterior;
   private Material outlineMaskMaterial;
   private Material outlineFillMaterial;
 
   private bool needsUpdate;
 
   void Awake() {
+
+    // The articulated cabinet is outlined as one exterior frame, not as its internal shelves.
+    cabinetExterior = LivingRoom30.CabinetExteriorOutline.GetOrCreate(gameObject);
+    if (cabinetExterior != null) {
+      renderers = Array.Empty<Renderer>();
+      needsUpdate = true;
+      return;
+    }
 
     // Cache renderers
     renderers = GetComponentsInChildren<Renderer>();
@@ -100,6 +109,10 @@ public class Outline : MonoBehaviour {
   }
 
   void OnEnable() {
+    if (cabinetExterior != null) {
+      cabinetExterior.SetHighlight(true, outlineColor, outlineWidth);
+      return;
+    }
     foreach (var renderer in renderers) {
 
       // Append outline shaders
@@ -138,6 +151,10 @@ public class Outline : MonoBehaviour {
   }
 
   void OnDisable() {
+    if (cabinetExterior != null) {
+      cabinetExterior.SetHighlight(false, outlineColor, outlineWidth);
+      return;
+    }
     foreach (var renderer in renderers) {
 
       // Remove outline shaders
@@ -270,6 +287,10 @@ public class Outline : MonoBehaviour {
   }
 
   void UpdateMaterialProperties() {
+    if (cabinetExterior != null) {
+      cabinetExterior.SetHighlight(isActiveAndEnabled, outlineColor, outlineWidth);
+      return;
+    }
 
     // Apply properties according to mode
     outlineFillMaterial.SetColor("_OutlineColor", outlineColor);

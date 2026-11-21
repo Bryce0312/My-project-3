@@ -152,7 +152,6 @@ namespace LivingRoom30.Review
             header = Text(root, "Summary_Header", new Vector2(-45, 281), new Vector2(760, 43), "REVIEW RESULTS", 31);
             Button(root, "Summary_Close", new Vector2(398, 281), new Vector2(57, 57), "X", () =>
             {
-                Hide();
                 onClose?.Invoke();
             });
             statusText = Text(root, "Summary_Status", new Vector2(0, 239), new Vector2(850, 39), string.Empty, 20);

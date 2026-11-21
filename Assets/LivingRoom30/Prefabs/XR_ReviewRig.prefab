@@ -1667,14 +1667,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 5748289879087494106}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2213c36610e3b1c4bbf886810ed9db12, type: 3}
+  m_Script: {fileID: 11500000, guid: f4c761df6bd544b9910784c5908fe6c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_System: {fileID: 5243948060621553457}
-  m_TurnAmount: 45
-  m_DebounceTime: 0.5
+  m_TurnAmount: 30
+  m_DebounceTime: 0.35
   m_EnableTurnLeftRight: 1
-  m_EnableTurnAround: 1
+  m_EnableTurnAround: 0
   m_DelayTime: 0
   m_LeftHandSnapTurnAction:
     m_UseReference: 1

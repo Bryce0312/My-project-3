@@ -10,12 +10,16 @@ namespace LivingRoom30.Review
     /// Adds a hollow shell and two hinged doors to the authored F09 display cabinet.
     /// Existing door meshes, colliders and cabinet annotation events remain in place.
     /// </summary>
+    [DefaultExecutionOrder(-105)]
     [DisallowMultipleComponent]
     public sealed class ReviewCabinetDoors : MonoBehaviour
     {
         private const float SweepStepDegrees = 1f;
         private const float ContactMargin = .004f;
         private const float AngleTolerance = .01f;
+        private const float HandleReach = .16f;
+        private const float ClosedTolerance = 2f;
+        private const float OpenTolerance = 8f;
         private const string BlockedMessage = "Door movement is blocked. Step clear and try again.";
 
         [SerializeField, Range(80f, 110f)] private float openingAngle = 90f;
@@ -26,7 +30,21 @@ namespace LivingRoom30.Review
             public Transform Door, OriginalParent, Hinge;
             public int OriginalSibling;
             public float Sign;
+            public Transform Handle, PullHand;
+            public float Angle, TargetAngle, GrabStartAngle;
+            public Vector3 GrabStartDirection;
+            public bool MotorMoving;
             public readonly List<CollisionShape> Shapes = new List<CollisionShape>();
+        }
+
+        private sealed class Hand
+        {
+            public ActionBasedController Controller;
+            public XRRayInteractor[] Rays;
+            public XRInteractorLineVisual[] Lines;
+            public bool[] RayStates, LineStates;
+            public bool Suppressed, WasPressed, OwnsTriggerPress, AwaitRelease = true;
+            public int LeafIndex = -1;
         }
 
         private sealed class CollisionShape
@@ -53,25 +71,61 @@ namespace LivingRoom30.Review
         private readonly Collider[] overlaps = new Collider[128];
         private readonly List<Leaf> leaves = new List<Leaf>();
         private Material handleMaterial;
-        private bool interactionMapChanged, interactionAllowed = true;
-        private float angle, targetAngle;
+        private bool interactionMapChanged, interactionAllowed = true, xrAvailable;
+        private readonly List<Hand> hands = new List<Hand>(2);
+        private int settledState = 1;
         private Vector3 configuredScale;
         private bool cleaning;
 
         public bool IsReady { get; private set; }
-        public bool IsOpen => IsReady && !IsMoving && Mathf.Abs(angle - openingAngle) <= AngleTolerance;
-        public bool IsClosed => IsReady && !IsMoving && angle <= AngleTolerance;
-        public bool IsMoving { get; private set; }
-        public float OpenFraction => IsReady ? Mathf.Clamp01(angle / openingAngle) : 0f;
+        public bool IsOpen => IsReady && !IsMoving && leaves.TrueForAll(leaf => leaf.Angle >= openingAngle - OpenTolerance);
+        public bool IsClosed => IsReady && !IsMoving && leaves.TrueForAll(leaf => leaf.Angle <= ClosedTolerance);
+        public bool IsMoving => leaves.Exists(leaf => leaf.MotorMoving || leaf.PullHand != null);
+        public bool IsHandPulling => leaves.Exists(leaf => leaf.PullHand != null);
+        public float OpenFraction
+        {
+            get
+            {
+                if (!IsReady || leaves.Count == 0) return 0f;
+                float leastOpen = openingAngle;
+                foreach (Leaf leaf in leaves) leastOpen = Mathf.Min(leastOpen, leaf.Angle);
+                return Mathf.Clamp01(leastOpen / openingAngle);
+            }
+        }
         public string LastMessage { get; private set; } = string.Empty;
         public Collider LastBlockingCollider { get; private set; }
         public Bounds ClosedBounds { get; private set; }
         public Func<bool> CanInteract { get; set; }
         public event Action<bool> StateChanged;
         public event Action<string> ActionBlocked;
+        public event Action HandPullStarted;
         public Transform CabinetRoot => cabinet;
         public Transform LeftHinge => leaves.Count > 0 ? leaves[0].Hinge : null;
         public Transform RightHinge => leaves.Count > 1 ? leaves[1].Hinge : null;
+        public Transform LeftHandle => leaves.Count > 0 ? leaves[0].Handle : null;
+        public Transform RightHandle => leaves.Count > 1 ? leaves[1].Handle : null;
+
+        public void ConfigureHands(ActionBasedController left, ActionBasedController right)
+        {
+            ReleaseHands(true);
+            hands.Clear();
+            AddHand(left);
+            if (right != left) AddHand(right);
+        }
+
+        private void AddHand(ActionBasedController controller)
+        {
+            if (controller == null) return;
+            var hand = new Hand
+            {
+                Controller = controller,
+                Rays = controller.GetComponentsInChildren<XRRayInteractor>(true),
+                Lines = controller.GetComponentsInChildren<XRInteractorLineVisual>(true)
+            };
+            hand.RayStates = new bool[hand.Rays.Length];
+            hand.LineStates = new bool[hand.Lines.Length];
+            hands.Add(hand);
+        }
 
         public void Configure(Transform cabinetRoot)
         {
@@ -135,8 +189,7 @@ namespace LivingRoom30.Review
                 CreateLeaf(left, "ReviewCabinetHinge_Left", -.535f, 1f, handleMaterial != null ? handleMaterial : wood);
                 CreateLeaf(right, "ReviewCabinetHinge_Right", .535f, -1f, handleMaterial != null ? handleMaterial : wood);
                 UpdateInteractionColliders();
-                angle = targetAngle = 0f;
-                IsMoving = false;
+                settledState = 1;
                 IsReady = true;
                 LastMessage = string.Empty;
                 Physics.SyncTransforms();
@@ -189,8 +242,8 @@ namespace LivingRoom30.Review
             rigidbody.useGravity = false;
             rigidbody.interpolation = RigidbodyInterpolation.None;
             rigidbody.collisionDetectionMode = CollisionDetectionMode.ContinuousSpeculative;
-            AddBox(leaf.Hinge, "DoorHandle", new Vector3(sign * .477f, 0f, -.034f),
-                new Vector3(.025f, .15f, .04f), material);
+            leaf.Handle = AddBox(leaf.Hinge, "DoorHandle", new Vector3(sign * .477f, 0f, -.034f),
+                new Vector3(.025f, .15f, .04f), material).transform;
             foreach (Collider collider in leaf.Hinge.GetComponentsInChildren<Collider>())
             {
                 if (!collider.enabled || collider.isTrigger) continue;
@@ -298,6 +351,12 @@ namespace LivingRoom30.Review
             if (!allowed) StopMotion();
         }
 
+        public void SetXrAvailable(bool available)
+        {
+            xrAvailable = available && isActiveAndEnabled;
+            if (!xrAvailable) ReleaseHands();
+        }
+
         public bool TryOpen() => TryMove(openingAngle);
         public bool TryClose() => TryMove(0f);
         public bool TryResetClosed() => TryMove(0f);
@@ -305,23 +364,163 @@ namespace LivingRoom30.Review
         private bool TryMove(float destination)
         {
             if (!CommandAllowed(out string reason)) return Block(reason);
-            if (Mathf.Abs(angle - destination) <= AngleTolerance)
-            {
-                targetAngle = angle;
-                IsMoving = false;
-                LastMessage = string.Empty;
-                return true;
-            }
+            if (IsHandPulling) return Block("Release the cabinet handle before resetting its doors.");
             Physics.SyncTransforms();
-            if (!SweepClear(angle, destination))
+            foreach (Leaf leaf in leaves)
             {
-                StopMotion();
-                return Block(BlockedMessage);
+                if (!SweepLeafClear(leaf, leaf.Angle, destination))
+                {
+                    StopMotion();
+                    return Block(BlockedMessage);
+                }
             }
-            targetAngle = destination;
-            IsMoving = true;
+            foreach (Leaf leaf in leaves)
+            {
+                leaf.TargetAngle = destination;
+                leaf.MotorMoving = Mathf.Abs(leaf.Angle - destination) > AngleTolerance;
+            }
             LastMessage = string.Empty;
             return true;
+        }
+
+        /// <summary>Only a hand within reach of this handle can acquire a leaf; rays never call this.</summary>
+        public bool TryBeginHandPull(int doorIndex, Transform hand)
+        {
+            if (!xrAvailable || hand == null || doorIndex < 0 || doorIndex >= leaves.Count ||
+                !CommandAllowed(out _)) return false;
+            Leaf leaf = leaves[doorIndex];
+            if (leaf.Handle == null || leaf.PullHand != null ||
+                Vector3.Distance(hand.position, leaf.Handle.position) > HandleReach) return false;
+            foreach (Leaf other in leaves) if (other.PullHand == hand) return false;
+            Vector3 direction = FlatHandDirection(leaf, hand.position);
+            if (direction.sqrMagnitude < .01f) return false;
+            leaf.MotorMoving = false;
+            leaf.TargetAngle = leaf.Angle;
+            leaf.GrabStartAngle = leaf.Angle;
+            leaf.GrabStartDirection = direction;
+            leaf.PullHand = hand;
+            LastMessage = string.Empty;
+            HandPullStarted?.Invoke();
+            return true;
+        }
+
+        /// <summary>Release holds the accepted angle; the doors never finish opening by themselves.</summary>
+        public void EndHandPull(int doorIndex)
+        {
+            if (doorIndex < 0 || doorIndex >= leaves.Count) return;
+            Leaf leaf = leaves[doorIndex];
+            leaf.PullHand = null;
+            leaf.TargetAngle = leaf.Angle;
+            leaf.MotorMoving = false;
+            NotifySettledState();
+        }
+
+        private Vector3 FlatHandDirection(Leaf leaf, Vector3 position)
+        {
+            Vector3 direction = Quaternion.Inverse(cabinet.rotation) * (position - leaf.Hinge.position);
+            direction.y = 0f;
+            return direction;
+        }
+
+        private static bool HandTracked(Hand hand)
+        {
+            if (hand.Controller == null || !hand.Controller.isActiveAndEnabled) return false;
+            var state = hand.Controller.currentControllerState;
+            const UnityEngine.XR.InputTrackingState pose = UnityEngine.XR.InputTrackingState.Position |
+                UnityEngine.XR.InputTrackingState.Rotation;
+            return state.isTracked && (state.inputTrackingState & pose) == pose;
+        }
+
+        private static bool IsUiTargeted(Hand hand)
+        {
+            foreach (XRRayInteractor ray in hand.Rays)
+                if (ray != null && ray.isActiveAndEnabled && ray.TryGetCurrentUIRaycastResult(out var result) && result.isValid)
+                    return true;
+            return false;
+        }
+
+        private void UpdateHands()
+        {
+            foreach (Hand hand in hands)
+            {
+                bool tracked = xrAvailable && HandTracked(hand);
+                bool pressed = tracked && hand.Controller.activateInteractionState.active;
+                if (!tracked || !interactionAllowed)
+                {
+                    if (hand.LeafIndex >= 0) EndHandPull(hand.LeafIndex);
+                    hand.LeafIndex = -1;
+                    hand.AwaitRelease = true;
+                    hand.WasPressed = pressed;
+                    if (tracked && !pressed) hand.OwnsTriggerPress = false;
+                    if (hand.OwnsTriggerPress) SuppressRay(hand);
+                    else RestoreRay(hand);
+                    continue;
+                }
+                if (!pressed)
+                {
+                    if (hand.LeafIndex >= 0) EndHandPull(hand.LeafIndex);
+                    hand.LeafIndex = -1;
+                    hand.AwaitRelease = false;
+                    hand.OwnsTriggerPress = false;
+                    RestoreRay(hand);
+                }
+                else if (!hand.WasPressed && !hand.AwaitRelease && !IsUiTargeted(hand))
+                {
+                    int nearest = -1;
+                    float distance = HandleReach;
+                    for (int i = 0; i < leaves.Count; i++)
+                    {
+                        Leaf leaf = leaves[i];
+                        if (leaf.PullHand != null || leaf.Handle == null) continue;
+                        float candidate = Vector3.Distance(hand.Controller.transform.position, leaf.Handle.position);
+                        if (candidate <= distance) { nearest = i; distance = candidate; }
+                    }
+                    if (nearest >= 0 && TryBeginHandPull(nearest, hand.Controller.transform))
+                    {
+                        hand.LeafIndex = nearest;
+                        hand.OwnsTriggerPress = true;
+                        SuppressRay(hand);
+                        hand.Controller.SendHapticImpulse(.2f, .04f);
+                    }
+                }
+                if (hand.LeafIndex >= 0 || (hand.OwnsTriggerPress && pressed)) SuppressRay(hand);
+                hand.WasPressed = pressed;
+            }
+        }
+
+        private void SuppressRay(Hand hand)
+        {
+            if (!hand.Suppressed)
+            {
+                for (int i = 0; i < hand.Rays.Length; i++) hand.RayStates[i] = hand.Rays[i] != null && hand.Rays[i].enabled;
+                for (int i = 0; i < hand.Lines.Length; i++) hand.LineStates[i] = hand.Lines[i] != null && hand.Lines[i].enabled;
+                hand.Suppressed = true;
+            }
+            foreach (var ray in hand.Rays) if (ray != null) ray.enabled = false;
+            foreach (var line in hand.Lines) if (line != null) line.enabled = false;
+        }
+
+        private void RestoreRay(Hand hand)
+        {
+            // Desktop mode owns the disabled ray state. Restore only after XR returns.
+            if (!hand.Suppressed || !xrAvailable) return;
+            for (int i = 0; i < hand.Rays.Length; i++)
+                if (hand.Rays[i] != null) hand.Rays[i].enabled = hand.RayStates[i];
+            for (int i = 0; i < hand.Lines.Length; i++)
+                if (hand.Lines[i] != null) hand.Lines[i].enabled = hand.LineStates[i];
+            hand.Suppressed = false;
+        }
+
+        private void ReleaseHands(bool clearPressOwnership = false)
+        {
+            foreach (Leaf leaf in leaves) leaf.PullHand = null;
+            foreach (Hand hand in hands)
+            {
+                hand.LeafIndex = -1;
+                hand.AwaitRelease = true;
+                if (clearPressOwnership) hand.OwnsTriggerPress = false;
+                if (!hand.OwnsTriggerPress) RestoreRay(hand);
+            }
         }
 
         private bool CommandAllowed(out string reason)
@@ -341,13 +540,15 @@ namespace LivingRoom30.Review
 
         private bool Block(string message)
         {
+            bool changed = LastMessage != message;
             LastMessage = message;
-            ActionBlocked?.Invoke(message);
+            if (changed) ActionBlocked?.Invoke(message);
             return false;
         }
 
         private void Update()
         {
+            UpdateHands();
             if (!IsMoving) return;
             if (!CommandAllowed(out string reason))
             {
@@ -355,33 +556,71 @@ namespace LivingRoom30.Review
                 Block(reason);
                 return;
             }
-            // Limit angular movement after a slow frame; every accepted step is swept below.
-            float step = Mathf.Min(4f, Mathf.Max(0f, degreesPerSecond) * Time.unscaledDeltaTime);
-            float next = Mathf.MoveTowards(angle, targetAngle, step);
-            if (next == angle) return;
             Physics.SyncTransforms();
-            if (!SweepClear(angle, next))
-            {
-                StopMotion();
-                Block(BlockedMessage);
-                return;
-            }
-            angle = next;
             foreach (Leaf leaf in leaves)
             {
                 if (leaf.Hinge == null) { IsReady = false; StopMotion(); return; }
-                leaf.Hinge.localRotation = Quaternion.Euler(0f, leaf.Sign * angle, 0f);
+                if (leaf.PullHand != null)
+                {
+                    // Preserve the pickup offset: touching anywhere within the small handle zone
+                    // must not teleport the leaf. Project hand movement onto the vertical hinge.
+                    Vector3 hand = leaf.PullHand.position;
+                    Vector3 direction = FlatHandDirection(leaf, hand);
+                    if (direction.sqrMagnitude < .01f || direction.magnitude > 1f ||
+                        Mathf.Abs(hand.y - leaf.Handle.position.y) > .5f)
+                    {
+                        CancelLeafPull(leaf);
+                        continue;
+                    }
+                    leaf.TargetAngle = Mathf.Clamp(leaf.GrabStartAngle + leaf.Sign *
+                        Vector3.SignedAngle(leaf.GrabStartDirection, direction, Vector3.up), 0f, openingAngle);
+                    if (leaf.TargetAngle <= ClosedTolerance) leaf.TargetAngle = 0f;
+                    if (leaf.TargetAngle >= openingAngle - 2f) leaf.TargetAngle = openingAngle;
+                }
+                if (!leaf.MotorMoving && leaf.PullHand == null) continue;
+                // A tracking spike cannot sweep a full door through the room in one frame.
+                float speed = leaf.PullHand != null ? 250f : Mathf.Max(0f, degreesPerSecond);
+                float step = Mathf.Min(12f, speed * Time.unscaledDeltaTime);
+                float next = Mathf.MoveTowards(leaf.Angle, leaf.TargetAngle, step);
+                if (Mathf.Abs(next - leaf.Angle) <= AngleTolerance) continue;
+                if (!SweepLeafClear(leaf, leaf.Angle, next))
+                {
+                    CancelLeafPull(leaf);
+                    leaf.MotorMoving = false;
+                    leaf.TargetAngle = leaf.Angle;
+                    Block(BlockedMessage);
+                    continue;
+                }
+                leaf.Angle = next;
+                leaf.Hinge.localRotation = Quaternion.Euler(0f, leaf.Sign * next, 0f);
+                if (Mathf.Abs(next - leaf.TargetAngle) <= AngleTolerance) leaf.MotorMoving = false;
             }
             Physics.SyncTransforms();
-            if (Mathf.Abs(angle - targetAngle) <= AngleTolerance)
-            {
-                IsMoving = false;
-                LastMessage = string.Empty;
-                StateChanged?.Invoke(IsOpen);
-            }
+            NotifySettledState();
         }
 
-        private bool SweepClear(float start, float end)
+        private void CancelLeafPull(Leaf leaf)
+        {
+            leaf.PullHand = null;
+            foreach (Hand hand in hands)
+                if (hand.LeafIndex >= 0 && leaves[hand.LeafIndex] == leaf)
+                {
+                    hand.LeafIndex = -1;
+                    hand.AwaitRelease = true;
+                    // Retain this press until it ends; never pass a held grab Trigger to UI.
+                }
+        }
+
+        private void NotifySettledState()
+        {
+            int state = IsClosed ? 1 : IsOpen ? 2 : 0;
+            if (state == settledState) return;
+            settledState = state;
+            if (state == 0) return;
+            StateChanged?.Invoke(state == 2);
+        }
+
+        private bool SweepLeafClear(Leaf leaf, float start, float end)
         {
             LastBlockingCollider = null;
             int segments = Mathf.Max(1, Mathf.CeilToInt(Mathf.Abs(end - start) / SweepStepDegrees));
@@ -389,7 +628,6 @@ namespace LivingRoom30.Review
             for (int i = 0; i < segments; i++)
             {
                 float middle = start + segment * (i + .5f);
-                foreach (Leaf leaf in leaves)
                 {
                     if (leaf.Hinge == null) return false;
                     Quaternion rotation = cabinet.rotation * Quaternion.Euler(0f, leaf.Sign * middle, 0f);
@@ -419,16 +657,29 @@ namespace LivingRoom30.Review
 
         private void StopMotion()
         {
-            IsMoving = false;
-            targetAngle = angle;
+            ReleaseHands();
+            foreach (Leaf leaf in leaves)
+            {
+                leaf.MotorMoving = false;
+                leaf.TargetAngle = leaf.Angle;
+            }
+            NotifySettledState();
         }
 
-        private void OnDisable() => StopMotion();
+        private void OnDisable()
+        {
+            StopMotion();
+            // This component will no longer observe a future release. Never strand the ray when
+            // the journey itself is disabled; the caller owns any UI/desktop mode transition.
+            ReleaseHands(true);
+            xrAvailable = false;
+        }
 
         private void OnDestroy()
         {
             IsReady = false;
             StopMotion();
+            ReleaseHands(true);
             // The cabinet may already be tearing down. Its generated children follow that
             // hierarchy; do not reparent doors or register interactables during destruction.
             if (handleMaterial != null) Release(handleMaterial);
@@ -447,6 +698,7 @@ namespace LivingRoom30.Review
             cleaning = true;
             IsReady = false;
             StopMotion();
+            ReleaseHands(true);
             foreach (Collider collider in generatedColliders) if (collider != null) collider.enabled = false;
             if (interactionMapChanged && interactable != null)
             {

@@ -47,7 +47,7 @@ namespace LivingRoom30
         private static readonly Step[] Steps =
         {
             new Step { Instruction = "Push the LEFT stick to walk", Goal = StepGoal.Move, PartName = "ThumbStick", Hand = HighlightTarget.Left },
-            new Step { Instruction = "Push the RIGHT stick to turn", Goal = StepGoal.Turn, PartName = "ThumbStick", Hand = HighlightTarget.Right },
+            new Step { Instruction = "Push the RIGHT stick left/right to snap 30 degrees", Goal = StepGoal.Turn, PartName = "ThumbStick", Hand = HighlightTarget.Right },
             new Step { Instruction = "Press X to aim, then X to teleport", Goal = StepGoal.Teleport, PartName = "Button_B", Hand = HighlightTarget.Left, ShowBeacon = true },
             new Step { Instruction = "Press X to aim, then press Y to cancel", Goal = StepGoal.CancelTeleport, PartName = "Button_A", Hand = HighlightTarget.Left, ShowBeacon = true },
             // The trigger faces away from the eyes, so it needs a visible marker to pull the gaze
@@ -165,7 +165,12 @@ namespace LivingRoom30
                     }
                     break;
                 case StepGoal.Turn:
-                    if (Mathf.Abs(ReadTurn().x) > InputDeadzone)
+                    // Hemisphere snap turns accept rear/front diagonals whose horizontal axis
+                    // can be below the old tutorial threshold. The provider runs before this
+                    // Update, so Done confirms that a turn actually occurred.
+                    bool mappedTurnCompleted = turnProvider is HemisphereSnapTurnProvider
+                        && turnProvider.locomotionPhase == LocomotionPhase.Done;
+                    if (mappedTurnCompleted || Mathf.Abs(ReadTurn().x) > InputDeadzone)
                     {
                         AdvanceStep();
                     }
