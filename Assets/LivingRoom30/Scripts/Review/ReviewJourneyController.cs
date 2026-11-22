@@ -101,6 +101,8 @@ namespace LivingRoom30.Review
         private string currentHint;
         private bool ownsControlHint;
         private static readonly Vector3 Tv = new Vector3(0f, .995f, 2.414f);
+        // In the upright rig frame: right, up, forward. Keep the card clear of the working hand.
+        private static readonly Vector3 RightWristCardOffset = new Vector3(.28f, .19f, .40f);
         private const float TargetConfirmSeconds = .55f;
         private const float ArrivedFlashSeconds = .6f;
 
@@ -949,24 +951,46 @@ namespace LivingRoom30.Review
             Vector3 forward = Vector3.ProjectOnPlane(head.forward, Vector3.up).normalized;
             if (forward.sqrMagnitude < .1f) forward = Vector3.forward;
             Vector3 right = Vector3.Cross(Vector3.up, forward);
-            Vector3 desired;
-            bool followWrist = TryGetRightWristCardPosition(head, forward, out desired);
-            if (!followWrist)
-                desired = head.position + forward * .85f - Vector3.up * .32f;
-            float panelScale;
-            desired = SafeVisualPosition(head.position, desired, .16f, .15f, out panelScale);
-            float currentScale;
-            SafeVisualPosition(head.position, panel.transform.position, .16f, .15f, out currentScale);
-            if (followWrist != panelFollowingRightWrist) panelPositioned = false;
-            if (followWrist || !panelPositioned || Vector3.Distance(panel.transform.position, desired) > .15f || panelScale < .999f || currentScale < .999f)
+            if (panel.gameObject.activeSelf)
             {
-                bool snap = !panelPositioned || panelScale < .999f || currentScale < .999f;
-                float follow = 1f - Mathf.Exp(-(followWrist ? 18f : 7f) * Time.unscaledDeltaTime);
-                panel.transform.position = snap ? desired : Vector3.Lerp(panel.transform.position, desired, follow);
-                panelPositioned = true;
+                Vector3 desired;
+                bool followWrist = TryGetRightWristCardPosition(head, forward, out desired);
+                if (!followWrist)
+                    desired = head.position + forward * .85f - Vector3.up * .32f;
+                float basePanelScale = followWrist ? .00085f : .00115f;
+                Vector3 safePosition;
+                float panelScale;
+                bool hasSafePose = TryResolveGuideCardPose(camera, desired, basePanelScale, out safePosition, out panelScale);
+                if (followWrist != panelFollowingRightWrist) panelPositioned = false;
+                if (hasSafePose)
+                {
+                    bool currentSafe = panelPositioned && IsGuideCardPoseClear(head.position, panel.transform.position, panel.transform.localScale.x);
+                    Vector3 nextPosition = panel.transform.position;
+                    if (followWrist || !panelPositioned || !currentSafe ||
+                        Vector3.Distance(nextPosition, safePosition) > .15f || panelScale < .999f)
+                    {
+                        bool snap = !panelPositioned || !currentSafe || panelScale < .999f;
+                        float follow = 1f - Mathf.Exp(-(followWrist ? 18f : 7f) * Time.unscaledDeltaTime);
+                        nextPosition = snap ? safePosition : Vector3.Lerp(nextPosition, safePosition, follow);
+                    }
+                    // A moving door or the interpolated path can obstruct an otherwise safe target.
+                    if ((nextPosition - safePosition).sqrMagnitude > .000001f &&
+                        !IsGuideCardPoseClear(head.position, nextPosition, basePanelScale * panelScale))
+                        nextPosition = safePosition;
+                    panel.transform.position = nextPosition;
+                    panel.transform.localScale = Vector3.one * (basePanelScale * panelScale);
+                    panelPositioned = true;
+                }
+                else
+                {
+                    // There is no visible placement when the viewer is inside solid geometry.
+                    // Update re-evaluates normal visibility next frame, without changing task state.
+                    panel.gameObject.SetActive(false);
+                    panelPositioned = false;
+                }
+                panelFollowingRightWrist = followWrist;
             }
-            panelFollowingRightWrist = followWrist;
-            panel.transform.localScale = Vector3.one * ((followWrist ? .00085f : .00115f) * panelScale);
+            else panelPositioned = false;
             Face(panel.transform, head);
             Face(targetCanvas.transform, head);
             Face(seatCanvas.transform, head);
@@ -996,12 +1020,105 @@ namespace LivingRoom30.Review
                 ? Vector3.ProjectOnPlane(origin.forward, Vector3.up).normalized : forward;
             if (wristForward.sqrMagnitude < .1f) wristForward = forward;
             Vector3 wristRight = Vector3.Cross(Vector3.up, wristForward);
-            position = hand + wristForward * .35f + Vector3.up * .19f + wristRight * .15f;
+            position = hand + wristForward * RightWristCardOffset.z +
+                Vector3.up * RightWristCardOffset.y + wristRight * RightWristCardOffset.x;
             Vector3 fromHead = position - head.position;
             if (fromHead.sqrMagnitude < .55f * .55f)
                 position = head.position + (fromHead.sqrMagnitude > .001f ? fromHead.normalized : forward) * .55f;
             return true;
         }
+
+        private bool TryResolveGuideCardPose(Camera camera, Vector3 desired, float baseScale,
+            out Vector3 position, out float scale)
+        {
+            Vector3 head = camera.transform.position;
+            float nearDistance = Mathf.Max(.12f, camera.nearClipPlane + .05f);
+            if (TryFitGuideCardAlongView(head, desired, baseScale, nearDistance, out position, out scale))
+                return true;
+
+            // A hand can reach into a cabinet or around a corner. Prefer a nearby visible
+            // position over leaving the task card embedded in it; normal wrist following resumes
+            // as soon as the preferred position is clear again.
+            Vector3 forward = Vector3.ProjectOnPlane(camera.transform.forward, Vector3.up).normalized;
+            if (forward.sqrMagnitude < .1f) forward = Vector3.forward;
+            Vector3 right = Vector3.Cross(Vector3.up, forward);
+            for (int alternative = 0; alternative < 4; alternative++)
+            {
+                Vector3 target = head + forward * .6f;
+                if (alternative == 0) target += right * .20f - Vector3.up * .15f;
+                else if (alternative == 1) target -= Vector3.up * .20f;
+                else if (alternative == 2) target += Vector3.up * .18f;
+                else target -= right * .20f + Vector3.up * .15f;
+                if (TryFitGuideCardAlongView(head, target, baseScale, nearDistance, out position, out scale))
+                    return true;
+            }
+            position = desired;
+            scale = 1f;
+            return false;
+        }
+
+        private bool TryFitGuideCardAlongView(Vector3 head, Vector3 desired, float baseScale,
+            float nearDistance, out Vector3 position, out float scale)
+        {
+            Vector3 delta = desired - head;
+            float distance = delta.magnitude;
+            position = desired;
+            scale = 1f;
+            if (distance < nearDistance) return false;
+            float minimum = nearDistance / distance;
+            for (int step = 0; step <= 12; step++)
+            {
+                scale = Mathf.Lerp(1f, minimum, step / 12f);
+                position = head + delta * scale;
+                if (IsGuideCardPoseClear(head, position, baseScale * scale)) return true;
+            }
+            return false;
+        }
+
+        private bool IsGuideCardPoseClear(Vector3 head, Vector3 position, float worldScale)
+        {
+            Vector3 view = position - head;
+            if (view.sqrMagnitude < .001f || worldScale <= 0f) return false;
+            Quaternion rotation = Quaternion.LookRotation(view, Vector3.up);
+            Rect rect = ((RectTransform)panel.transform).rect;
+            Vector3 right = rotation * Vector3.right;
+            Vector3 up = rotation * Vector3.up;
+            Vector3 center = position + right * (rect.center.x * worldScale) + up * (rect.center.y * worldScale);
+            float halfWidth = rect.width * worldScale * .5f + .015f;
+            float halfHeight = rect.height * worldScale * .5f + .015f;
+            if (!GuideCardVolumeClear(center, new Vector3(halfWidth, halfHeight, .015f), rotation))
+                return false;
+
+            // Four growing box sweeps conservatively cover the complete view pyramid. This
+            // includes narrow poles between sample rays, and checks sweep starts explicitly
+            // because physics casts alone do not report a collider they already overlap.
+            Vector3 sight = center - head;
+            float length = sight.magnitude;
+            for (int slice = 0; slice < 4; slice++)
+            {
+                float endFraction = (slice + 1) / 4f;
+                Vector3 half = new Vector3(halfWidth * endFraction, halfHeight * endFraction, .0075f);
+                Vector3 start = head + sight * (slice / 4f);
+                if (!GuideCardVolumeClear(start, half, rotation)) return false;
+                int hits = Physics.BoxCastNonAlloc(start, half, sight / length, castHits, rotation,
+                    length / 4f, ~0, QueryTriggerInteraction.Ignore);
+                if (hits == castHits.Length) return false;
+                for (int i = 0; i < hits; i++) if (BlocksGuideCard(castHits[i].collider)) return false;
+            }
+            return true;
+        }
+
+        private bool GuideCardVolumeClear(Vector3 center, Vector3 half, Quaternion rotation)
+        {
+            int count = Physics.OverlapBoxNonAlloc(center, half, overlaps, rotation,
+                ~0, QueryTriggerInteraction.Ignore);
+            if (count == overlaps.Length) return false;
+            for (int i = 0; i < count; i++) if (BlocksGuideCard(overlaps[i])) return false;
+            return true;
+        }
+
+        private bool BlocksGuideCard(Collider collider) => collider != null &&
+            !(collider is CharacterController) && !collider.transform.IsChildOf(transform);
 
         private Vector3 SafeVisualPosition(Vector3 head, Vector3 desired, float radius, float margin, out float scale)
         {
