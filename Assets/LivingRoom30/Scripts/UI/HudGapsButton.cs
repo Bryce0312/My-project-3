@@ -78,7 +78,7 @@ namespace LivingRoom30
             }
 
             SpatialMeasureManager manager = ResolveManager();
-            bool showing = manager == null || manager.ProximityEnabled;
+            bool showing = manager != null && manager.ProximityEnabled;
             label.text = showing ? onText : offText;
         }
     }

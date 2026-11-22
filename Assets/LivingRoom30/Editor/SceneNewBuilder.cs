@@ -675,7 +675,7 @@ namespace LivingRoom30.Editor
                 new Vector2(ReviewHudHelpMinX, ReviewHudButtonRowMinY), new Vector2(ReviewHudHelpMaxX, ReviewHudButtonRowMaxY), "HELP");
 
             Button gapsButton = BuildHudButton(hud.transform, font, "Button_Gaps",
-                new Vector2(ReviewHudGapsMinX, ReviewHudButtonRowMinY), new Vector2(ReviewHudGapsMaxX, ReviewHudButtonRowMaxY), "GAPS ON");
+                new Vector2(ReviewHudGapsMinX, ReviewHudButtonRowMinY), new Vector2(ReviewHudGapsMaxX, ReviewHudButtonRowMaxY), "GAPS OFF");
             HudGapsButton gapsHandler = gapsButton.gameObject.AddComponent<HudGapsButton>();
             gapsHandler.Configure(gapsButton.GetComponentInChildren<Text>());
 

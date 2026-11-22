@@ -47,7 +47,7 @@ namespace LivingRoom30.Measurement
         // 邻近自动测距
         private ProximityMeasurer proximity;
         private MeasurementVisualizer proxViz;
-        public bool proximityEnabled = true;
+        public bool proximityEnabled = false;
 
         // 桌面行走模式（与轨道相机互斥）
         [Header("桌面行走")]

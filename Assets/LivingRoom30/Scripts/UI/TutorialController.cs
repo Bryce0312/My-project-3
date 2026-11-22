@@ -9,8 +9,7 @@ namespace LivingRoom30
 {
     /// <summary>
     /// Walks a first-time reviewer through the controls one step at a time. Each step only advances
-    /// once the reviewer has actually performed the action, so the panel cannot be dismissed by
-    /// reading past it.
+    /// once the reviewer has performed the action. Final wrist-menu pages advance explicitly.
     ///
     /// Phase one covers the controls themselves; phase two introduces what the tool produces —
     /// the automatic clearance readout and the annotation panel.
@@ -31,8 +30,10 @@ namespace LivingRoom30
             ClickPractice,
             ApproachFurniture,
             Informational,
+            EnableGaps,
             ToggleGaps,
             Annotate,
+            WristMenu,
         }
 
         private struct Step
@@ -54,6 +55,7 @@ namespace LivingRoom30
             // down to the hand before the glow on the trigger itself means anything.
             new Step { Instruction = "Look at your controller and press the TRIGGER", Goal = StepGoal.ClickPractice, PartName = "Trigger", Hand = HighlightTarget.Both, ShowBeacon = true },
             new Step { Instruction = "Walk close to the furniture", Goal = StepGoal.ApproachFurniture },
+            new Step { Instruction = "GAPS starts OFF\nTap LEFT wrist GAPS to show it", Goal = StepGoal.EnableGaps },
             new Step { Instruction = "Green numbers are the clearances", Goal = StepGoal.Informational },
             new Step { Instruction = "Press GAPS on your wrist to hide them", Goal = StepGoal.ToggleGaps },
             // The grip sits under the handle, out of sight in the same way the trigger is, so it gets
@@ -61,6 +63,9 @@ namespace LivingRoom30
             // "Bumper" is the model's name for it — the mesh sits lowest and furthest back, exactly
             // where a middle finger closes on the handle.
             new Step { Instruction = "Point at a decoration and press the GRIP to add a note", Goal = StepGoal.Annotate, PartName = "Bumper", Hand = HighlightTarget.Both, ShowBeacon = true },
+            new Step { Instruction = "GAPS: green distance bars\nOFF by default; tap to toggle", Goal = StepGoal.WristMenu },
+            new Step { Instruction = "PAUSE / RESUME: timer only\nHELP: replay this tutorial", Goal = StepGoal.WristMenu },
+            new Step { Instruction = "GUIDE: task directions\nEND REVIEW / RESULTS: issue list", Goal = StepGoal.WristMenu },
         };
 
         [SerializeField] private Text stepLabel;
@@ -77,6 +82,7 @@ namespace LivingRoom30
         private float stepEnteredAt;
         private bool teleportPerformed;
         private bool teleportCancelled;
+        private bool annotationOpened;
 
         public Text StepLabel => stepLabel;
         public Button PracticeButton => practiceButton;
@@ -200,14 +206,30 @@ namespace LivingRoom30
                         AdvanceStep();
                     }
                     break;
+                case StepGoal.EnableGaps:
+                    if (ClearancesMatch(true))
+                    {
+                        AdvanceStep();
+                    }
+                    break;
                 case StepGoal.ToggleGaps:
-                    if (!ClearancesVisible())
+                    if (ClearancesMatch(false))
                     {
                         AdvanceStep();
                     }
                     break;
                 case StepGoal.Annotate:
-                    if (AnnotationSpawner.currentActiveUI != null)
+                    if (!annotationOpened && AnnotationSpawner.currentActiveUI != null)
+                    {
+                        annotationOpened = true;
+                        if (stepLabel != null)
+                        {
+                            stepLabel.text = (stepIndex + 1) + " / " + Steps.Length +
+                                "\nSave or close the note to continue";
+                        }
+                        if (highlighter != null) highlighter.Clear();
+                    }
+                    else if (annotationOpened && AnnotationSpawner.currentActiveUI == null)
                     {
                         AdvanceStep();
                     }
@@ -234,12 +256,12 @@ namespace LivingRoom30
         }
 
         /// <summary>
-        /// The practice button is only shown for the step that asks for it, so pressing it must not
-        /// skip the other steps.
+        /// The action button advances click practice and the final reading pages only.
         /// </summary>
         private void OnPracticePressed()
         {
-            if (stepIndex < Steps.Length && Steps[stepIndex].Goal == StepGoal.ClickPractice)
+            if (stepIndex < Steps.Length &&
+                (Steps[stepIndex].Goal == StepGoal.ClickPractice || Steps[stepIndex].Goal == StepGoal.WristMenu))
             {
                 AdvanceStep();
             }
@@ -263,15 +285,25 @@ namespace LivingRoom30
             stepEnteredAt = Time.unscaledTime;
             teleportPerformed = false;
             teleportCancelled = false;
+            annotationOpened = false;
 
             if (stepLabel != null)
             {
-                stepLabel.text = (stepIndex + 1) + " / " + Steps.Length + "\n" + step.Instruction;
+                stepLabel.text = (stepIndex + 1) + " / " + Steps.Length +
+                    (step.Goal == StepGoal.WristMenu ? " - LEFT WRIST MENU" : "") + "\n" + step.Instruction;
             }
 
             if (practiceButton != null)
             {
-                practiceButton.gameObject.SetActive(step.Goal == StepGoal.ClickPractice);
+                bool menuPage = step.Goal == StepGoal.WristMenu;
+                practiceButton.gameObject.SetActive(step.Goal == StepGoal.ClickPractice || menuPage);
+                Text buttonLabel = practiceButton.GetComponentInChildren<Text>(true);
+                if (buttonLabel != null)
+                {
+                    buttonLabel.text = menuPage
+                        ? (stepIndex == Steps.Length - 1 ? "FINISH" : "NEXT")
+                        : "PRESS ME";
+                }
             }
 
             if (highlighter == null)
@@ -317,10 +349,10 @@ namespace LivingRoom30
             return false;
         }
 
-        private static bool ClearancesVisible()
+        private static bool ClearancesMatch(bool enabled)
         {
             SpatialMeasureManager manager = FindObjectOfType<SpatialMeasureManager>();
-            return manager == null || manager.ProximityEnabled;
+            return manager != null && manager.ProximityEnabled == enabled;
         }
 
         private Vector2 ReadMovement()
