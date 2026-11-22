@@ -9,7 +9,7 @@ namespace LivingRoom30
 {
     /// <summary>
     /// Walks a first-time reviewer through the controls one step at a time. Each step only advances
-    /// once the reviewer has performed the action. Final wrist-menu pages advance explicitly.
+    /// once the reviewer has performed the action.
     ///
     /// Phase one covers the controls themselves; phase two introduces what the tool produces —
     /// the automatic clearance readout and the annotation panel.
@@ -33,7 +33,6 @@ namespace LivingRoom30
             EnableGaps,
             ToggleGaps,
             Annotate,
-            WristMenu,
         }
 
         private struct Step
@@ -63,9 +62,6 @@ namespace LivingRoom30
             // "Bumper" is the model's name for it — the mesh sits lowest and furthest back, exactly
             // where a middle finger closes on the handle.
             new Step { Instruction = "Point at a decoration and press the GRIP to add a note", Goal = StepGoal.Annotate, PartName = "Bumper", Hand = HighlightTarget.Both, ShowBeacon = true },
-            new Step { Instruction = "GAPS: green distance bars\nOFF by default; tap to toggle", Goal = StepGoal.WristMenu },
-            new Step { Instruction = "PAUSE / RESUME: timer only\nHELP: replay this tutorial", Goal = StepGoal.WristMenu },
-            new Step { Instruction = "GUIDE: task directions\nEND REVIEW / RESULTS: issue list", Goal = StepGoal.WristMenu },
         };
 
         [SerializeField] private Text stepLabel;
@@ -256,12 +252,11 @@ namespace LivingRoom30
         }
 
         /// <summary>
-        /// The action button advances click practice and the final reading pages only.
+        /// The action button advances click practice only.
         /// </summary>
         private void OnPracticePressed()
         {
-            if (stepIndex < Steps.Length &&
-                (Steps[stepIndex].Goal == StepGoal.ClickPractice || Steps[stepIndex].Goal == StepGoal.WristMenu))
+            if (stepIndex < Steps.Length && Steps[stepIndex].Goal == StepGoal.ClickPractice)
             {
                 AdvanceStep();
             }
@@ -289,20 +284,16 @@ namespace LivingRoom30
 
             if (stepLabel != null)
             {
-                stepLabel.text = (stepIndex + 1) + " / " + Steps.Length +
-                    (step.Goal == StepGoal.WristMenu ? " - LEFT WRIST MENU" : "") + "\n" + step.Instruction;
+                stepLabel.text = (stepIndex + 1) + " / " + Steps.Length + "\n" + step.Instruction;
             }
 
             if (practiceButton != null)
             {
-                bool menuPage = step.Goal == StepGoal.WristMenu;
-                practiceButton.gameObject.SetActive(step.Goal == StepGoal.ClickPractice || menuPage);
+                practiceButton.gameObject.SetActive(step.Goal == StepGoal.ClickPractice);
                 Text buttonLabel = practiceButton.GetComponentInChildren<Text>(true);
                 if (buttonLabel != null)
                 {
-                    buttonLabel.text = menuPage
-                        ? (stepIndex == Steps.Length - 1 ? "FINISH" : "NEXT")
-                        : "PRESS ME";
+                    buttonLabel.text = "PRESS ME";
                 }
             }
 
